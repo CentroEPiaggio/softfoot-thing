@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<robot name="softfoot_thing" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<!-- Properties -->
+    <xacro:property name="const_pi" value="3.1415926535897931"/>
+	<xacro:property name="ankle_mass" value="0.1814"/>
+    <xacro:property name="harch_mass" value="2.35"/>
+    <xacro:property name="roll_mass" value="1.1"/>
+	<xacro:property name="velocity_scale" value="1"/>
+	<xacro:property name="effort_scale" value="1"/>
+
+	<xacro:property name="max_stiffness" value="5000"/>
+	<xacro:property name="min_stiffness" value="0"/>
+	<xacro:property name="rate_stiffness" value="20000"/>
+    
+    <!-- Gazebo and Transmission -->
+
+    <!-- Utilities -->
+    <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_inertia.xacro"/>
+    <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_materials.xacro"/>
+
+	<!-- URDF -->
+	<xacro:macro name="softfoot_thing" params="parent name *origin">
+
+		<!-- 1) Ankle of the foot - fixed to parent. -->
+		<joint name="${parent}_${name}_ankle_joint" type="fixed">
+			<xacro:insert_block name="origin"/>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<parent link="${parent}"/>
+			<child link="${name}_ankle_link"/>
+		</joint>
+
+		<link name="${name}_ankle_link">
+			<inertial>
+				<mass value="${ankle_mass}"/>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<cylinder_inertia_def radius="0.06" length="0.11" mass="${ankle_mass}"/>
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/ankle.stl" scale=" .001 .001 .001"/>
+				</geometry>
+				<material name="SoftFoot/Silver"/>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<cylinder radius="0.07" length="0.11"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<!-- 2) Front harch - joint along y-axis to pitch -->
+		<joint name="${name}_front_harch_joint" type="revolute">
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<axis xyz="0 1 0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
+			<dynamics friction="10.0" damping="1.0"/>
+			<parent link="${name}_ankle_link"/>
+			<child link="${name}_front_harch_link"/>
+		</joint>
+
+		<link name="${name}_front_harch_link">
+			<inertial>
+				<mass value="${harch_mass}"/>
+				<origin xyz="0 -0.06 0.130" rpy="0 0 0"/>
+				<cuboid_inertia_def length="0.12" width="0.06" height="0.260" mass="${harch_mass}"/>
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/front_harch_front.stl" scale=" .001 .001 .001"/>
+				</geometry>
+				<material name="SoftFoot/Silver"/>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0.0" rpy="0 0 0"/>
+				<geometry>
+					<sphere radius="0.07"/>
+				</geometry>
+			</collision>
+		</link>
+
+        <!-- 2) Front harch - stiffness -->
+        <joint name="${name}_front_harch_joint_stiffness" type="revolute">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+			<axis xyz="0 1 0"/>
+			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<parent link="${name}_ankle_link"/>
+			<child link="${name}_front_harch_dummy"/>
+		</joint>
+        
+		<link name="${name}_front_harch_dummy"/>
+
+        <!-- 3) Back harch - joint along y-axis to pitch -->
+		<joint name="${name}_back_harch_joint" type="revolute">
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
+			<dynamics friction="10.0" damping="1.0"/>
+			<parent link="${name}_ankle_link"/>
+			<child link="${name}_back_harch_link"/>
+		</joint>
+
+		<link name="${name}_back_harch_link">
+			<inertial>
+				<mass value="${harch_mass}"/>
+				<origin xyz="0 -0.06 0.130" rpy="0 0 0"/>
+				<cuboid_inertia_def length="0.12" width="0.06" height="0.260" mass="${harch_mass}"/>
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/front_harch_back.stl" scale=" .001 .001 .001"/>
+				</geometry>
+				<material name="SoftFoot/Silver"/>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<sphere radius="0.07"/>
+				</geometry>
+			</collision>
+		</link>
+
+        <!-- 3) Back harch - stiffness -->
+        <joint name="${name}_back_harch_joint_stiffness" type="revolute">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<parent link="${name}_ankle_link"/>
+			<child link="${name}_back_harch_dummy"/>
+		</joint>
+        
+		<link name="${name}_back_harch_dummy"/>
+
+        <!-- x) Roll driving joint - we suppose the roll joints move specularly -->
+		<joint name="${name}_roll_joint" type="revolute">
+			<origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
+			<dynamics friction="10.0" damping="1.0"/>
+			<parent link="${name}_front_harch_link"/>
+			<child link="${name}_roll_link"/>
+		</joint>
+        <link name="${name}_roll_link">
+			<inertial>
+				<xacro:insert_block name="negligible_inertia"/>
+			</inertial>
+		</link>
+
+        <!-- 4) Front roll - joint along x-axis to roll -->
+		<joint name="${name}_front_roll_joint" type="revolute">
+			<origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
+			<dynamics friction="10.0" damping="1.0"/>
+            <mimic joint="${name}_roll_joint" multiplier="1"/>
+			<parent link="${name}_front_harch_link"/>
+			<child link="${name}_front_roll_link"/>
+		</joint>
+
+		<link name="${name}_front_roll_link">
+			<inertial>
+				<mass value="${roll_mass}"/>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<cuboid_inertia_def length="0.12" width="0.06" height="0.260" mass="${roll_mass}"/>
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/roll_link_v04.stl" scale=" .001 .001 .001"/>
+				</geometry>
+				<material name="SoftFoot/Silver"/>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<sphere radius="0.07"/>
+				</geometry>
+			</collision>
+		</link>
+
+        <!-- 4) Front roll - stiffness -->
+        <joint name="${name}_front_roll_joint_stiffness" type="revolute">
+            <origin xyz="0.058 0 -0.028" rpy="0 0 0"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<parent link="${name}_front_harch_link"/>
+			<child link="${name}_front_roll_dummy"/>
+		</joint>
+        
+		<link name="${name}_front_roll_dummy"/>
+
+        <!-- 4) Back roll - joint along x-axis to roll -->
+		<joint name="${name}_back_roll_joint" type="revolute">
+			<origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
+			<dynamics friction="10.0" damping="1.0"/>
+            <mimic joint="${name}_roll_joint" multiplier="-1"/>
+			<parent link="${name}_back_harch_link"/>
+			<child link="${name}_back_roll_link"/>
+		</joint>
+
+		<link name="${name}_back_roll_link">
+			<inertial>
+				<mass value="${roll_mass}"/>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<cuboid_inertia_def length="0.12" width="0.06" height="0.260" mass="${roll_mass}"/>
+			</inertial>
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/roll_link_v04.stl" scale=" .001 .001 .001"/>
+				</geometry>
+				<material name="SoftFoot/Silver"/>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<sphere radius="0.07"/>
+				</geometry>
+			</collision>
+		</link>
+
+        <!-- 4) Back roll - stiffness -->
+        <joint name="${name}_back_roll_joint_stiffness" type="revolute">
+            <origin xyz="-0.058 0 -0.028" rpy="0 0 ${const_pi}"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<parent link="${name}_back_harch_link"/>
+			<child link="${name}_back_roll_dummy"/>
+		</joint>
+        
+		<link name="${name}_back_roll_dummy"/>
+
+	</xacro:macro>
+
+</robot>
