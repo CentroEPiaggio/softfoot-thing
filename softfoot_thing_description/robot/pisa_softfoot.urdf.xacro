@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding='utf-8'?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="softfoot_thing">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="pisa_softfoot">
 
   <!-- ARGS -->
 
   <!-- MODELS -->
+  <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing.urdf.xacro"/>
 
   <!-- WORLD -->
-  <!-- <link name="world"/>
-
-  <joint name="world_to_foot" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <parent link="world" />
-    <child link="foot_link0" />
-  </joint> -->
+  <link name="world"/>
 
   <!-- FOOT -->
-  <!-- <xacro:softfoot_thing /> -->
-
+  <xacro:softfoot_thing name="pisa_softfoot" parent="world">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:softfoot_thing>
 </robot>
