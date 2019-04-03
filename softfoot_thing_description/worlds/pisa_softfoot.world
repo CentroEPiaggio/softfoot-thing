@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <!-- Custom world for the softfoot_thing. -->
+  <!-- One can change this world to his needs or use another one. -->
+  
+  <world name="default">
+	
+		<!-- nothing yet -->
+
+  </world>
+  
+</sdf>

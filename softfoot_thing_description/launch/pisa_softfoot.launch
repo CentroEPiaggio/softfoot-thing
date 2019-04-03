@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+
+<!-- THIS FILE LAUNCHES THE PISA SOFTFOOT -->
+
+<launch>
+    
+    <!-- LAUNCH ARGUMENTS -->
+
+    <!-- START LAUNCH -->
+
+    <!-- Robot description -->
+
+    <!-- Joint state and robot state publishers of the full robot description -->
+
+    <!-- Joints Estimator -->
+
+    <!-- Hardware Interface and Controllers -->
+
+    <!-- RViz for visualization -->
+
+</launch>
