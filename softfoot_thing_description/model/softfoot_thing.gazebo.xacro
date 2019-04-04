@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:macro name="softfoot_thing_gazebo" params="name">
+
+		<gazebo>
+            <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+                <!-- <robotNamespace>${name}</robotNamespace> -->
+            </plugin>
+        </gazebo>
+
+		<gazebo reference="${name}_ankle_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_front_arch_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_back_arch_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_front_roll_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_back_roll_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+	</xacro:macro>
+
+</robot>

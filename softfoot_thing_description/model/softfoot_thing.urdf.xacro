@@ -14,6 +14,8 @@
 	<xacro:property name="rate_stiffness" value="20"/>
     
     <!-- Gazebo and Transmission -->
+	<xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing.gazebo.xacro"/>
+	<xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing.transmission.xacro"/>
 
     <!-- Utilities -->
     <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_inertia.xacro"/>
@@ -239,6 +241,10 @@
 		</joint>
         
 		<link name="${name}_back_roll_dummy"/>
+
+		<!-- Gazebo elements -->
+		<xacro:softfoot_thing_gazebo name="${name}"/>
+		<xacro:softfoot_thing_transmission name="${name}"/>
 
 	</xacro:macro>
 
