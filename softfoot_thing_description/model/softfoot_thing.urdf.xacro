@@ -24,11 +24,20 @@
 	<!-- URDF -->
 	<xacro:macro name="softfoot_thing" params="parent name *origin">
 
-		<!-- 1) Ankle of the foot - fixed to parent. -->
-		<joint name="${parent}_${name}_ankle_joint" type="fixed">
+		<!-- 0) Ankle base - fixed to parent. -->
+		<joint name="${parent}_${name}_ankle_base_joint" type="fixed">
 			<xacro:insert_block name="origin"/>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<parent link="${parent}"/>
+			<child link="${name}_ankle_base_link"/>
+		</joint>
+
+		<link name="${name}_ankle_base_link"/>
+		
+		<!-- 1) Ankle of the foot - fixed to parent. -->
+		<joint name="${name}_ankle_joint" type="fixed">
+			<origin xyz="0 0 -0.022" rpy="0 0 0"/>
+			<parent link="${name}_ankle_base_link"/>
 			<child link="${name}_ankle_link"/>
 		</joint>
 
@@ -77,7 +86,7 @@
 				<material name="SoftFoot/Silver"/>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0.0" rpy="0 0 0"/>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
 					<mesh filename="package://softfoot_thing_description/meshes/visual/front_arch_front.stl" scale=" .001 .001 .001"/>
 				</geometry>
@@ -148,6 +157,7 @@
 			<parent link="${name}_front_arch_link"/>
 			<child link="${name}_roll_link"/>
 		</joint>
+
         <link name="${name}_roll_link">
 			<inertial>
 				<xacro:insert_block name="negligible_inertia"/>
