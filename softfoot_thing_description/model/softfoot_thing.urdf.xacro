@@ -9,9 +9,9 @@
 	<xacro:property name="velocity_scale" value="1"/>
 	<xacro:property name="effort_scale" value="1"/>
 
-	<xacro:property name="max_stiffness" value="5000"/>
+	<xacro:property name="max_stiffness" value="10"/>
 	<xacro:property name="min_stiffness" value="0"/>
-	<xacro:property name="rate_stiffness" value="20000"/>
+	<xacro:property name="rate_stiffness" value="20"/>
     
     <!-- Gazebo and Transmission -->
 
@@ -46,7 +46,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<cylinder radius="0.07" length="0.11"/>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/ankle.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -55,8 +55,8 @@
 		<joint name="${name}_front_arch_joint" type="revolute">
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 1 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
-			<dynamics friction="10.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="1.0" damping="1.0"/>
 			<parent link="${name}_ankle_link"/>
 			<child link="${name}_front_arch_link"/>
 		</joint>
@@ -77,7 +77,7 @@
 			<collision>
 				<origin xyz="0 0 0.0" rpy="0 0 0"/>
 				<geometry>
-					<sphere radius="0.07"/>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/front_arch_front.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -87,7 +87,7 @@
             <origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 1 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
-			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="10" k_velocity="10"/>
 			<parent link="${name}_ankle_link"/>
 			<child link="${name}_front_arch_dummy"/>
 		</joint>
@@ -98,8 +98,8 @@
 		<joint name="${name}_back_arch_joint" type="revolute">
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 -1 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
-			<dynamics friction="10.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="1.0" damping="1.0"/>
 			<parent link="${name}_ankle_link"/>
 			<child link="${name}_back_arch_link"/>
 		</joint>
@@ -120,7 +120,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<sphere radius="0.07"/>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/front_arch_back.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -130,7 +130,7 @@
             <origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 -1 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
-			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="10" k_velocity="10"/>
 			<parent link="${name}_ankle_link"/>
 			<child link="${name}_back_arch_dummy"/>
 		</joint>
@@ -141,8 +141,8 @@
 		<joint name="${name}_roll_joint" type="revolute">
 			<origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
-			<dynamics friction="10.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="1.0" damping="1.0"/>
 			<parent link="${name}_front_arch_link"/>
 			<child link="${name}_roll_link"/>
 		</joint>
@@ -156,8 +156,8 @@
 		<joint name="${name}_front_roll_joint" type="revolute">
 			<origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
-			<dynamics friction="10.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="1.0" damping="1.0"/>
             <mimic joint="${name}_roll_joint" multiplier="1"/>
 			<parent link="${name}_front_arch_link"/>
 			<child link="${name}_front_roll_link"/>
@@ -179,7 +179,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<sphere radius="0.07"/>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/roll_link_v04.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -189,7 +189,7 @@
             <origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
-			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="10" k_velocity="10"/>
 			<parent link="${name}_front_arch_link"/>
 			<child link="${name}_front_roll_dummy"/>
 		</joint>
@@ -200,8 +200,8 @@
 		<joint name="${name}_back_roll_joint" type="revolute">
 			<origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
 			<axis xyz="1 0 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="176" velocity="${velocity_scale * 110 * const_pi / 180}" />
-			<dynamics friction="10.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="1.0" damping="1.0"/>
             <mimic joint="${name}_roll_joint" multiplier="-1"/>
 			<parent link="${name}_back_arch_link"/>
 			<child link="${name}_back_roll_link"/>
@@ -223,7 +223,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<sphere radius="0.07"/>
+					<mesh filename="package://softfoot_thing_description/meshes/visual/roll_link_v04.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -233,7 +233,7 @@
             <origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
-			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="30" k_velocity="30"/>
+			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="10" k_velocity="10"/>
 			<parent link="${name}_back_arch_link"/>
 			<child link="${name}_back_roll_dummy"/>
 		</joint>
