@@ -47,7 +47,7 @@ Visualization Manager:
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
       Value: true
-    - Alpha: 0.99
+    - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
       Enabled: true
@@ -57,6 +57,15 @@ Visualization Manager:
         Expand Link Details: false
         Expand Tree: false
         Link Tree Style: Links in Alphabetic Order
+        leg_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        pisa_softfoot_ankle_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         pisa_softfoot_ankle_link:
           Alpha: 1
           Show Axes: false
@@ -117,6 +126,10 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        leg_link:
+          Value: true
+        pisa_softfoot_ankle_base_link:
+          Value: true
         pisa_softfoot_ankle_link:
           Value: true
         pisa_softfoot_back_arch_dummy:
@@ -146,23 +159,25 @@ Visualization Manager:
       Show Names: false
       Tree:
         world:
-          pisa_softfoot_ankle_link:
-            pisa_softfoot_back_arch_dummy:
-              {}
-            pisa_softfoot_back_arch_link:
-              pisa_softfoot_back_roll_dummy:
-                {}
-              pisa_softfoot_back_roll_link:
-                {}
-            pisa_softfoot_front_arch_dummy:
-              {}
-            pisa_softfoot_front_arch_link:
-              pisa_softfoot_front_roll_dummy:
-                {}
-              pisa_softfoot_front_roll_link:
-                {}
-              pisa_softfoot_roll_link:
-                {}
+          leg_link:
+            pisa_softfoot_ankle_base_link:
+              pisa_softfoot_ankle_link:
+                pisa_softfoot_back_arch_dummy:
+                  {}
+                pisa_softfoot_back_arch_link:
+                  pisa_softfoot_back_roll_dummy:
+                    {}
+                  pisa_softfoot_back_roll_link:
+                    {}
+                pisa_softfoot_front_arch_dummy:
+                  {}
+                pisa_softfoot_front_arch_link:
+                  pisa_softfoot_front_roll_dummy:
+                    {}
+                  pisa_softfoot_front_roll_link:
+                    {}
+                  pisa_softfoot_roll_link:
+                    {}
       Update Interval: 0
       Value: true
   Enabled: true
@@ -196,15 +211,15 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 0.00347906
+        Y: 0.00889564
+        Z: -0.0403978
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 0.545397
+      Pitch: 0.290397
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.748573
+      Yaw: 1.07857
     Saved: ~
 Window Geometry:
   Displays:
