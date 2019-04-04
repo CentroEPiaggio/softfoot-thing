@@ -19,6 +19,10 @@
       <geometry>
         <cylinder length="0.1" radius="0.015"/>
       </geometry>
+      <material name="material.metal">
+        <texture />
+        <color rgba="0.1 0.1 0.1 1" />
+      </material>
     </visual>
   </link>
 

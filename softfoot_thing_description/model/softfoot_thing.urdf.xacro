@@ -52,7 +52,7 @@
 				<geometry>
 					<mesh filename="package://softfoot_thing_description/meshes/visual/ankle.stl" scale=" .001 .001 .001"/>
 				</geometry>
-				<material name="SoftFoot/Silver"/>
+				<material name="SoftFoot/Grey"/>
 			</visual>
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -83,7 +83,7 @@
 				<geometry>
 					<mesh filename="package://softfoot_thing_description/meshes/visual/front_arch_front.stl" scale=" .001 .001 .001"/>
 				</geometry>
-				<material name="SoftFoot/Silver"/>
+				<material name="SoftFoot/Grey"/>
 			</visual>
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -126,7 +126,7 @@
 				<geometry>
 					<mesh filename="package://softfoot_thing_description/meshes/visual/front_arch_back.stl" scale=" .001 .001 .001"/>
 				</geometry>
-				<material name="SoftFoot/Silver"/>
+				<material name="SoftFoot/Grey"/>
 			</visual>
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -186,7 +186,7 @@
 				<geometry>
 					<mesh filename="package://softfoot_thing_description/meshes/visual/roll_link_v04.stl" scale=" .001 .001 .001"/>
 				</geometry>
-				<material name="SoftFoot/Silver"/>
+				<material name="SoftFoot/Grey"/>
 			</visual>
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -230,7 +230,7 @@
 				<geometry>
 					<mesh filename="package://softfoot_thing_description/meshes/visual/roll_link_v04.stl" scale=" .001 .001 .001"/>
 				</geometry>
-				<material name="SoftFoot/Silver"/>
+				<material name="SoftFoot/Grey"/>
 			</visual>
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
