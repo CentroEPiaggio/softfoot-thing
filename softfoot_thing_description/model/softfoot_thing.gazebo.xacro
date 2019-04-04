@@ -3,11 +3,11 @@
 
 	<xacro:macro name="softfoot_thing_gazebo" params="name">
 
-		<gazebo>
+		<!-- <gazebo>
             <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-                <!-- <robotNamespace>${name}</robotNamespace> -->
+                <robotNamespace>${name}</robotNamespace>
             </plugin>
-        </gazebo>
+        </gazebo> -->
 
 		<gazebo reference="${name}_ankle_link">
 			<gravity>true</gravity>

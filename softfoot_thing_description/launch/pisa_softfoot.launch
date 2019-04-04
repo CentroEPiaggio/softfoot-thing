@@ -5,7 +5,9 @@
 <launch>
     
     <!-- LAUNCH ARGUMENTS -->
-    <arg name="gui" default="true"/>
+    <arg name="gui" default="false"/>
+    <arg name="sim" default="true"/>
+    <arg name="env_name" default="pisa_softfoot"/>
     <arg name="model" default="--inorder $(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
     <arg name="rvizconfig" default="$(find softfoot_thing_description)/configs/pisa_softfoot.rviz"/>
 
@@ -13,6 +15,23 @@
 
     <!-- Robot description -->
     <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)"/>
+
+    <!-- Load Gazebo simulation environment -->
+    <group unless="$(arg gui)">
+        <group if="$(arg sim)">
+            <include file="$(find gazebo_ros)/launch/empty_world.launch">
+                <arg name="world_name" value="$(find softfoot_thing_description)/worlds/$(arg env_name).world"/>
+                <arg name="paused" value="true"/>
+                <arg name="use_sim_time" value="true"/>
+                <arg name="gui" value="true"/>
+                <arg name="headless" value="true"/>
+		        <arg name="debug" value="false"/>
+	        </include>
+
+            <!-- Spawn the full robot into Gazebo  -->
+            <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model $(arg model) -param robot_description -unpause"/>
+        </group>
+    </group>
 
     <!-- Joint state and robot state publishers of the full robot description -->
     <param name="use_gui" value="$(arg gui)"/>

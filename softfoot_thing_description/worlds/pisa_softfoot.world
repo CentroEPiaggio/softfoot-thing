@@ -3,7 +3,7 @@
   <!-- Custom world for the softfoot_thing. -->
   <!-- One can change this world to his needs or use another one. -->
   
-  <world name="default">
+  <world name="pisa_softfoot_world">
 	
 		<!-- nothing yet -->
 
