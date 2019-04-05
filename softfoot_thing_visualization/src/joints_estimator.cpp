@@ -82,18 +82,22 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
     // Getting the joint's axis in world frame (TODO: parse local axis)
     Eigen::Vector3d loc_axis;
     if (pos == 0) {
-        Eigen::Vector3d loc_axis(0, 1, 0);
+        loc_axis << 0, 1, 0;
     } else if (pos == 1) {
-        Eigen::Vector3d loc_axis(0, -1, 0);
+        loc_axis << 0, -1, 0;
     } else if (pos == 2) {
-        Eigen::Vector3d loc_axis(1, 0, 0);
+        loc_axis << 1, 0, 0;
     } else {
         ROS_FATAL("JointsEstimator::get_joint_axis : You specified a joint name which is unknown to me! But this should have not happened!!!");
         this->je_nh_.shutdown();
     }
 
-    if (DEBUG_JE) std::cout << "Got axis for " << joint_name << ": " << joint_frame.rotation() * loc_axis << std::cout;
-    
+    if (DEBUG_JE) {
+        std::cout << "Got axis for " << joint_name << ": " << joint_frame.rotation() * loc_axis << std::endl;
+        std::cout << "Frame rotation is " << joint_frame.rotation() << std::endl;
+        std::cout << "Local axis is " << loc_axis << std::endl;
+    }
+
     // Return joint axis in global frame
     return joint_frame.rotation() * loc_axis;
 
@@ -127,7 +131,8 @@ void JointsEstimator::imu_callback(const qb_interface::anglesArray::ConstPtr &ms
     }
 
     if (DEBUG_JE) {
-        ROS_INFO_STREAM("Saved angles for foot " << this->foot_id_ << ": imus no. / - ");
+        ROS_INFO_STREAM("Saved angles for foot " << this->foot_id_ << ": imus no: ");
+        std::cout << "/ -";
         for (auto it : this->imu_poses_) {
             std::cout << it.id << " - ";
         }
