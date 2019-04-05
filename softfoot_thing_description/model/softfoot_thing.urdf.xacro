@@ -32,7 +32,11 @@
 			<child link="${name}_ankle_base_link"/>
 		</joint>
 
-		<link name="${name}_ankle_base_link"/>
+		<link name="${name}_ankle_base_link">
+			<inertial>
+				<xacro:insert_block name="negligible_inertia"/>
+			</inertial>
+		</link>
 		
 		<!-- 1) Ankle of the foot - fixed to parent. -->
 		<joint name="${name}_ankle_joint" type="fixed">
@@ -66,8 +70,8 @@
 		<joint name="${name}_front_arch_joint" type="revolute">
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 1 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
-			<dynamics friction="1.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="0.01" damping="0.01"/>
 			<parent link="${name}_ankle_link"/>
 			<child link="${name}_front_arch_link"/>
 		</joint>
@@ -94,7 +98,7 @@
 		</link>
 
         <!-- 2) Front arch - stiffness -->
-        <joint name="${name}_front_arch_joint_stiffness" type="revolute">
+        <!-- <joint name="${name}_front_arch_joint_stiffness" type="revolute">
             <origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 1 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
@@ -103,14 +107,14 @@
 			<child link="${name}_front_arch_dummy"/>
 		</joint>
         
-		<link name="${name}_front_arch_dummy"/>
+		<link name="${name}_front_arch_dummy"/> -->
 
         <!-- 3) Back arch - joint along y-axis to pitch -->
 		<joint name="${name}_back_arch_joint" type="revolute">
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 -1 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
-			<dynamics friction="1.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="0.01" damping="0.01"/>
 			<parent link="${name}_ankle_link"/>
 			<child link="${name}_back_arch_link"/>
 		</joint>
@@ -137,7 +141,7 @@
 		</link>
 
         <!-- 3) Back arch - stiffness -->
-        <joint name="${name}_back_arch_joint_stiffness" type="revolute">
+        <!-- <joint name="${name}_back_arch_joint_stiffness" type="revolute">
             <origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 -1 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
@@ -146,14 +150,14 @@
 			<child link="${name}_back_arch_dummy"/>
 		</joint>
         
-		<link name="${name}_back_arch_dummy"/>
+		<link name="${name}_back_arch_dummy"/> -->
 
         <!-- x) Roll driving joint - we suppose the roll joints move specularly -->
 		<joint name="${name}_roll_joint" type="revolute">
 			<origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
-			<dynamics friction="1.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="0.01" damping="0.01"/>
 			<parent link="${name}_front_arch_link"/>
 			<child link="${name}_roll_link"/>
 		</joint>
@@ -168,8 +172,8 @@
 		<joint name="${name}_front_roll_joint" type="revolute">
 			<origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
-			<dynamics friction="1.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="0.01" damping="0.01"/>
             <mimic joint="${name}_roll_joint" multiplier="1"/>
 			<parent link="${name}_front_arch_link"/>
 			<child link="${name}_front_roll_link"/>
@@ -197,7 +201,7 @@
 		</link>
 
         <!-- 4) Front roll - stiffness -->
-        <joint name="${name}_front_roll_joint_stiffness" type="revolute">
+        <!-- <joint name="${name}_front_roll_joint_stiffness" type="revolute">
             <origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
@@ -207,14 +211,14 @@
 			<child link="${name}_front_roll_dummy"/>
 		</joint>
         
-		<link name="${name}_front_roll_dummy"/>
+		<link name="${name}_front_roll_dummy"/> -->
 
         <!-- 4) Back roll - joint along x-axis to roll -->
 		<joint name="${name}_back_roll_joint" type="revolute">
 			<origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
 			<axis xyz="1 0 0"/>
-			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="10" velocity="${velocity_scale * 45 * const_pi / 180}" />
-			<dynamics friction="1.0" damping="1.0"/>
+			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="${velocity_scale * 45 * const_pi / 180}" />
+			<dynamics friction="0.01" damping="0.01"/>
             <mimic joint="${name}_roll_joint" multiplier="-1"/>
 			<parent link="${name}_back_arch_link"/>
 			<child link="${name}_back_roll_link"/>
@@ -242,7 +246,7 @@
 		</link>
 
         <!-- 4) Back roll - stiffness -->
-        <joint name="${name}_back_roll_joint_stiffness" type="revolute">
+        <!-- <joint name="${name}_back_roll_joint_stiffness" type="revolute">
             <origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
@@ -252,7 +256,7 @@
 			<child link="${name}_back_roll_dummy"/>
 		</joint>
         
-		<link name="${name}_back_roll_dummy"/>
+		<link name="${name}_back_roll_dummy"/> -->
 
 		<!-- Gazebo elements -->
 		<xacro:softfoot_thing_gazebo name="${name}"/>

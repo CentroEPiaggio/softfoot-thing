@@ -71,37 +71,21 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        pisa_softfoot_back_arch_dummy:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         pisa_softfoot_back_arch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        pisa_softfoot_back_roll_dummy:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         pisa_softfoot_back_roll_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        pisa_softfoot_front_arch_dummy:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         pisa_softfoot_front_arch_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        pisa_softfoot_front_roll_dummy:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         pisa_softfoot_front_roll_link:
           Alpha: 1
           Show Axes: false
@@ -132,19 +116,11 @@ Visualization Manager:
           Value: true
         pisa_softfoot_ankle_link:
           Value: true
-        pisa_softfoot_back_arch_dummy:
-          Value: true
         pisa_softfoot_back_arch_link:
-          Value: true
-        pisa_softfoot_back_roll_dummy:
           Value: true
         pisa_softfoot_back_roll_link:
           Value: true
-        pisa_softfoot_front_arch_dummy:
-          Value: true
         pisa_softfoot_front_arch_link:
-          Value: true
-        pisa_softfoot_front_roll_dummy:
           Value: true
         pisa_softfoot_front_roll_link:
           Value: true
@@ -162,18 +138,10 @@ Visualization Manager:
           leg_link:
             pisa_softfoot_ankle_base_link:
               pisa_softfoot_ankle_link:
-                pisa_softfoot_back_arch_dummy:
-                  {}
                 pisa_softfoot_back_arch_link:
-                  pisa_softfoot_back_roll_dummy:
-                    {}
                   pisa_softfoot_back_roll_link:
                     {}
-                pisa_softfoot_front_arch_dummy:
-                  {}
                 pisa_softfoot_front_arch_link:
-                  pisa_softfoot_front_roll_dummy:
-                    {}
                   pisa_softfoot_front_roll_link:
                     {}
                   pisa_softfoot_roll_link:
@@ -204,16 +172,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.269503
+      Distance: 0.531951
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.00347906
-        Y: 0.00889564
-        Z: -0.0403978
+        X: -0.0246955
+        Y: -0.0317688
+        Z: 0.124075
       Name: Current View
       Near Clip Distance: 0.01
       Pitch: 0.290397
