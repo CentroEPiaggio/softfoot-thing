@@ -13,15 +13,16 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   tf
   tf_conversions
+  qb_interface
 )
 
 catkin_package(
   INCLUDE_DIRS include
-  CATKIN_DEPENDS message_runtime std_msgs
-  # LIBRARIES ${PROJECT_NAME}_lib
+  CATKIN_DEPENDS std_msgs message_runtime
 )
 
 set(OBJECTS_SOURCE_FILES
+  src/joints_estimator.cpp
 )
 
 include_directories(
@@ -31,6 +32,6 @@ include_directories(
 )
 
 # NODE: Lower level position controls
-# add_executable(control_server src/control_server.cpp ${OBJECTS_SOURCE_FILES})
-# add_dependencies(control_server ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# target_link_libraries(control_server ${catkin_LIBRARIES} ${ROS_LIBRARIES})
+add_executable(${PROJECT_NAME}_joints_estimator src/joints_estimator_node.cpp ${OBJECTS_SOURCE_FILES})
+add_dependencies(${PROJECT_NAME}_joints_estimator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_joints_estimator ${catkin_LIBRARIES} ${ROS_LIBRARIES})
