@@ -11,7 +11,7 @@
 
   <!-- LEG -->
   <joint name="world_to_leg" type="fixed">
-    <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <origin xyz="0 0 0.2" rpy="0.0 0.0 0.0"/>
     <parent link="world"/>
     <child link="leg_link"/>
   </joint>
