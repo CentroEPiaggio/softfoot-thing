@@ -6,6 +6,7 @@
 #include "softfoot_thing_visualization/joints_estimator.h"
 
 #define     DEBUG_JE        1       // Prints out additional info
+#define     DEBUG_ANGLES    1       // Prints out only estimated angles
 
 using namespace softfoot_thing_visualization;
 
@@ -65,6 +66,7 @@ Eigen::Affine3d JointsEstimator::getTransform(std::string frame_1, std::string f
     tf::transformTFToEigen(transform, affine);
 
     return affine;
+
 }
 
 // Function to get the joint axes fron joint name
@@ -92,10 +94,11 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
         this->je_nh_.shutdown();
     }
 
+    // Debug print out
     if (DEBUG_JE) {
-        std::cout << "Got axis for " << joint_name << ": " << joint_frame.rotation() * loc_axis << std::endl;
-        std::cout << "Frame rotation is " << joint_frame.rotation() << std::endl;
-        std::cout << "Local axis is " << loc_axis << std::endl;
+        ROS_INFO_STREAM("Got axis for " << joint_name << ": \n" << joint_frame.rotation() * loc_axis);
+        ROS_INFO_STREAM("Frame rotation is \n" << joint_frame.rotation());
+        ROS_INFO_STREAM("Local axis is \n" << loc_axis << "\n");
     }
 
     // Return joint axis in global frame
@@ -103,19 +106,118 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
 
 }
 
-// Function to compute the joint angle from pair of imu ids
-float JointsEstimator::compute_angles_from_pair(std::pair<int, int> imu_pair){
+// Function to compute transform from rpy (as there seem to be no prebuilt function in Eigen)
+Eigen::Matrix3d JointsEstimator::create_rotation_matrix(double ax, double ay, double az){
+  
+  // Create elementary rpy, then compose and return
+  Eigen::Matrix3d rx =
+      Eigen::Matrix3d(Eigen::AngleAxisd(ax, Eigen::Vector3d(1, 0, 0)));
+  Eigen::Matrix3d ry =
+      Eigen::Matrix3d(Eigen::AngleAxisd(ay, Eigen::Vector3d(0, 1, 0)));
+  Eigen::Matrix3d rz =
+      Eigen::Matrix3d(Eigen::AngleAxisd(az, Eigen::Vector3d(0, 0, 1)));
 
-    // Getting joint name for current imu pair
+  return rz * ry * rx;
+
+}
+
+// Function to compute perpendicular plane to a given vector
+bool JointsEstimator::compute_perpendiculars(Eigen::Vector3d in, Eigen::Vector3d &out_1,
+    Eigen::Vector3d &out_2){
+
+    // If input vector is near to null, return
+    if((in - Eigen::Vector3d::Zero()).isMuchSmallerThan(0.0001)) return false;
+    
+    Eigen::Vector3d v; Eigen::Vector3d w;
+    // Checking if the input vector is on some main plane, else get traditional perpendicular
+    if (std::abs(in(0) - 0.0) < 0.0001) {
+        v << 1, 0, 0;
+    } else if (std::abs(in(1) - 0.0) < 0.0001) {
+        v << 0, 1, 0;
+    } else if (std::abs(in(2) - 0.0) < 0.0001) {
+        v << 0, 0, 1;
+    } else {
+        v << -in(1), in(0), in(2);
+    }
+
+    // Computing the next vector normal to both in and w
+    w = in.cross(v);
+
+    // Normalizing v and w and retuning
+    v.normalize(); w.normalize();
+    out_1 = v; out_2 = w;
+
+    // Debug print out
+    if (DEBUG_JE) {
+        ROS_INFO_STREAM("The normals to \n" << in << "\n are \n" << out_1 << "\n and \n" << out_2 << "\n");
+    }
+
+    return true;
+}
+
+// Function to compute the joint angle from pair of imu ids
+float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pair){
+
+    // 1) Getting joint name for current imu pair
     int pos = std::find(this->joint_pairs_.begin(), this->joint_pairs_.end(),
          imu_pair) - this->joint_pairs_.begin();
     if (pos >= this->joint_pairs_.size()) {
-        ROS_FATAL("JointsEstimator::compute_angles_from_pair : You specified an imu pair which is unknown to me!");
+        ROS_FATAL("JointsEstimator::compute_joint_state_from_pair : You specified an imu pair which is unknown to me!");
         this->je_nh_.shutdown();
     }
 
-    // Getting the joint axis for the joint
+    // 2) Getting the normalized joint axis for the joint
     Eigen::Vector3d tmp_axis = this->get_joint_axis(this->joint_names_[pos]);
+    tmp_axis.normalize();
+
+    // 3) Getting the plane normal to joint axis
+    Eigen::Vector3d perp_1; Eigen::Vector3d perp_2;
+    if(!this->compute_perpendiculars(tmp_axis, perp_1, perp_2)){
+        ROS_FATAL_STREAM("Could not compute the normal plane to the joint axis of " << this->joint_names_[pos]);
+        this->je_nh_.shutdown();
+    }
+
+    // 4) Trasforming one of the normals using the relative rotation of the imu pair
+    Eigen::Vector3d transformed = this->rel_poses_[pos] * perp_1;
+
+    // Debug print out
+    if (DEBUG_JE) {
+        ROS_INFO_STREAM("The rotated vector to \n" << perp_1 << "\n is \n" << transformed << "\n");
+    }
+
+    // 5) Re-projecting it to the normal plane
+    Eigen::Vector3d projected = transformed - (transformed.dot(tmp_axis) * tmp_axis);
+    projected.normalize();
+
+    // Debug print out
+    if (DEBUG_JE) {
+        ROS_INFO_STREAM("The normalized re-projected vector is \n" << projected << "\n");
+    }
+
+    // 6) Computing the angle between the initial normal and the rotated - projected one
+    double sin_js = (perp_1.cross(projected)).norm() / (perp_1.norm() * projected.norm());
+    double cos_js = perp_1.dot(projected);
+    float js = (float) atan2(sin_js, cos_js);
+    // float js = (float) acos((double) perp_1.dot(projected));
+
+    // 7) Return the found joint state
+    return js;
+
+}
+
+// Function to compute the relative transforms for all pairs
+void JointsEstimator::compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs){
+    
+    // Running through pairs and computing relative transforms
+    this->rel_poses_.clear();
+    Eigen::Matrix3d pose_1; Eigen::Matrix3d pose_2;
+    for (auto it : imu_pairs) {
+        pose_1 = this->create_rotation_matrix(this->imu_poses_.at(it.first).r,
+            this->imu_poses_.at(it.first).p, this->imu_poses_.at(it.first).y);
+        pose_2 = this->create_rotation_matrix(this->imu_poses_.at(it.second).r,
+            this->imu_poses_.at(it.second).p, this->imu_poses_.at(it.second).y);
+        this->rel_poses_.push_back(pose_1 * pose_2);
+    }
 
 }
 
@@ -130,16 +232,41 @@ void JointsEstimator::imu_callback(const qb_interface::anglesArray::ConstPtr &ms
         }
     }
 
+    // Debug print out
     if (DEBUG_JE) {
+        std::cout << "\n *-----------* \n IMU messages recieved \n *-----------* \n";
         ROS_INFO_STREAM("Saved angles for foot " << this->foot_id_ << ": imus no: ");
         std::cout << "/ -";
         for (auto it : this->imu_poses_) {
             std::cout << it.id << " - ";
         }
-        std::cout << "/" << std::endl;
+        std::cout << "/\n" << std::endl;
     }
 
+    // Computing all relevant transforms between imu pairs
+    this->compute_relative_trasforms(this->joint_pairs_);
+
+    if (this->joint_pairs_.size() != this->rel_poses_.size()) {
+        ROS_FATAL("Number of joints and relative trasforms do not match! This should not happen!");
+        this->je_nh_.shutdown();
+    }
+
+    // Debug print out
+    if (DEBUG_JE) {
+        ROS_INFO_STREAM("Saved relative trasforms between imu pairs: ");
+        std::cout << "---\n";
+        for (auto it : this->rel_poses_) {
+            std::cout << it << std::endl;
+            std::cout << "--" << std::endl;
+        }
+        std::cout << "---\n" << std::endl;
+    }
+    
     // Temporarily checking an angle for a pair
-    float tmp_angle = this->compute_angles_from_pair(this->joint_pairs_[0]);
+    float tmp_angle = this->compute_joint_state_from_pair(this->joint_pairs_[2]);
+    if (DEBUG_ANGLES) {
+        ROS_INFO_STREAM("The estimated joint angle for imu pair (" << this->joint_pairs_[2].first 
+            << ", " << this->joint_pairs_[2].second << ") is " << tmp_angle * 180.0/3.14159265 << "degs \n");
+    }
 
 }

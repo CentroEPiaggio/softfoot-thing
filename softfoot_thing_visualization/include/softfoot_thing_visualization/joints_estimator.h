@@ -10,6 +10,7 @@
 #include <ros/ros.h>
 #include <ros/node_handle.h>
 #include <string>
+#include <mutex>
 
 // MSG includes
 #include <sensor_msgs/JointState.h>
@@ -43,8 +44,17 @@ class JointsEstimator {
         // Function to get the joint axes fron joint name
         Eigen::Vector3d get_joint_axis(std::string joint_name);
 
+        // Function to compute transform from rpy (as there seem to be no prebuilt function in Eigen)
+        Eigen::Matrix3d create_rotation_matrix(double ax, double ay, double az);
+
+        // Function to compute perpendicular plane to a given vector
+        bool compute_perpendiculars(Eigen::Vector3d in, Eigen::Vector3d &out_1, Eigen::Vector3d &out_2);
+
         // Function to compute the joint angle from pair of imu ids
-        float compute_angles_from_pair(std::pair<int, int> imu_pair);
+        float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
+
+        // Function to compute the relative transforms for all pairs
+        void compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
 
         // Callback to imu angles topic
         void imu_callback(const qb_interface::anglesArray::ConstPtr &msg);
@@ -58,9 +68,10 @@ class JointsEstimator {
         tf::TransformListener tf_listener_;
         tf::StampedTransform stamped_transform_;
 
-        // Poses
+        // Poses and the mutex
+        std::mutex imu_mutex_;          // Not used for now as everything is done in callback.
         std::vector<qb_interface::angles> imu_poses_;
-        std::vector<Eigen::Affine3d> rel_poses_;
+        std::vector<Eigen::Matrix3d> rel_poses_;
 
         // Messages
         sensor_msgs::JointState joint_states_;
