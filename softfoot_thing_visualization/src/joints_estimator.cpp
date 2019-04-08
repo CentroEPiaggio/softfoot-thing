@@ -106,21 +106,6 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
 
 }
 
-// Function to compute transform from rpy (as there seem to be no prebuilt function in Eigen)
-Eigen::Matrix3d JointsEstimator::create_rotation_matrix(double ax, double ay, double az){
-  
-  // Create elementary rpy, then compose and return
-  Eigen::Matrix3d rx =
-      Eigen::Matrix3d(Eigen::AngleAxisd(ax, Eigen::Vector3d(1, 0, 0)));
-  Eigen::Matrix3d ry =
-      Eigen::Matrix3d(Eigen::AngleAxisd(ay, Eigen::Vector3d(0, 1, 0)));
-  Eigen::Matrix3d rz =
-      Eigen::Matrix3d(Eigen::AngleAxisd(az, Eigen::Vector3d(0, 0, 1)));
-
-  return rz * ry * rx;
-
-}
-
 // Function to compute perpendicular plane to a given vector
 bool JointsEstimator::compute_perpendiculars(Eigen::Vector3d in, Eigen::Vector3d &out_1,
     Eigen::Vector3d &out_2){
@@ -205,6 +190,21 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
 
 }
 
+// Function to compute transform from rpy (as there seem to be no prebuilt function in Eigen)
+Eigen::Matrix3d JointsEstimator::create_rotation_matrix(double ax, double ay, double az){
+  
+  // Create elementary rpy, then compose and return
+  Eigen::Matrix3d rx =
+      Eigen::Matrix3d(Eigen::AngleAxisd(this->deg2rad(ax), Eigen::Vector3d(1, 0, 0)));
+  Eigen::Matrix3d ry =
+      Eigen::Matrix3d(Eigen::AngleAxisd(this->deg2rad(ay), Eigen::Vector3d(0, 1, 0)));
+  Eigen::Matrix3d rz =
+      Eigen::Matrix3d(Eigen::AngleAxisd(this->deg2rad(az), Eigen::Vector3d(0, 0, 1)));
+
+  return rz * ry * rx;
+
+}
+
 // Function to compute the relative transforms for all pairs
 void JointsEstimator::compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs){
     
@@ -216,7 +216,7 @@ void JointsEstimator::compute_relative_trasforms(std::vector<std::pair<int, int>
             this->imu_poses_.at(it.first).p, this->imu_poses_.at(it.first).y);
         pose_2 = this->create_rotation_matrix(this->imu_poses_.at(it.second).r,
             this->imu_poses_.at(it.second).p, this->imu_poses_.at(it.second).y);
-        this->rel_poses_.push_back(pose_1 * pose_2);
+        this->rel_poses_.push_back(pose_1.transpose() * pose_2);
     }
 
 }
@@ -263,10 +263,10 @@ void JointsEstimator::imu_callback(const qb_interface::anglesArray::ConstPtr &ms
     }
     
     // Temporarily checking an angle for a pair
-    float tmp_angle = this->compute_joint_state_from_pair(this->joint_pairs_[2]);
+    float tmp_angle = this->compute_joint_state_from_pair(this->joint_pairs_[0]);
     if (DEBUG_ANGLES) {
-        ROS_INFO_STREAM("The estimated joint angle for imu pair (" << this->joint_pairs_[2].first 
-            << ", " << this->joint_pairs_[2].second << ") is " << tmp_angle * 180.0/3.14159265 << "degs \n");
+        ROS_INFO_STREAM("The estimated joint angle for imu pair (" << this->joint_pairs_[0].first 
+            << ", " << this->joint_pairs_[0].second << ") is " << this->rad2deg(tmp_angle) << "degs \n");
     }
 
 }

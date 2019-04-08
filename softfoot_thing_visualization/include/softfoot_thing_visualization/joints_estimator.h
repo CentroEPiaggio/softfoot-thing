@@ -44,20 +44,32 @@ class JointsEstimator {
         // Function to get the joint axes fron joint name
         Eigen::Vector3d get_joint_axis(std::string joint_name);
 
-        // Function to compute transform from rpy (as there seem to be no prebuilt function in Eigen)
-        Eigen::Matrix3d create_rotation_matrix(double ax, double ay, double az);
-
         // Function to compute perpendicular plane to a given vector
         bool compute_perpendiculars(Eigen::Vector3d in, Eigen::Vector3d &out_1, Eigen::Vector3d &out_2);
 
         // Function to compute the joint angle from pair of imu ids
         float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
 
+        // Function to compute transform from rpy (as there seem to be no prebuilt function in Eigen)
+        Eigen::Matrix3d create_rotation_matrix(double ax, double ay, double az);
+
         // Function to compute the relative transforms for all pairs
         void compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
 
         // Callback to imu angles topic
         void imu_callback(const qb_interface::anglesArray::ConstPtr &msg);
+
+        // Auxiliary funtion for deg2rad conversion
+        inline double deg2rad (double degrees) {
+            static const double k_pi_on_180 = 4.0 * atan (1.0) / 180.0;
+            return degrees * k_pi_on_180;
+        }
+
+        // Auxiliary funtion for rad2deg conversion
+        inline double rad2deg (double radians) {
+            static const double k_180_on_pi = 180.0 / 4.0 * atan (1.0);
+            return radians * k_180_on_pi;
+        }
 
         // ROS variables
         ros::NodeHandle je_nh_;
