@@ -23,6 +23,7 @@ catkin_package(
 
 set(OBJECTS_SOURCE_FILES
   src/joints_estimator.cpp
+  src/madgwick_filter.cpp
 )
 
 include_directories(
