@@ -14,7 +14,7 @@
     <!-- START LAUNCH -->
 
     <!-- Robot description -->
-    <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
 
     <!-- Load Gazebo simulation environment -->
     <group unless="$(arg gui)">
