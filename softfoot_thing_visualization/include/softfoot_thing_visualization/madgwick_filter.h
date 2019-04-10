@@ -30,14 +30,15 @@ class MadgwickFilter {
         // Function to initialize filter
         bool initialize(ros::NodeHandle& nh);
 
+        // Function to filter out relative quaternion form old relative quaternion, acc anf gyro
+        Eigen::Quaternion<float> filter(Eigen::Vector3d acc_1, Eigen::Vector3d gyro_1,
+            Eigen::Vector3d acc_2, Eigen::Vector3d gyro_2, Eigen::Vector3d acc_1_old,
+            Eigen::Vector3d acc_2_old, Eigen::Quaternion<float> Q_rel_old);
+
     private:
 
         // Function to parse parameters
         bool parse_parameters(ros::NodeHandle& nh);
-
-        // Function to filter out relative quaternion form old relative quaternion, acc anf gyro
-        Eigen::Quaternion<float> filter(Eigen::Vector3d acc_1, Eigen::Vector3d gyro_1,
-            Eigen::Vector3d acc_2, Eigen::Vector3d gyro_2, Eigen::Quaternion<float> Q_rel_old);
             
         /* AUXILIARY FUNCTIONS */
 
@@ -63,8 +64,9 @@ class MadgwickFilter {
         ros::NodeHandle mf_nh_;
 
         // Filter variables
-        double sampleFreq_ = 100;
-        double beta_ = 1;
+        double sampleFreq_ = 50;
+        double beta_ = 2.0;
+        double thGyro_ = 18;
 
 };
 

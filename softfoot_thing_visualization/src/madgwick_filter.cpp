@@ -5,7 +5,10 @@
 
 #include "softfoot_thing_visualization/madgwick_filter.h"
 
-#define     DEBUG_MF        1       // Prints out additional info
+#define     DEBUG_MF            1       // Prints out additional info
+
+#define     _MIN_ACC_NORM_      0.55
+#define     _MAX_ACC_NORM_      1.45
 
 using namespace softfoot_thing_visualization;
 
@@ -54,7 +57,8 @@ bool MadgwickFilter::parse_parameters(ros::NodeHandle& nh){
 
 // Function to filter out relative quaternion form old relative quaternion, acc anf gyro
 Eigen::Quaternion<float> MadgwickFilter::filter(Eigen::Vector3d acc_1, Eigen::Vector3d gyro_1,
-    Eigen::Vector3d acc_2, Eigen::Vector3d gyro_2, Eigen::Quaternion<float> Q_rel_old){
+    Eigen::Vector3d acc_2, Eigen::Vector3d gyro_2, Eigen::Vector3d acc_1_old,
+    Eigen::Vector3d acc_2_old, Eigen::Quaternion<float> Q_rel_old){
 
     // P = 1 / N = 2
 
@@ -71,6 +75,8 @@ Eigen::Quaternion<float> MadgwickFilter::filter(Eigen::Vector3d acc_1, Eigen::Ve
 
     Eigen::Vector3d aP = acc_1; 
     Eigen::Vector3d aN = acc_2;
+    Eigen::Vector3d aP_old = acc_1_old; 
+    Eigen::Vector3d aN_old = acc_2_old;
     Eigen::Vector4d gP, gN, g;
 
     Eigen::Vector3d fa;
@@ -78,6 +84,26 @@ Eigen::Quaternion<float> MadgwickFilter::filter(Eigen::Vector3d acc_1, Eigen::Ve
     Eigen::Vector4d qdot;
 
    	Eigen::Vector4d Napla;
+
+    // FIltering out acceleration outliers
+    if (aP.norm() < _MIN_ACC_NORM_) {
+		aP(0) = aP_old(0); 
+		aP(1) = aP_old(1); 
+		aP(2) = aP_old(2); 
+	} else if (aP.norm() > _MAX_ACC_NORM_) {
+		aP(0) = aP_old(0); 
+		aP(1) = aP_old(1); 
+		aP(2) = aP_old(2); 
+	}	
+	if (aN.norm() < _MIN_ACC_NORM_) {
+		aN(0) = aN_old(0); 
+		aN(1) = aN_old(1); 
+		aN(2) = aN_old(2);
+	} else if  (aN.norm() > _MAX_ACC_NORM_) {
+		aN(0) = aN_old(0); 
+		aN(1) = aN_old(1); 
+		aN(2) = aN_old(2);
+	}
 
     // Normalize 
  	aP = aP / aP.norm();
@@ -92,6 +118,14 @@ Eigen::Quaternion<float> MadgwickFilter::filter(Eigen::Vector3d acc_1, Eigen::Ve
     gN(1)  = gyro_2(0);  
     gN(2)  = gyro_2(1);  
     gN(3)  = gyro_2(2);
+
+    // Filtering gyro values
+    if (std::abs(gP(1)) < thGyro_)  gP(1) = 0;
+	if (std::abs(gP(2)) < thGyro_)  gP(2) = 0;
+	if (std::abs(gP(3)) < thGyro_)  gP(3) = 0;
+    if (std::abs(gN(1)) < thGyro_)  gN(1) = 0;
+	if (std::abs(gN(2)) < thGyro_)  gN(2) = 0;
+	if (std::abs(gN(3)) < thGyro_)  gN(3) = 0;
 
 	gP = gP*(M_PI/180);
 	gN = gN*(M_PI/180);

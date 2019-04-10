@@ -43,6 +43,15 @@ class JointsEstimator {
         // Function to parse parameters
         bool parse_parameters(ros::NodeHandle& nh);
 
+        // Function to get joint limits
+        bool get_joint_limits(ros::NodeHandle& nh);
+
+        // Function to enforce joint limits
+        void enforce_limits();
+
+        // Function to correct the offset form estimated angles
+        void correct_offset();
+
         // Function to echo transform from pair of frames
         Eigen::Affine3d getTransform(std::string frame_1, std::string frame_2);
 
@@ -55,8 +64,11 @@ class JointsEstimator {
         // Function to compute the joint angle from pair of imu ids
         float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
 
-        // Function to compute the relative transforms for all pairs
+        // Function to compute the relative transforms for all pairs (use if quaternions from topic are wrt global frame)
         void compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
+
+        // Function to compute the relative transforms for all pairs (uses madgwick filter with acc and gyro)
+        void filter_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
 
         // Function to fill joint states with est. values and publish
         void fill_and_publish(std::vector<float> joint_values);
@@ -97,22 +109,28 @@ class JointsEstimator {
         // Madgwick filter
         MadgwickFilter mw_filter;
 
-        // Poses and the mutex
-        std::mutex imu_mutex_;          // Not used for now as everything is done in callback.
+        // qb readings and the mutex
+        std::mutex imu_mutex_;                      // Not used for now as everything is done in callback.
         std::vector<qb_interface::quaternion> imu_poses_;
         std::vector<qb_interface::inertialSensor> imu_acc_;
         std::vector<qb_interface::inertialSensor> imu_gyro_;
         std::vector<Eigen::Quaternion<float>> rel_poses_;
 
+        // Old values
+        std::vector<Eigen::Vector3d> acc_1_olds_;
+        std::vector<Eigen::Vector3d> acc_2_olds_;
+
         // Joint variables
         std::vector<float> joint_values_;
         std::vector<float> joint_offset_;
+        std::vector<float> js_values_;              // js_values_ = joint_values_ - joint_offset_     
         std::vector<std::pair<float, float>> joint_limits_;
         sensor_msgs::JointState joint_states_;
 
         // Constants
         std::string foot_name_;
         int foot_id_;
+        std::string robot_name_;
         std::string imu_topic_ = "/qb_class_imu/quat";
         std::string imu_topic_acc_ = "/qb_class_imu/acc";
         std::string imu_topic_gyro_ = "/qb_class_imu/gyro";

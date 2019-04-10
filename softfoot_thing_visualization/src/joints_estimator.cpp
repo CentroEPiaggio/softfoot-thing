@@ -3,10 +3,16 @@
     This object tries to estimate the joint angles of foot from IMU poses.
 */
 
+#include <urdf/model.h>
+#include <kdl/tree.hpp>
+#include <kdl_parser/kdl_parser.hpp>
+
 #include "softfoot_thing_visualization/joints_estimator.h"
 
-#define     DEBUG_JE        0       // Prints out additional info
-#define     DEBUG_ANGLES    1       // Prints out only estimated angles
+#define     DEBUG_JE        0       // Prints out additional info about the Object
+#define     DEBUG_JS        0       // Prints out info about estimated joint states
+#define     DEBUG_PARSED    0       // Prints out info about parsed stuff
+#define     DEBUG_ANGLES    0       // Prints out only raw estimated angles
 
 using namespace softfoot_thing_visualization;
 
@@ -15,18 +21,19 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     // Initializing main variables
     this->foot_id_ = foot_id;
     this->foot_name_ = foot_name;
+    this->robot_name_ = this->foot_name_ + "_" + std::to_string(this->foot_id_);
 
     // Initializing ros variables
     this->je_nh_ = nh;
-    
-    this->sub_imu_ = this->je_nh_.subscribe<qb_interface::quaternionArray>(this->imu_topic_, 1, &JointsEstimator::imu_callback, this);
-    qb_interface::quaternionArray::ConstPtr temp_msg_1 = ros::topic::waitForMessage<qb_interface::quaternionArray>(this->imu_topic_, ros::Duration(2.0));
-    
+
     this->sub_imu_acc_ = this->je_nh_.subscribe<qb_interface::inertialSensorArray>(this->imu_topic_acc_, 1, &JointsEstimator::acc_callback, this);
     qb_interface::inertialSensorArray::ConstPtr temp_msg_2 = ros::topic::waitForMessage<qb_interface::inertialSensorArray>(this->imu_topic_acc_, ros::Duration(2.0));
     
     this->sub_imu_gyro_ = this->je_nh_.subscribe<qb_interface::inertialSensorArray>(this->imu_topic_gyro_, 1, &JointsEstimator::gyro_callback, this);
     qb_interface::inertialSensorArray::ConstPtr temp_msg_3 = ros::topic::waitForMessage<qb_interface::inertialSensorArray>(this->imu_topic_gyro_, ros::Duration(2.0));
+    
+    this->sub_imu_ = this->je_nh_.subscribe<qb_interface::quaternionArray>(this->imu_topic_, 1, &JointsEstimator::imu_callback, this);
+    qb_interface::quaternionArray::ConstPtr temp_msg_1 = ros::topic::waitForMessage<qb_interface::quaternionArray>(this->imu_topic_, ros::Duration(2.0));
     
     this->pub_js_ = this->je_nh_.advertise<sensor_msgs::JointState>
         ("/" + this->foot_name_ + "_" + std::to_string(this->foot_id_) + "/joint_states", 1);
@@ -34,18 +41,18 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     // Initializing the Madgwick filter
     this->mw_filter.initialize(this->je_nh_);
 
-    // Parsing needed parameters
-    if(!this->parse_parameters(this->je_nh_)){
-        ROS_FATAL("JointsEstimator::JointsEstimator : Could not get parameters for building estimator!");
-        this->je_nh_.shutdown();
-    }
-
     // Temporarily building parsable variables here (TODO: parse them)
-    this->use_filter = false;
+    this->use_filter = true;
     this->joint_pairs_ = {{0, 1}, {0, 3}, {1, 2}};
     this->joint_names_ = {"front_arch_joint", "back_arch_joint", "roll_joint"};
     this->joint_frame_names_ = {"front_arch_link", "back_arch_link", "roll_link"};
     this->joint_offset_ = {1.90, 1.98, 2.74};
+
+    // Parsing needed parameters
+    if (!this->parse_parameters(this->je_nh_)) {
+        ROS_FATAL("JointsEstimator::JointsEstimator : Could not get parameters for building estimator!");
+        this->je_nh_.shutdown();
+    }
 
     // Filling up main parts of the joint state msg and setting size of values
     for (auto it : this->joint_names_) {
@@ -53,10 +60,31 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
         this->joint_states_.position.push_back(0.0);
     }
     this->joint_values_.resize(this->joint_pairs_.size());
+    this->js_values_.resize(this->joint_pairs_.size());
 
     // Setting relative poses to identity at the beginning
+    if (this->use_filter) this->rel_poses_.resize(this->joint_pairs_.size());
     for (auto it : this->rel_poses_) {
-        it.setIdentity();
+        it = Eigen::Quaternion<float>(1.0, 0.0, 0.0, 0.0);
+    }
+
+    // Debug print out
+    if (DEBUG_JE || true) {
+        ROS_INFO_STREAM("Starting relative quaternions between imu pairs: ");
+        std::cout << "---\n";
+        for (auto it : this->rel_poses_) {
+            std::cout << it.toRotationMatrix().eulerAngles(2, 1, 0) << std::endl;
+            std::cout << "--" << std::endl;
+        }
+        std::cout << "---\n" << std::endl;
+    }
+
+    // Setting old accelerations to null
+    this->acc_1_olds_.resize(this->joint_pairs_.size());
+    this->acc_2_olds_.resize(this->joint_pairs_.size());
+    for (int i = 0; i < this->joint_pairs_.size(); i++) {
+        this->acc_1_olds_[i] = Eigen::Vector3d::Zero();
+        this->acc_2_olds_[i] = Eigen::Vector3d::Zero();
     }
 
 }
@@ -71,7 +99,90 @@ JointsEstimator::~JointsEstimator(){
 bool JointsEstimator::parse_parameters(ros::NodeHandle& nh){
     
     // TODO: parse needed params
+
+    // Parsing joint limits of the foot (joint_names_ needs to be set before)
+    if (!this->get_joint_limits(nh)) {
+        ROS_FATAL("Unable to get the joint limits for %s!", this->robot_name_.c_str());
+        return false;
+    }
+
+    // Everything parsed correctly
     return true;
+
+}
+
+// Function to get joint limits
+bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
+    
+    // Construct an URDF model from the xml string
+    std::string xml_string;
+    if (!nh.getParam("robot_description", xml_string)) {
+        ROS_FATAL("Cannot find robot_description, shutting down!");
+        return false;
+    }
+    
+    if (xml_string.size() == 0) {
+        ROS_FATAL("Unable to load robot model from robot_description!");
+        return false;
+    }
+    
+    // Get urdf model out of robot_description
+    urdf::Model model;
+    if (!model.initString(xml_string)) {
+        ROS_FATAL("Failed to get robot model from description!");
+        return false;
+    }
+    
+    KDL::Tree kdl_tree;
+    if (!kdl_parser::treeFromUrdfModel(model, kdl_tree)) {
+        ROS_ERROR("Failed to construct kdl tree");
+        return false;
+    }
+
+    // Get the joint limits from the tree according to robot name
+    bool all_limits_found = true;
+    boost::shared_ptr<const urdf::Joint> joint;
+    this->joint_limits_.resize(this->joint_names_.size());
+    for (int i = 0; i < this->joint_names_.size(); i++) {
+        joint = model.getJoint(this->robot_name_ + "_" + this->joint_names_[i]);
+        this->joint_limits_[i] = {joint->limits->lower, joint->limits->upper};
+    }
+
+    if (DEBUG_PARSED) {
+        ROS_INFO_STREAM("The joint limits of " << this->robot_name_ << " are ");
+        std::cout << "/ - ";
+        for (auto it : this->joint_limits_) {
+            std::cout << "(" << it.first << ", " << it.second << ") ";
+        }
+        std::cout << "- /\n" << std::endl;
+    }
+
+    // After everything return success
+    return true;
+
+}
+
+// Function to enforce joint limits
+void JointsEstimator::enforce_limits(){
+    
+    // Saturate if estimated joint values outside limits
+    for (int i = 0; i < this->js_values_.size(); i++) {
+        if (this->js_values_[i] <= this->joint_limits_[i].first) {
+            this->js_values_[i] = this->joint_limits_[i].first;
+        } else if (this->js_values_[i] >= this->joint_limits_[i].second) {
+            this->js_values_[i] = this->joint_limits_[i].second;
+        }
+    }
+
+}
+
+// Function to correct the offset form estimated angles
+void JointsEstimator::correct_offset(){
+
+    // Compute the real joint states by removing the offset
+    for (int i = 0; i < this->joint_values_.size(); i++) {
+        this->js_values_[i] = this->joint_values_[i] - this->joint_offset_[i];
+    }
 
 }
 
@@ -108,7 +219,7 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
         ROS_FATAL("JointsEstimator::get_joint_axis : You specified a joint name which is unknown to me!");
         this->je_nh_.shutdown();
     }
-    Eigen::Affine3d joint_frame = this->getTransform("world", this->foot_name_ + "_" + std::to_string(this->foot_id_) + "_" + this->joint_frame_names_[pos]);
+    // Eigen::Affine3d joint_frame = this->getTransform("world", this->foot_name_ + "_" + std::to_string(this->foot_id_) + "_" + this->joint_frame_names_[pos]);
 
     // Getting the joint's axis in world frame (TODO: parse local axis)
     Eigen::Vector3d loc_axis;
@@ -124,11 +235,11 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
     }
 
     // Debug print out
-    if (DEBUG_JE) {
-        ROS_INFO_STREAM("Got axis for " << joint_name << ": \n" << joint_frame.rotation() * loc_axis);
-        ROS_INFO_STREAM("Frame rotation is \n" << joint_frame.rotation());
-        ROS_INFO_STREAM("Local axis is \n" << loc_axis << "\n");
-    }
+    // if (DEBUG_JE) {
+    //     ROS_INFO_STREAM("Got axis for " << joint_name << ": \n" << joint_frame.rotation() * loc_axis);
+    //     ROS_INFO_STREAM("Frame rotation is \n" << joint_frame.rotation());
+    //     ROS_INFO_STREAM("Local axis is \n" << loc_axis << "\n");
+    // }
 
     // Return joint axis in global frame
     // return joint_frame.rotation() * loc_axis;
@@ -187,7 +298,7 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
 
     // 3) Getting the plane normal to joint axis
     Eigen::Vector3d perp_1; Eigen::Vector3d perp_2;
-    if(!this->compute_perpendiculars(tmp_axis, perp_1, perp_2)){
+    if (!this->compute_perpendiculars(tmp_axis, perp_1, perp_2)) {
         ROS_FATAL_STREAM("Could not compute the normal plane to the joint axis of " << this->joint_names_[pos]);
         this->je_nh_.shutdown();
     }
@@ -220,7 +331,7 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
 
 }
 
-// Function to compute the relative transforms for all pairs
+// Function to compute the relative transforms for all pairs (use if quaternions from topic are wrt global frame)
 void JointsEstimator::compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs){
     
     // Running through pairs and computing relative transforms
@@ -237,13 +348,43 @@ void JointsEstimator::compute_relative_trasforms(std::vector<std::pair<int, int>
 
 }
 
+// Function to compute the relative transforms for all pairs (uses madgwick filter with acc and gyro)
+void JointsEstimator::filter_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs){
+
+    // Creating the necessary inputs of the filter
+    Eigen::Vector3d acc_1, gyro_1, acc_2, gyro_2;
+
+    int i = 0;
+    for (auto it : imu_pairs) {
+        // Setting acceleration and angular velocity of pair
+        acc_1 << this->imu_acc_.at(it.first).x, this->imu_acc_.at(it.first).y, this->imu_acc_.at(it.first).z;
+        gyro_1 << this->imu_gyro_.at(it.first).x, this->imu_gyro_.at(it.first).y, this->imu_gyro_.at(it.first).z;
+        acc_2 << this->imu_acc_.at(it.second).x, this->imu_acc_.at(it.second).y, this->imu_acc_.at(it.second).z;
+        gyro_2 << this->imu_gyro_.at(it.second).x, this->imu_gyro_.at(it.second).y, this->imu_gyro_.at(it.second).z;
+
+        // Filter the quaternion
+        this->rel_poses_[i] = this->mw_filter.filter(acc_1, gyro_1, acc_2, gyro_2, this->acc_1_olds_[i],
+            this->acc_2_olds_[i], this->rel_poses_[i]);
+
+        // Save olds and increase index
+        this->acc_1_olds_[i] = acc_1;
+        this->acc_2_olds_[i] = acc_2;
+        i++;
+    }
+
+}
+
 // Function to fill joint states with est. values and publish
 void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
+
+    // Correcting offste and enforcing the limits on current estimation
+    this->correct_offset();
+    this->enforce_limits();
 
     // Filling up the msg and publishing
     this->joint_states_.header.stamp = ros::Time::now();
     for (int i = 0; i < this->joint_values_.size(); i++) {
-        this->joint_states_.position[i] = (this->joint_values_[i] - this->joint_offset_[i]);
+        this->joint_states_.position[i] = (this->js_values_[i]);
     }
     this->pub_js_.publish(this->joint_states_);
 
@@ -255,7 +396,7 @@ void JointsEstimator::imu_callback(const qb_interface::quaternionArray::ConstPtr
     // Get the imu angles of foot after clearing old angles
     this->imu_poses_.resize(4);
     for (int i = 0; i < msg->m.size(); i++) {
-        if(msg->m[i].board_id == this->foot_id_){
+        if (msg->m[i].board_id == this->foot_id_) {
             this->imu_poses_[msg->m[i].id] = msg->m[i];
         }
     }
@@ -264,7 +405,7 @@ void JointsEstimator::imu_callback(const qb_interface::quaternionArray::ConstPtr
     if (DEBUG_JE) {
         std::cout << "\n *-----------* \n IMU messages recieved \n *-----------* \n";
         ROS_INFO_STREAM("Saved quaternions for foot " << this->foot_id_ << ": imus no: ");
-        std::cout << "/ -";
+        std::cout << "/ - ";
         for (auto it : this->imu_poses_) {
             std::cout << it.id << " - ";
         }
@@ -272,7 +413,12 @@ void JointsEstimator::imu_callback(const qb_interface::quaternionArray::ConstPtr
     }
 
     // Computing all relevant transforms between imu pairs
-    this->compute_relative_trasforms(this->joint_pairs_);
+    if (!this->use_filter) {
+        this->compute_relative_trasforms(this->joint_pairs_);
+    } else {
+        // Use madwick filter
+        this->filter_relative_trasforms(this->joint_pairs_);
+    }
 
     if (this->joint_pairs_.size() != this->rel_poses_.size()) {
         ROS_FATAL("Number of joints and relative trasforms do not match! This should not happen!");
@@ -280,11 +426,11 @@ void JointsEstimator::imu_callback(const qb_interface::quaternionArray::ConstPtr
     }
 
     // Debug print out
-    if (DEBUG_JE) {
-        ROS_INFO_STREAM("Saved relative trasforms between imu pairs: ");
+    if (DEBUG_JE || true) {
+        ROS_INFO_STREAM("Saved relative quaternions between imu pairs: ");
         std::cout << "---\n";
         for (auto it : this->rel_poses_) {
-            std::cout << it.toRotationMatrix() << std::endl;
+            std::cout << it.toRotationMatrix().eulerAngles(2, 1, 0) << std::endl;
             std::cout << "--" << std::endl;
         }
         std::cout << "---\n" << std::endl;
@@ -295,17 +441,27 @@ void JointsEstimator::imu_callback(const qb_interface::quaternionArray::ConstPtr
         this->joint_values_[i] = this->compute_joint_state_from_pair(this->joint_pairs_[i]);
     }
 
-    if (DEBUG_ANGLES) {
-        ROS_INFO_STREAM("The estimated joint angle for imu pair (" << this->joint_pairs_[0].first 
-            << ", " << this->joint_pairs_[0].second << ") is " << this->rad2deg(this->joint_values_[0] - this->joint_offset_[0]) << "degs \n");
-        ROS_INFO_STREAM("The estimated joint angle for imu pair (" << this->joint_pairs_[1].first 
-            << ", " << this->joint_pairs_[1].second << ") is " << this->rad2deg(this->joint_values_[1] - this->joint_offset_[1]) << "degs \n");
-        ROS_INFO_STREAM("The estimated joint angle for imu pair (" << this->joint_pairs_[2].first 
-            << ", " << this->joint_pairs_[2].second << ") is " << this->rad2deg(this->joint_values_[2] - this->joint_offset_[2]) << "degs \n");
-    }
-
     // Filling up jointstates and publishing
     this->fill_and_publish(this->joint_values_);
+
+    if (DEBUG_ANGLES) {
+        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[0].first 
+            << ", " << this->joint_pairs_[0].second << ") is " << this->joint_values_[0] << "rads \n");
+        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[1].first 
+            << ", " << this->joint_pairs_[1].second << ") is " << this->joint_values_[1] << "rads \n");
+        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[2].first 
+            << ", " << this->joint_pairs_[2].second << ") is " << this->joint_values_[2] << "rads \n");
+    }
+
+    if (DEBUG_JS) {
+        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[0].first 
+            << ", " << this->joint_pairs_[0].second << ") is " << this->js_values_[0] << "rads \n");
+        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[1].first 
+            << ", " << this->joint_pairs_[1].second << ") is " << this->js_values_[1] << "rads \n");
+        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[2].first 
+            << ", " << this->joint_pairs_[2].second << ") is " << this->js_values_[2] << "rads \n");
+    }
+
 }
 
 // Callback to imu accelerations topic
@@ -314,7 +470,7 @@ void JointsEstimator::acc_callback(const qb_interface::inertialSensorArray::Cons
     // Get the imu angles of foot after clearing old angles
     this->imu_acc_.resize(4);
     for (int i = 0; i < msg->m.size(); i++) {
-        if(msg->m[i].board_id == this->foot_id_){
+        if (msg->m[i].board_id == this->foot_id_) {
             this->imu_acc_[msg->m[i].id] = msg->m[i];
         }
     }
@@ -323,7 +479,7 @@ void JointsEstimator::acc_callback(const qb_interface::inertialSensorArray::Cons
     if (DEBUG_JE) {
         std::cout << "\n *-----------* \n IMU messages recieved \n *-----------* \n";
         ROS_INFO_STREAM("Saved accelerations for foot " << this->foot_id_ << ": imus no: ");
-        std::cout << "/ -";
+        std::cout << "/ - ";
         for (auto it : this->imu_acc_) {
             std::cout << it.id << " - ";
         }
@@ -338,7 +494,7 @@ void JointsEstimator::gyro_callback(const qb_interface::inertialSensorArray::Con
     // Get the imu angles of foot after clearing old angles
     this->imu_gyro_.resize(4);
     for (int i = 0; i < msg->m.size(); i++) {
-        if(msg->m[i].board_id == this->foot_id_){
+        if (msg->m[i].board_id == this->foot_id_) {
             this->imu_gyro_[msg->m[i].id] = msg->m[i];
         }
     }
@@ -347,7 +503,7 @@ void JointsEstimator::gyro_callback(const qb_interface::inertialSensorArray::Con
     if (DEBUG_JE) {
         std::cout << "\n *-----------* \n IMU messages recieved \n *-----------* \n";
         ROS_INFO_STREAM("Saved angular velocities for foot " << this->foot_id_ << ": imus no: ");
-        std::cout << "/ -";
+        std::cout << "/ - ";
         for (auto it : this->imu_gyro_) {
             std::cout << it.id << " - ";
         }
