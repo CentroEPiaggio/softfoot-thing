@@ -5,18 +5,26 @@
 <launch>
     
     <!-- LAUNCH ARGUMENTS -->
-    <arg name="gui" default="true"/>
+    <arg name="gui" default="false"/>
     <arg name="model" default="--inorder $(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
     <arg name="rvizconfig" default="$(find softfoot_thing_description)/configs/pisa_softfoot.rviz"/>
 
     <!-- START LAUNCH -->
 
     <!-- Robot description -->
-    <param name="robot_description" command="$(find xacro)/xacro.py $(arg model)"/>
+    <param name="robot_description" command="$(find xacro)/xacro $(arg model)"/>
 
     <!-- Joint state and robot state publishers of the full robot description -->
-    <param name="use_gui" value="$(arg gui)"/>
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+    <group if="$(arg gui)">
+        <param name="use_gui" value="$(arg gui)"/>
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+    </group>
+    <group unless="$(arg gui)">
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+            <rosparam param="source_list">[/softfoot_2/joint_states]</rosparam>
+        </node>
+    </group>
+    
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
 
     <!-- Joints Estimator -->
