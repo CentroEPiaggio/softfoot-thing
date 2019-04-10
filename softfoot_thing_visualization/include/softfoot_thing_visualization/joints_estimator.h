@@ -14,8 +14,13 @@
 
 // MSG includes
 #include <sensor_msgs/JointState.h>
-#include "qb_interface/angles.h"
-#include "qb_interface/anglesArray.h"
+#include "qb_interface/quaternion.h"
+#include "qb_interface/quaternionArray.h"
+#include "qb_interface/inertialSensor.h"
+#include "qb_interface/inertialSensorArray.h"
+
+// Softfoot visualization includes
+#include "softfoot_thing_visualization/madgwick_filter.h"
 
 // Other includes
 #include <tf/transform_listener.h>
@@ -50,14 +55,21 @@ class JointsEstimator {
         // Function to compute the joint angle from pair of imu ids
         float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
 
-        // Function to compute transform from rpy (as there seem to be no prebuilt function in Eigen)
-        Eigen::Matrix3d create_rotation_matrix(double ax, double ay, double az);
-
         // Function to compute the relative transforms for all pairs
         void compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
 
+        // Function to fill joint states with est. values and publish
+        void fill_and_publish(std::vector<float> joint_values);
+
         // Callback to imu angles topic
-        void imu_callback(const qb_interface::anglesArray::ConstPtr &msg);
+        void imu_callback(const qb_interface::quaternionArray::ConstPtr &msg);
+
+        // Callback to imu accelerations topic
+        void acc_callback(const qb_interface::inertialSensorArray::ConstPtr &msg);
+
+        // Callback to imu angular velocities topic
+        void gyro_callback(const qb_interface::inertialSensorArray::ConstPtr &msg);
+
 
         // Auxiliary funtion for deg2rad conversion
         inline double deg2rad (double degrees) {
@@ -74,26 +86,39 @@ class JointsEstimator {
         // ROS variables
         ros::NodeHandle je_nh_;
         ros::Subscriber sub_imu_;
+        ros::Subscriber sub_imu_acc_;
+        ros::Subscriber sub_imu_gyro_;
         ros::Publisher pub_js_;
 
         // Transform listener and stamped transform for lookupTransform
         tf::TransformListener tf_listener_;
         tf::StampedTransform stamped_transform_;
 
+        // Madgwick filter
+        MadgwickFilter mw_filter;
+
         // Poses and the mutex
         std::mutex imu_mutex_;          // Not used for now as everything is done in callback.
-        std::vector<qb_interface::angles> imu_poses_;
-        std::vector<Eigen::Matrix3d> rel_poses_;
+        std::vector<qb_interface::quaternion> imu_poses_;
+        std::vector<qb_interface::inertialSensor> imu_acc_;
+        std::vector<qb_interface::inertialSensor> imu_gyro_;
+        std::vector<Eigen::Quaternion<float>> rel_poses_;
 
-        // Messages
+        // Joint variables
+        std::vector<float> joint_values_;
+        std::vector<float> joint_offset_;
+        std::vector<std::pair<float, float>> joint_limits_;
         sensor_msgs::JointState joint_states_;
 
         // Constants
         std::string foot_name_;
         int foot_id_;
-        std::string imu_topic_ = "/qb_class_imu/angles";
+        std::string imu_topic_ = "/qb_class_imu/quat";
+        std::string imu_topic_acc_ = "/qb_class_imu/acc";
+        std::string imu_topic_gyro_ = "/qb_class_imu/gyro";
 
         // Parsed variables
+        bool use_filter;
         std::vector<std::pair<int, int>> joint_pairs_;
         std::vector<std::string> joint_names_;
         std::vector<std::string> joint_frame_names_;
