@@ -2,5 +2,14 @@
 # Remember that there might be other important constants that can only be changed from the src code.
 
 softfoot_viz:
-  # Name of the robot
-  robot_name: softfoot_thing
+
+  # Names of the joints of the softfoot
+  joint_names: ["front_arch_joint", "back_arch_joint", "roll_joint"]
+  # Names of the frames of the joints to get axes
+  joint_frame_names: ["front_arch_link", "back_arch_link", "roll_link"]
+
+  # The different feet
+  softfoot_2:
+    use_filter: false
+    joint_pairs: [[0, 1], [0, 3], [1, 2]]
+    joint_offset: [1.90, 1.98, 2.74]

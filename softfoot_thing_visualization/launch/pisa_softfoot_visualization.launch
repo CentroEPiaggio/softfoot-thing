@@ -8,6 +8,7 @@
     <arg name="gui" default="false"/>
     <arg name="model" default="--inorder $(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
     <arg name="rvizconfig" default="$(find softfoot_thing_description)/configs/pisa_softfoot.rviz"/>
+    <arg name="footconfig" default="$(find softfoot_thing_visualization)/configs/pisa_softfoot_viz.yaml"/>
 
     <!-- START LAUNCH -->
 
@@ -34,5 +35,8 @@
 
     <!-- RViz for visualization -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
+
+    <!-- Loading viz config file to param server -->
+	<rosparam command="load" file="$(arg footconfig)"/>
 
 </launch>
