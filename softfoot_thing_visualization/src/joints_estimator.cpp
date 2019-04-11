@@ -12,7 +12,9 @@
 #define     DEBUG_JE        0       // Prints out additional info about the Object
 #define     DEBUG_JS        0       // Prints out info about estimated joint states
 #define     DEBUG_PARSED    0       // Prints out info about parsed stuff
-#define     DEBUG_ANGLES    1       // Prints out only raw estimated angles
+#define     DEBUG_ANGLES    0       // Prints out only raw estimated angles
+
+#define     PI              3.1415
 
 using namespace softfoot_thing_visualization;
 
@@ -42,7 +44,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->mw_filter.initialize(this->je_nh_);
 
     // Temporarily building parsable variables here (TODO: parse them)
-    this->use_filter = false;
+    this->use_filter = true;
     this->joint_pairs_ = {{0, 1}, {0, 3}, {1, 2}};
     this->joint_names_ = {"front_arch_joint", "back_arch_joint", "roll_joint"};
     this->joint_frame_names_ = {"front_arch_link", "back_arch_link", "roll_link"};
@@ -63,9 +65,11 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->js_values_.resize(this->joint_pairs_.size());
 
     // Setting relative poses to identity at the beginning
-    if (this->use_filter) this->rel_poses_.resize(this->joint_pairs_.size());
-    for (auto it : this->rel_poses_) {
-        it = Eigen::Quaternion<float>(1.0, 0.0, 0.0, 0.0);
+    if (this->use_filter) {
+        this->rel_poses_.clear();
+        for (int j = 0; j < this->joint_pairs_.size(); j++) {
+            this->rel_poses_.push_back(Eigen::Quaternion<float>(1.0, 0.0, 0.0, 0.0));
+        }
     }
 
     // Debug print out
@@ -186,13 +190,9 @@ void JointsEstimator::enforce_limits(){
 void JointsEstimator::correct_offset(){
 
     // Compute the real joint states by removing the offset
-    this->js_values_[0] = this->joint_values_[0] - this->joint_offset_[0];
-    this->js_values_[1] = this->joint_values_[1] - this->joint_offset_[1];
-    this->js_values_[2] = -(this->joint_values_[2] - this->joint_offset_[2]);
-
-    // for (int i = 0; i < this->joint_values_.size(); i++) {
-    //     this->js_values_[i] = this->joint_values_[i] - this->joint_offset_[i];
-    // }
+    for (int i = 0; i < this->joint_values_.size(); i++) {
+        this->js_values_[i] = this->joint_values_[i] - this->joint_offset_[i];
+    }
 
 }
 
@@ -331,10 +331,18 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
     }
 
     // 6) Computing the angle between the initial normal and the rotated - projected one
-    double sin_js = (perp_1.cross(projected)).norm() / (perp_1.norm() * projected.norm());
     double cos_js = perp_1.dot(projected);
+    double sin_js = (perp_1.cross(projected)).norm() / (perp_1.norm() * projected.norm());
+    if (cos_js < 0) sin_js = (PI / 2) - sin_js;
+
+    std::cout << "---\n";
+    std::cout << "For pair (" << imu_pair.first << ", " << imu_pair.second << ") :" << std::endl;
+    std::cout << "sin(angle) =" << sin_js << std::endl;
+    std::cout << "cos(angle) =" << cos_js << std::endl;
+    std::cout << "sin^2 + cos^2 =" << std::pow(sin_js, 2) + std::pow(cos_js, 2) << std::endl;
+    std::cout << "---\n" << std::endl;
+    
     float js = (float) atan2(sin_js, cos_js);
-    // float js = (float) acos((double) perp_1.dot(projected));
 
     // 7) Return the found joint state
     return js;
