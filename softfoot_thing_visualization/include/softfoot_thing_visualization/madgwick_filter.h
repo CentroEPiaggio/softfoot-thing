@@ -35,6 +35,9 @@ class MadgwickFilter {
             Eigen::Vector3d acc_2, Eigen::Vector3d gyro_2, Eigen::Vector3d acc_1_old,
             Eigen::Vector3d acc_2_old, Eigen::Quaternion<float> Q_rel_old);
 
+        // Function to correct quaternion offset
+        Eigen::Quaternion<float> correct_offset(Eigen::Quaternion<float> quat, Eigen::Quaternion<float> off);
+
     private:
 
         // Function to parse parameters

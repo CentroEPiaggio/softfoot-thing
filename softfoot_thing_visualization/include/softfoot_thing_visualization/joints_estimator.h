@@ -18,6 +18,7 @@
 #include "qb_interface/quaternionArray.h"
 #include "qb_interface/inertialSensor.h"
 #include "qb_interface/inertialSensorArray.h"
+#include "geometry_msgs/QuaternionStamped.h"
 
 // Softfoot visualization includes
 #include "softfoot_thing_visualization/madgwick_filter.h"
@@ -37,6 +38,9 @@ class JointsEstimator {
         JointsEstimator(ros::NodeHandle& nh, int foot_id, std::string foot_name);
 
         ~JointsEstimator();
+
+        // Function to initially compute offsets before starting to spin
+        void compute_initial_offset();
 
     private:
 
@@ -102,6 +106,13 @@ class JointsEstimator {
         ros::Subscriber sub_imu_gyro_;
         ros::Publisher pub_js_;
 
+        // Flags
+        bool offset_computed_ = false;
+
+        // Debug publishers and variables
+        ros::Publisher pub_rel_rpy_;
+        geometry_msgs::QuaternionStamped debug_rel_rpy_;
+
         // Transform listener and stamped transform for lookupTransform
         tf::TransformListener tf_listener_;
         tf::StampedTransform stamped_transform_;
@@ -115,6 +126,8 @@ class JointsEstimator {
         std::vector<qb_interface::inertialSensor> imu_acc_;
         std::vector<qb_interface::inertialSensor> imu_gyro_;
         std::vector<Eigen::Quaternion<float>> rel_poses_;
+        std::vector<Eigen::Quaternion<float>> rel_poses_off_;
+        std::vector<Eigen::Quaternion<float>> rel_poses_joints_;
 
         // Old values
         std::vector<Eigen::Vector3d> acc_1_olds_;

@@ -170,3 +170,30 @@ Eigen::Quaternion<float> MadgwickFilter::filter(Eigen::Vector3d acc_1, Eigen::Ve
 	return Eigen::Quaternion<float>(qL(0), qL(1), qL(2), qL(3));
 
 }
+
+// Function to correct quaternion offset
+Eigen::Quaternion<float> MadgwickFilter::correct_offset(Eigen::Quaternion<float> quat, Eigen::Quaternion<float> off){
+
+	Eigen::Vector4d q;     		// quat in 4d
+    q(0) = quat.w();
+    q(1) = quat.x();
+    q(2) = quat.y();
+    q(3) = quat.z();
+
+	Eigen::Vector4d qoff;		// off in 4d
+    qoff(0) = off.w();
+    qoff(1) = off.x();
+    qoff(2) = off.y();
+    qoff(3) = off.z();
+
+	// Offset removing
+	Eigen::Vector4d qjoint;
+	qjoint(0) = qoff(0)*q(0) - (-qoff(1)*q(1) - qoff(2)*q(2) - qoff(3)*q(3));
+    qjoint(1) = qoff(0)*q(1) - qoff(1)*q(0) - qoff(2)*q(3) + qoff(3)*q(2);
+    qjoint(2) = qoff(0)*q(2) - qoff(2)*q(0) - qoff(3)*q(1) + qoff(1)*q(3);
+    qjoint(3) = qoff(0)*q(3) - qoff(3)*q(0) - qoff(1)*q(2) + qoff(2)*q(1);
+
+	// Convert qjoint back to Quaternion and return
+	return Eigen::Quaternion<float>(qjoint(0), qjoint(1), qjoint(2), qjoint(3));
+
+}
