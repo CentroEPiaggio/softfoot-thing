@@ -9,10 +9,10 @@
 
 #include "softfoot_thing_visualization/joints_estimator.h"
 
-#define     DEBUG_JE        0       // Prints out additional info about the Object
-#define     DEBUG_JS        0       // Prints out info about estimated joint states
+#define     DEBUG_JE        1       // Prints out additional info about the Object
+#define     DEBUG_JS        1       // Prints out info about estimated joint states
 #define     DEBUG_PARSED    0       // Prints out info about parsed stuff
-#define     DEBUG_ANGLES    0       // Prints out only raw estimated angles
+#define     DEBUG_ANGLES    1       // Prints out only raw estimated angles
 
 #define     PI              3.1415
 
@@ -73,7 +73,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     }
 
     // Debug print out
-    if (DEBUG_JE || true) {
+    if (DEBUG_JE) {
         ROS_INFO_STREAM("Starting relative quaternions between imu pairs: ");
         std::cout << "---\n";
         for (auto it : this->rel_poses_) {
@@ -229,7 +229,7 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
         ROS_FATAL("JointsEstimator::get_joint_axis : You specified a joint name which is unknown to me!");
         this->je_nh_.shutdown();
     }
-    // Eigen::Affine3d joint_frame = this->getTransform("world", this->foot_name_ + "_" + std::to_string(this->foot_id_) + "_" + this->joint_frame_names_[pos]);
+    Eigen::Affine3d joint_frame = this->getTransform("world", this->foot_name_ + "_" + std::to_string(this->foot_id_) + "_" + this->joint_frame_names_[pos]);
 
     // Getting the joint's axis in world frame (TODO: parse local axis)
     Eigen::Vector3d loc_axis;
@@ -245,15 +245,15 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
     }
 
     // Debug print out
-    // if (DEBUG_JE) {
-    //     ROS_INFO_STREAM("Got axis for " << joint_name << ": \n" << joint_frame.rotation() * loc_axis);
-    //     ROS_INFO_STREAM("Frame rotation is \n" << joint_frame.rotation());
-    //     ROS_INFO_STREAM("Local axis is \n" << loc_axis << "\n");
-    // }
+    if (DEBUG_JE) {
+        ROS_INFO_STREAM("Got axis for " << joint_name << ": \n" << joint_frame.rotation() * loc_axis);
+        ROS_INFO_STREAM("Frame rotation is \n" << joint_frame.rotation());
+        ROS_INFO_STREAM("Local axis is \n" << loc_axis << "\n");
+    }
 
     // Return joint axis in global frame
-    // return joint_frame.rotation() * loc_axis;
-    return loc_axis;                                // Using local axis changes nothing (obviously)
+    return joint_frame.rotation() * loc_axis;
+    // return loc_axis;                                // Using local axis changes nothing (obviously)
 
 }
 
@@ -331,18 +331,11 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
     }
 
     // 6) Computing the angle between the initial normal and the rotated - projected one
-    double cos_js = perp_1.dot(projected);
-    double sin_js = (perp_1.cross(projected)).norm() / (perp_1.norm() * projected.norm());
-    if (cos_js < 0) sin_js = (PI / 2) - sin_js;
-
-    std::cout << "---\n";
-    std::cout << "For pair (" << imu_pair.first << ", " << imu_pair.second << ") :" << std::endl;
-    std::cout << "sin(angle) =" << sin_js << std::endl;
-    std::cout << "cos(angle) =" << cos_js << std::endl;
-    std::cout << "sin^2 + cos^2 =" << std::pow(sin_js, 2) + std::pow(cos_js, 2) << std::endl;
-    std::cout << "---\n" << std::endl;
+    tmp_axis.normalize(); perp_1.normalize(); projected.normalize();        // Making sure vectors are unitary
+    double determinant = tmp_axis.dot(perp_1.cross(projected));             // Calculating det as triple product
+    double dot_product = perp_1.dot(projected);                             // Getting the dot product
     
-    float js = (float) atan2(sin_js, cos_js);
+    float js = (float) atan2(determinant, dot_product);
 
     // 7) Return the found joint state
     return js;
