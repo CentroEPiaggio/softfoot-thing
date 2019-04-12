@@ -9,7 +9,27 @@ softfoot_viz:
   joint_frame_names: ["front_arch_link", "back_arch_link", "roll_link"]
 
   # The different feet
+
+  # Anterior left foot
+  softfoot_1:
+    use_filter: false
+    joint_pairs: [[0, 1], [0, 3], [1, 2]]
+    joint_offset: [1.67, 1.98, 2.74]
+  
+  # Anterior right foot
   softfoot_2:
+    use_filter: false
+    joint_pairs: [[0, 1], [0, 3], [1, 2]]
+    joint_offset: [1.67, 1.98, 2.74]
+
+  # Posterior left foot
+  softfoot_3:
+    use_filter: false
+    joint_pairs: [[0, 1], [0, 3], [1, 2]]
+    joint_offset: [1.90, 1.98, 2.74]
+
+  # Posterior right foot
+  softfoot_4:
     use_filter: false
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
     joint_offset: [1.90, 1.98, 2.74]

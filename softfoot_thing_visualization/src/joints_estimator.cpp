@@ -187,7 +187,7 @@ void JointsEstimator::correct_offset(){
 
     // Compute the real joint states by removing the offset
     this->js_values_[0] = this->joint_values_[0] - this->joint_offset_[0];
-    this->js_values_[1] = this->joint_values_[1] - this->joint_offset_[1];
+    this->js_values_[1] = -(this->joint_values_[1] - this->joint_offset_[1]);
     this->js_values_[2] = -(this->joint_values_[2] - this->joint_offset_[2]);
 
     // for (int i = 0; i < this->joint_values_.size(); i++) {

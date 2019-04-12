@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
     ros::NodeHandle nh;
 
     // Joint estimator object
-    softfoot_thing_visualization::JointsEstimator joint_estimator(nh, 2, "softfoot");
+    softfoot_thing_visualization::JointsEstimator joint_estimator(nh, 4, "softfoot");
 
     ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to spin.");
 
