@@ -42,6 +42,9 @@ class JointsEstimator {
         // Function to initially compute offsets before starting to spin
         void compute_initial_offset();
 
+        // Function to run in a loop to estimate the joint states
+        void estimate_joint_states();
+
     private:
 
         // Function to parse parameters

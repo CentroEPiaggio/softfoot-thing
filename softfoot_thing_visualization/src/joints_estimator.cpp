@@ -10,7 +10,7 @@
 #include "softfoot_thing_visualization/joints_estimator.h"
 
 #define     DEBUG_JE        0       // Prints out additional info about the Object
-#define     DEBUG_CB        1       // Prints out only info about callbacks execution
+#define     DEBUG_CB        0       // Prints out only info about callbacks execution
 #define     DEBUG_JS        0       // Prints out info about estimated joint states
 #define     DEBUG_PARSED    0       // Prints out info about parsed stuff
 #define     DEBUG_ANGLES    0       // Prints out only raw estimated angles
@@ -181,6 +181,86 @@ void JointsEstimator::compute_initial_offset(){
 
     // Signal that offset has been computed
     this->offset_computed_ = true;
+
+}
+
+// Function to run in a loop to estimate the joint states
+void JointsEstimator::estimate_joint_states(){
+
+    if (this->offset_computed_) {
+
+        // Computing all relevant transforms between imu pairs
+        if (!this->use_filter) {
+            this->compute_relative_trasforms(this->joint_pairs_);
+        } else {
+            // Use madwick filter
+            this->filter_relative_trasforms(this->joint_pairs_);
+        }
+
+        if (this->joint_pairs_.size() != this->rel_poses_.size()) {
+            ROS_FATAL("Number of joints and relative trasforms do not match! This should not happen!");
+            this->je_nh_.shutdown();
+        }
+
+        // Debug print out
+        if (DEBUG_JE) {
+            ROS_INFO_STREAM("Saved relative quaternions between imu pairs: ");
+            std::cout << "---\n";
+            for (auto it : this->rel_poses_) {
+                std::cout << it.toRotationMatrix().eulerAngles(2, 1, 0) << std::endl;
+                std::cout << "--" << std::endl;
+            }
+            std::cout << "---\n" << std::endl;
+        }
+        if (DEBUG_JE) {
+            ROS_INFO_STREAM("Saved relative quaternions (no offset) between imu pairs: ");
+            std::cout << "---\n";
+            for (auto it : this->rel_poses_joints_) {
+                std::cout << it.toRotationMatrix().eulerAngles(2, 1, 0) << std::endl;
+                std::cout << "--" << std::endl;
+            }
+            std::cout << "---\n" << std::endl;
+        }
+
+        // Publish debug relative poses to topic
+        this->debug_rel_rpy_.header.stamp = ros::Time::now();
+        this->debug_rel_rpy_.quaternion.x = this->rel_poses_[0].x();
+        this->debug_rel_rpy_.quaternion.y = this->rel_poses_[0].y();
+        this->debug_rel_rpy_.quaternion.z = this->rel_poses_[0].z();
+        this->debug_rel_rpy_.quaternion.w = this->rel_poses_[0].w();
+        this->pub_rel_rpy_.publish(this->debug_rel_rpy_);
+
+        // Estimating the angles
+        for (int i = 0; i < this->joint_pairs_.size(); i++) {
+            this->joint_values_[i] = this->compute_joint_state_from_pair(this->joint_pairs_[i]);
+        }
+
+        // Filling up jointstates and publishing
+        this->fill_and_publish(this->joint_values_);
+
+        if (DEBUG_ANGLES) {
+            ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[0].first 
+                << ", " << this->joint_pairs_[0].second << ") is " << this->joint_values_[0] << "rads \n");
+            ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[1].first 
+                << ", " << this->joint_pairs_[1].second << ") is " << this->joint_values_[1] << "rads \n");
+            ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[2].first 
+                << ", " << this->joint_pairs_[2].second << ") is " << this->joint_values_[2] << "rads \n");
+        }
+
+        if (DEBUG_JS) {
+            ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[0].first 
+                << ", " << this->joint_pairs_[0].second << ") is " << this->js_values_[0] << "rads \n");
+            ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[1].first 
+                << ", " << this->joint_pairs_[1].second << ") is " << this->js_values_[1] << "rads \n");
+            ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[2].first 
+                << ", " << this->joint_pairs_[2].second << ") is " << this->js_values_[2] << "rads \n");
+        }
+    }
+
+    ROS_INFO_STREAM("Saved relative quaternions between imu pairs: ");
+    std::cout << "---\n";
+    std::cout << this->rel_poses_[0].toRotationMatrix().eulerAngles(2, 1, 0) << std::endl;
+    std::cout << "---\n" << std::endl;
 
 }
 
@@ -512,75 +592,6 @@ void JointsEstimator::imu_callback(const qb_interface::quaternionArray::ConstPtr
             std::cout << it.id << " - ";
         }
         std::cout << "/\n" << std::endl;
-    }
-
-    if (this->offset_computed_) {
-
-        // Computing all relevant transforms between imu pairs
-        if (!this->use_filter) {
-            this->compute_relative_trasforms(this->joint_pairs_);
-        } else {
-            // Use madwick filter
-            this->filter_relative_trasforms(this->joint_pairs_);
-        }
-
-        if (this->joint_pairs_.size() != this->rel_poses_.size()) {
-            ROS_FATAL("Number of joints and relative trasforms do not match! This should not happen!");
-            this->je_nh_.shutdown();
-        }
-
-        // Debug print out
-        if (DEBUG_JE) {
-            ROS_INFO_STREAM("Saved relative quaternions between imu pairs: ");
-            std::cout << "---\n";
-            for (auto it : this->rel_poses_) {
-                std::cout << it.toRotationMatrix().eulerAngles(2, 1, 0) << std::endl;
-                std::cout << "--" << std::endl;
-            }
-            std::cout << "---\n" << std::endl;
-
-            ROS_INFO_STREAM("Saved relative quaternions (no offset) between imu pairs: ");
-            std::cout << "---\n";
-            for (auto it : this->rel_poses_joints_) {
-                std::cout << it.toRotationMatrix().eulerAngles(2, 1, 0) << std::endl;
-                std::cout << "--" << std::endl;
-            }
-            std::cout << "---\n" << std::endl;
-        }
-
-        // Publish debug relative poses to topic
-        this->debug_rel_rpy_.header.stamp = ros::Time::now();
-        this->debug_rel_rpy_.quaternion.x = this->rel_poses_[0].x();
-        this->debug_rel_rpy_.quaternion.y = this->rel_poses_[0].y();
-        this->debug_rel_rpy_.quaternion.z = this->rel_poses_[0].z();
-        this->debug_rel_rpy_.quaternion.w = this->rel_poses_[0].w();
-        this->pub_rel_rpy_.publish(this->debug_rel_rpy_);
-
-        // Estimating the angles
-        for (int i = 0; i < this->joint_pairs_.size(); i++) {
-            this->joint_values_[i] = this->compute_joint_state_from_pair(this->joint_pairs_[i]);
-        }
-
-        // Filling up jointstates and publishing
-        this->fill_and_publish(this->joint_values_);
-
-        if (DEBUG_ANGLES) {
-            ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[0].first 
-                << ", " << this->joint_pairs_[0].second << ") is " << this->joint_values_[0] << "rads \n");
-            ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[1].first 
-                << ", " << this->joint_pairs_[1].second << ") is " << this->joint_values_[1] << "rads \n");
-            ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[2].first 
-                << ", " << this->joint_pairs_[2].second << ") is " << this->joint_values_[2] << "rads \n");
-        }
-
-        if (DEBUG_JS) {
-            ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[0].first 
-                << ", " << this->joint_pairs_[0].second << ") is " << this->js_values_[0] << "rads \n");
-            ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[1].first 
-                << ", " << this->joint_pairs_[1].second << ") is " << this->js_values_[1] << "rads \n");
-            ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[2].first 
-                << ", " << this->joint_pairs_[2].second << ") is " << this->js_values_[2] << "rads \n");
-        }
     }
 
 }

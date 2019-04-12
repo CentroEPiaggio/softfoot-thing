@@ -16,7 +16,20 @@ int main(int argc, char** argv) {
 
     // Starting to spin
     ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to spin.");
-    ros::spin();
+    
+    // ROS Async spinner (necessary for processing callbacks inside the service callbacks)
+    // ros::AsyncSpinner spinner(4);
+    // spinner.start();
+
+    while(ros::ok()){
+        ros::spinOnce();
+        
+        // Estimate jointstates and publish
+        joint_estimator.estimate_joint_states();
+
+    }
+
+    // spinner.stop();
 
     // Shutting down when finished
     ros::shutdown();
