@@ -84,6 +84,14 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
         for (int j = 0; j < this->joint_pairs_.size(); j++) {
             this->rel_poses_off_.push_back(Eigen::Quaternion<float>(1.0, 0.0, 0.0, 0.0));
         }
+        this->rel_poses_init_.clear();
+        for (int j = 0; j < this->joint_pairs_.size(); j++) {
+            this->rel_poses_init_.push_back(Eigen::Quaternion<double>(1.0, 0.0, 0.0, 0.0));
+        }
+        this->rel_poses_rotback_.clear();
+        for (int j = 0; j < this->joint_pairs_.size(); j++) {
+            this->rel_poses_rotback_.push_back(Eigen::Quaternion<float>(1.0, 0.0, 0.0, 0.0));
+        }
     } else {
         this->offset_computed_ = true;
     }
@@ -257,9 +265,10 @@ void JointsEstimator::estimate_joint_states(){
         }
     }
 
-    ROS_INFO_STREAM("Saved relative quaternions between imu pairs: ");
+    ROS_INFO_STREAM("Rotated back relative quaternions between imu pair: ");
+    Eigen::Vector3f tmp_print = this->rel_poses_rotback_[0].toRotationMatrix().eulerAngles(2, 1, 0) ;
     std::cout << "---\n";
-    std::cout << this->rel_poses_[0].toRotationMatrix().eulerAngles(2, 1, 0) << std::endl;
+    std::cout << (180.0 / 4.0 * atan (1.0)) * tmp_print  << std::endl;
     std::cout << "---\n" << std::endl;
 
 }
@@ -279,6 +288,26 @@ bool JointsEstimator::parse_parameters(ros::NodeHandle& nh){
     if (!this->get_joint_limits(nh)) {
         ROS_FATAL("Unable to get the joint limits for %s!", this->robot_name_.c_str());
         return false;
+    }
+
+    // Getting the rest poses
+    if (!this->get_rest_poses(nh)) {
+        ROS_FATAL("Unable to get the rest poses for %s!", this->robot_name_.c_str());
+        return false;
+    }
+
+    // Getting the rotation directions for rest pose to flat imu pairs
+    if (!nh.getParam("softfoot_viz/" + this->robot_name_ + "/rot_match", this->rot_match_)) {
+        ROS_FATAL("Unable to get parameter rot_match for %s!", this->robot_name_.c_str());
+        return false;
+    }
+
+    // Check if rot_mactch has only 1 or -1
+    for (auto it : this->rot_match_) {
+        if(!(it == 1 || it == -1)) {
+            ROS_FATAL("rot_match for %s should contatin only 1 ot -1! But this is not the case!", this->robot_name_.c_str());
+            return false;
+        }
     }
 
     // Everything parsed correctly
@@ -333,6 +362,27 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
     }
 
     // After everything return success
+    return true;
+
+}
+
+// Function to parse quaternions at rest
+bool JointsEstimator::get_rest_poses(ros::NodeHandle& nh){
+
+    std::vector<float> tmp_quat;
+    // Getting the rest poses
+    for (int i = 0; i < this->joint_pairs_.size(); i++){
+        if (!nh.getParam("softfoot_viz/" + this->robot_name_ + "/init_quat_" + std::to_string(i), tmp_quat)) {
+            ROS_FATAL_STREAM("Cannot find parameter init_quat" << i << ", shutting down!");
+            return false;
+        }
+        if (tmp_quat.size() != 4) {
+            ROS_FATAL_STREAM("Ops! init_quat" << i << " is not a quaternion, shutting down!");
+            return false;
+        }
+        this->rel_poses_init_.push_back(Eigen::Quaternion<double>(tmp_quat[0], tmp_quat[1], tmp_quat[2], tmp_quat[3]));
+    }
+
     return true;
 
 }
@@ -529,7 +579,8 @@ void JointsEstimator::compute_relative_trasforms(std::vector<std::pair<int, int>
 void JointsEstimator::filter_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs){
 
     // Creating the necessary inputs of the filter
-    Eigen::Vector3d acc_1, gyro_1, acc_2, gyro_2;
+    Eigen::Vector3d acc_1, gyro_1, acc_2, gyro_2;                   // Real readings from imu
+    Eigen::Vector3d acc_1_rot, gyro_1_rot, acc_2_rot, gyro_2_rot;   // Rotated to match flat imu pairs
 
     int i = 0;
     for (auto it : imu_pairs) {
@@ -539,9 +590,27 @@ void JointsEstimator::filter_relative_trasforms(std::vector<std::pair<int, int>>
         acc_2 << this->imu_acc_.at(it.second).x, this->imu_acc_.at(it.second).y, this->imu_acc_.at(it.second).z;
         gyro_2 << this->imu_gyro_.at(it.second).x, this->imu_gyro_.at(it.second).y, this->imu_gyro_.at(it.second).z;
 
+        acc_1_rot = acc_1; gyro_1_rot = gyro_1; acc_2_rot = acc_2; gyro_2_rot = gyro_2;
+
+        // Rotating accelerations and angular velocities to match the orientation of previous/next imu (the flat one)
+        if (this->rot_match_[i] == 1) {
+            acc_1_rot = this->rel_poses_init_[i] * acc_1;
+            gyro_1_rot = this->rel_poses_init_[i] * gyro_1;
+        } else if (this->rot_match_[i] == -1) {
+            acc_2_rot = this->rel_poses_init_[i].inverse() * acc_2;
+            gyro_2_rot = this->rel_poses_init_[i].inverse() * gyro_2;
+        }
+
         // Filter the quaternion
-        this->rel_poses_[i] = this->mw_filter.filter(acc_1, gyro_1, acc_2, gyro_2, this->acc_1_olds_[i],
+        this->rel_poses_[i] = this->mw_filter.filter(acc_1_rot, gyro_1_rot, acc_2_rot, gyro_2_rot, this->acc_1_olds_[i],
             this->acc_2_olds_[i], this->rel_poses_[i]);
+
+        // Rotate back the quaternion using inverse of rest pose
+        if (this->rot_match_[i] == 1) {
+            this->rel_poses_rotback_[i] =  Eigen::Quaternionf(this->rel_poses_init_[i].inverse()) * this->rel_poses_[i];
+        } else if (this->rot_match_[i] == -1) {
+            this->rel_poses_rotback_[i] =  Eigen::Quaternionf(this->rel_poses_init_[i]) * this->rel_poses_[i];
+        }
 
         // Correct the quaternion offset
         this->rel_poses_joints_[i] = this->mw_filter.correct_offset(this->rel_poses_[i], this->rel_poses_off_[i]);
@@ -549,6 +618,11 @@ void JointsEstimator::filter_relative_trasforms(std::vector<std::pair<int, int>>
         // Save olds and increase index
         this->acc_1_olds_[i] = acc_1;
         this->acc_2_olds_[i] = acc_2;
+        if (this->rot_match_[i] == 1) {
+             this->acc_1_olds_[i] = this->rel_poses_init_[i] * acc_1;
+        } else if (this->rot_match_[i] == -1) {
+            this->acc_2_olds_[i] = this->rel_poses_init_[i].inverse() * acc_2;
+        }
         i++;
     }
 

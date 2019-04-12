@@ -53,6 +53,9 @@ class JointsEstimator {
         // Function to get joint limits
         bool get_joint_limits(ros::NodeHandle& nh);
 
+        // Function to parse quaternions at rest
+        bool get_rest_poses(ros::NodeHandle& nh);
+
         // Function to enforce joint limits
         void enforce_limits();
 
@@ -123,14 +126,17 @@ class JointsEstimator {
         // Madgwick filter
         MadgwickFilter mw_filter;
 
-        // qb readings and the mutex
+        // qb readings, quaternions and the mutex
         std::mutex imu_mutex_;                      // Not used for now as everything is done in callback.
         std::vector<qb_interface::quaternion> imu_poses_;
         std::vector<qb_interface::inertialSensor> imu_acc_;
         std::vector<qb_interface::inertialSensor> imu_gyro_;
-        std::vector<Eigen::Quaternion<float>> rel_poses_;
-        std::vector<Eigen::Quaternion<float>> rel_poses_off_;
-        std::vector<Eigen::Quaternion<float>> rel_poses_joints_;
+        std::vector<Eigen::Quaternion<float>> rel_poses_;               // Quaternions in output from filter
+        std::vector<Eigen::Quaternion<double>> rel_poses_init_;          // Quaternions parsed, containing the transforms at rest
+        std::vector<Eigen::Quaternion<float>> rel_poses_rotback_;       // Re rotated relative quaternions
+        std::vector<Eigen::Quaternion<float>> rel_poses_off_;           // Quaternions containing the offset estimated by filter
+        std::vector<Eigen::Quaternion<float>> rel_poses_joints_;        // Offset corrected relative quaternions
+        std::vector<int> rot_match_;
 
         // Old values
         std::vector<Eigen::Vector3d> acc_1_olds_;

@@ -13,10 +13,22 @@ softfoot_viz:
     use_filter: false
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
     joint_offset: [1.75, -1.64, 0.54]
-    # joint_offset: [1.76, 1.56, 0.19]
-  
+
+    init_quat_0: [0.5, -0.5, -0.5, 0.5]
+    init_quat_1: [1.0, 0.0, 0.0, 0.0]
+    init_quat_2: [1.0, 0.0, 0.0, 0.0]
+    init_quat_3: [1.0, 0.0, 0.0, 0.0]
+
+    rot_match: [1, -1, 1]
+    
   softfoot_3:
     use_filter: false
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
     joint_offset: [-0.03, -0.07, 0.54]
-    # joint_offset: [1.76, 1.56, 0.19]
+
+    init_quat_0: [1.0, 0.0, 0.0, 0.0]
+    init_quat_1: [1.0, 0.0, 0.0, 0.0]
+    init_quat_2: [1.0, 0.0, 0.0, 0.0]
+    init_quat_3: [1.0, 0.0, 0.0, 0.0]
+
+    rot_match: [1, -1, 1]
