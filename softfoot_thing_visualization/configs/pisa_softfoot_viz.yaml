@@ -14,7 +14,7 @@ softfoot_viz:
   softfoot_1:
     use_filter: false
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
-    joint_offset: [1.67, 1.98, 2.74]
+    joint_offset: [1.93, 2.42, 0.64]
   
   # Anterior right foot
   softfoot_2:

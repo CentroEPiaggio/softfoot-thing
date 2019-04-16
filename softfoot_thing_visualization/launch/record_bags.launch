@@ -6,7 +6,7 @@
     
     <!-- LAUNCH ARGUMENTS -->
     <arg name="topics" default="/qb_class_imu/acc /qb_class_imu/gyro"/>
-    <arg name="path" default="/home/mathew/Desktop"/>
+    <arg name="path" default="/home/mathew/Desktop/"/>
 
     <!-- START LAUNCH -->
 
