@@ -14,8 +14,6 @@
 
 // MSG includes
 #include <sensor_msgs/JointState.h>
-#include "qb_interface/quaternion.h"
-#include "qb_interface/quaternionArray.h"
 #include "qb_interface/inertialSensor.h"
 #include "qb_interface/inertialSensorArray.h"
 
@@ -64,17 +62,14 @@ class JointsEstimator {
         // Function to compute the joint angle from pair of imu ids
         float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
 
-        // Function to compute the relative transforms for all pairs (use if quaternions from topic are wrt global frame)
-        void compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
-
-        // Function to compute the relative transforms for all pairs (uses madgwick filter with acc and gyro)
-        void filter_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
-
         // Function to fill joint states with est. values and publish
         void fill_and_publish(std::vector<float> joint_values);
 
-        // Callback to imu angles topic
-        void imu_callback(const qb_interface::quaternionArray::ConstPtr &msg);
+        // Finction that calibrates the sensing
+        void calibrate();
+
+        // Finction that estimates the joint angles
+        bool estimate();
 
         // Callback to imu accelerations topic
         void acc_callback(const qb_interface::inertialSensorArray::ConstPtr &msg);
@@ -102,28 +97,27 @@ class JointsEstimator {
         ros::Subscriber sub_imu_gyro_;
         ros::Publisher pub_js_;
 
+        // Initialization variables
+        bool calibrated_ = false;
+
         // Transform listener and stamped transform for lookupTransform
         tf::TransformListener tf_listener_;
         tf::StampedTransform stamped_transform_;
 
-        // Madgwick filter
-        MadgwickFilter mw_filter;
-
         // qb readings and the mutex
-        std::mutex imu_mutex_;                      // Not used for now as everything is done in callback.
-        std::vector<qb_interface::quaternion> imu_poses_;
+        std::mutex imu_mutex_;                                      // Not used for now as everything is done in callback.
         std::vector<qb_interface::inertialSensor> imu_acc_;
         std::vector<qb_interface::inertialSensor> imu_gyro_;
-        std::vector<Eigen::Quaternion<float>> rel_poses_;
 
-        // Old values
-        std::vector<Eigen::Vector3d> acc_1_olds_;
-        std::vector<Eigen::Vector3d> acc_2_olds_;
+        // Acceleration vectors
+        std::vector<Eigen::Vector3d> acc_vec_0_;
+        std::vector<Eigen::Vector3d> acc_vec_;
+        std::vector<Eigen::Vector3d> acc_vec_olds_;
 
         // Joint variables
         std::vector<float> joint_values_;
         std::vector<float> joint_offset_;
-        std::vector<float> js_values_;              // js_values_ = joint_values_ - joint_offset_     
+        std::vector<float> js_values_;                              // js_values_ = joint_values_ - joint_offset_     
         std::vector<std::pair<float, float>> joint_limits_;
         sensor_msgs::JointState joint_states_;
 
@@ -140,6 +134,8 @@ class JointsEstimator {
         std::vector<std::pair<int, int>> joint_pairs_;
         std::vector<std::string> joint_names_;
         std::vector<std::string> joint_frame_names_;
+        std::vector<std::pair<Eigen::Vector3d, 
+            Eigen::Vector3d>> axes_pairs_;                          // For each imu pair, the axis of sensor frame aligned with joint axis
 
 };
 
