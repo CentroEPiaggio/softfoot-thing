@@ -1,3 +1,7 @@
+/* JOINT ESTIMATOR NODE - Creates estimators for specified feet and publish joint sates for them.
+Author: Mathew Jose Pollayil
+Email:  mathewjose.pollayil@phd.unipi.it  */
+
 #include "softfoot_thing_visualization/joints_estimator.h"
 
 #define     DEBUG_JEN      0       // Prints out debug info

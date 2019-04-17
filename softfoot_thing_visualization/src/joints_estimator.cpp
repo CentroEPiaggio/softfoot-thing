@@ -56,7 +56,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
 
     // Parsing needed parameters
     if (!this->parse_parameters(this->je_nh_)) {
-        ROS_FATAL_STREAM("JointsEstimator::JointsEstimator : Could not get parameters for" 
+        ROS_FATAL_STREAM("JointsEstimator::JointsEstimator : Could not get parameters for " 
             << this->robot_name_ << " !");
         this->je_nh_.shutdown();
     }
@@ -126,7 +126,12 @@ bool JointsEstimator::spinEstimator(){
     // Spin as fast as possible until node is shut down
     this->spinner.start();
 
-    ros::waitForShutdown();
+    while (ros::ok()) {
+
+        // Estimate and publish joint states
+        this->estimate();
+
+    }
 
     this->spinner.stop();
 
@@ -225,7 +230,8 @@ void JointsEstimator::correct_offset(){
 
     // Compute the real joint states by removing the offset
     for (int i = 0; i < this->joint_values_.size(); i++) {
-        this->js_values_[i] = this->joint_values_[i] - this->joint_offset_[i];
+        this->js_values_[i] = this->joint_values_[i];
+        // this->js_values_[i] = this->joint_values_[i] - this->joint_offset_[i];
     }
 
 }
@@ -260,7 +266,7 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
     int pos = std::find(this->joint_names_.begin(), this->joint_names_.end(),
          joint_name) - this->joint_names_.begin();
     if (pos >= this->joint_names_.size()) {
-        ROS_FATAL_STREAM("JointsEstimator::get_joint_axis : You specified for" << this->robot_name_ 
+        ROS_FATAL_STREAM("JointsEstimator::get_joint_axis : You specified for " << this->robot_name_ 
             << " a joint name which is unknown to me!");
         this->je_nh_.shutdown();
     }
@@ -276,7 +282,7 @@ Eigen::Vector3d JointsEstimator::get_joint_axis(std::string joint_name){
     } else if (pos == 2) {
         loc_axis << 1, 0, 0;
     } else {
-        ROS_FATAL_STREAM("JointsEstimator::get_joint_axis : You specified for" << this->robot_name_ 
+        ROS_FATAL_STREAM("JointsEstimator::get_joint_axis : You specified for " << this->robot_name_ 
             << " a joint name which is unknown to me! But this should have not happened!!!");
         this->je_nh_.shutdown();
     }
@@ -334,7 +340,7 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
     int pos = std::find(this->joint_pairs_.begin(), this->joint_pairs_.end(),
          imu_pair) - this->joint_pairs_.begin();
     if (pos >= this->joint_pairs_.size()) {
-        ROS_FATAL_STREAM("JointsEstimator::compute_joint_state_from_pair : You specified for" 
+        ROS_FATAL_STREAM("JointsEstimator::compute_joint_state_from_pair : You specified for " 
             << this->robot_name_ << "  an imu pair which is unknown to me!");
         this->je_nh_.shutdown();
     }
