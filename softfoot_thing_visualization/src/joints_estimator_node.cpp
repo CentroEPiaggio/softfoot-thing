@@ -10,10 +10,19 @@ int main(int argc, char** argv) {
     // Joint estimator object
     softfoot_thing_visualization::JointsEstimator joint_estimator(nh, 3, "softfoot");
 
-    ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to spin.");
+    ROS_INFO_STREAM("SoftFoot Joint Estimator : started. Please ensure that the feet are in neutral position.");
 
-    // Starting to spin
-    ros::spin();
+    // Calibrating after waiting for some time
+    sleep(2);
+
+    ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to calibrate the sensing.");
+
+    joint_estimator.calibrate();
+
+    // Start to spin the estimator
+    ROS_INFO_STREAM("SoftFoot Joint Estimator : calibration finished. Starting to spin");
+
+    joint_estimator.spinEstimator();
 
     // Shutting down when finished
     ros::shutdown();

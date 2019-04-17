@@ -36,6 +36,12 @@ class JointsEstimator {
 
         ~JointsEstimator();
 
+        // Function that calibrates the sensing
+        void calibrate();
+
+        // Function that spins the estimator
+        bool spinEstimator();
+
     private:
 
         // Function to parse parameters
@@ -65,10 +71,7 @@ class JointsEstimator {
         // Function to fill joint states with est. values and publish
         void fill_and_publish(std::vector<float> joint_values);
 
-        // Finction that calibrates the sensing
-        void calibrate();
-
-        // Finction that estimates the joint angles
+        // Function that estimates the joint angles
         bool estimate();
 
         // Callback to imu accelerations topic
@@ -92,6 +95,7 @@ class JointsEstimator {
 
         // ROS variables
         ros::NodeHandle je_nh_;
+        ros::AsyncSpinner spinner;
         ros::Subscriber sub_imu_;
         ros::Subscriber sub_imu_acc_;
         ros::Subscriber sub_imu_gyro_;
