@@ -139,7 +139,7 @@ class JointsEstimator {
         std::vector<std::string> joint_names_;
         std::vector<std::string> joint_frame_names_;
         std::vector<std::pair<Eigen::Vector3d, 
-            Eigen::Vector3d>> axes_pairs_;                          // For each imu pair, the axis of sensor frame aligned with joint axis
+        Eigen::Vector3d>> axes_pairs_;                              // For each imu pair, the axis of sensor frame aligned with joint axis
 
 };
 
