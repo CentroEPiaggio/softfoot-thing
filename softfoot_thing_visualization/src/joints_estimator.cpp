@@ -147,7 +147,7 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
 
     // Get the joint limits from the tree according to robot name
     bool all_limits_found = true;
-    boost::shared_ptr<const urdf::Joint> joint;
+    std::shared_ptr<const urdf::Joint> joint;
     this->joint_limits_.resize(this->joint_names_.size());
     for (int i = 0; i < this->joint_names_.size(); i++) {
         joint = model.getJoint(this->robot_name_ + "_" + this->joint_names_[i]);
