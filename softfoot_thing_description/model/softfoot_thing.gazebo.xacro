@@ -9,6 +9,16 @@
             </plugin>
         </gazebo> -->
 
+		<!-- Provide joint feedback when simulating -->
+		<gazebo>
+       		<plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+         		<robotNamespace>/${name}</robotNamespace>
+         		<jointName>${name}_back_arch_joint, ${name}_front_arch_joint, ${name}_roll_joint</jointName>
+         		<updateRate>10.0</updateRate>
+         		<alwaysOn>true</alwaysOn>
+       		</plugin>
+   		</gazebo>
+
 		<gazebo reference="${name}_ankle_link">
 			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
