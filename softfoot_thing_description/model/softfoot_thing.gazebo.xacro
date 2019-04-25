@@ -21,27 +21,27 @@
 
 		<gazebo reference="${name}_ankle_link">
 			<gravity>true</gravity>
-			<material>Gazebo/Grey</material>
+			<!-- <material>Gazebo/Grey</material> -->
 		</gazebo>
 
 		<gazebo reference="${name}_front_arch_link">
 			<gravity>true</gravity>
-			<material>Gazebo/Grey</material>
+			<!-- <material>Gazebo/Grey</material> -->
 		</gazebo>
 
 		<gazebo reference="${name}_back_arch_link">
 			<gravity>true</gravity>
-			<material>Gazebo/Grey</material>
+			<!-- <material>Gazebo/Grey</material> -->
 		</gazebo>
 
 		<gazebo reference="${name}_front_roll_link">
 			<gravity>true</gravity>
-			<material>Gazebo/Grey</material>
+			<!-- <material>Gazebo/Grey</material> -->
 		</gazebo>
 
 		<gazebo reference="${name}_back_roll_link">
 			<gravity>true</gravity>
-			<material>Gazebo/Grey</material>
+			<!-- <material>Gazebo/Grey</material> -->
 		</gazebo>
 
 	</xacro:macro>
