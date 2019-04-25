@@ -28,6 +28,9 @@
     
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
 
+    <!-- Loading viz config file to param server -->
+	<rosparam command="load" file="$(arg footconfig)"/>
+
     <!-- Joints Estimator -->
     <group unless="$(arg gui)">
         <!-- TODO: joint_estimator_node -->
@@ -35,8 +38,5 @@
 
     <!-- RViz for visualization -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
-
-    <!-- Loading viz config file to param server -->
-	<rosparam command="load" file="$(arg footconfig)"/>
 
 </launch>
