@@ -8,7 +8,7 @@
     <arg name="gui" default="false"/>
     <arg name="sim" default="true"/>
     <arg name="env_name" default="pisa_softfoot"/>
-    <arg name="model" default="--inorder $(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
+    <arg name="model" default="$(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
     <arg name="rvizconfig" default="$(find softfoot_thing_description)/configs/pisa_softfoot.rviz"/>
 
     <!-- START LAUNCH -->
