@@ -174,7 +174,7 @@
 			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="${velocity_scale * 45 * const_pi / 180}" />
 			<dynamics friction="0.01" damping="0.01"/>
-            <mimic joint="${name}_roll_joint" multiplier="1"/>
+            <!-- <mimic joint="${name}_roll_joint" multiplier="1"/> -->
 			<parent link="${name}_front_arch_link"/>
 			<child link="${name}_front_roll_link"/>
 		</joint>
@@ -219,7 +219,7 @@
 			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="${velocity_scale * 45 * const_pi / 180}" />
 			<dynamics friction="0.01" damping="0.01"/>
-            <mimic joint="${name}_roll_joint" multiplier="-1"/>
+            <!-- <mimic joint="${name}_roll_joint" multiplier="-1"/> -->
 			<parent link="${name}_back_arch_link"/>
 			<child link="${name}_back_roll_link"/>
 		</joint>
