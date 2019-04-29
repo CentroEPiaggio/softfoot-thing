@@ -28,6 +28,7 @@ catkin_package(
 
 set(OBJECTS_SOURCE_FILES
   src/joints_estimator.cpp
+  src/utils/parsing_utilities.cpp
 )
 
 include_directories(
