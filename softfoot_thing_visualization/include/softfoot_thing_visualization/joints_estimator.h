@@ -9,6 +9,7 @@
 // ROS includes
 #include <ros/ros.h>
 #include <ros/node_handle.h>
+#include <ros/package.h>
 #include <string>
 #include <mutex>
 
@@ -38,6 +39,9 @@ class JointsEstimator {
 
         // Function that calibrates the sensing
         void calibrate();
+
+        // Function that calibrates the sensing and saves the calibration data to yaml
+        void calibrate_and_save(std::string file_name);
 
         // Function that spins the estimator
         bool spinEstimator();
@@ -126,9 +130,10 @@ class JointsEstimator {
         sensor_msgs::JointState joint_states_;
 
         // Constants
-        std::string foot_name_;
         int foot_id_;
+        std::string foot_name_;
         std::string robot_name_;
+        std::string pkg_path;
         std::string imu_topic_ = "/qb_class_imu/quat";
         std::string imu_topic_acc_ = "/qb_class_imu/acc";
         std::string imu_topic_gyro_ = "/qb_class_imu/gyro";

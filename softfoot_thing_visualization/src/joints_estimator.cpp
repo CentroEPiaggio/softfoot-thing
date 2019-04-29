@@ -3,9 +3,11 @@
     This object tries to estimate the joint angles of foot from IMU poses.
 */
 
+#include <fstream>
 #include <urdf/model.h>
 #include <kdl/tree.hpp>
 #include <kdl_parser/kdl_parser.hpp>
+#include "yaml-cpp/yaml.h"
 
 #include "softfoot_thing_visualization/joints_estimator.h"
 
@@ -24,6 +26,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->foot_id_ = foot_id;
     this->foot_name_ = foot_name;
     this->robot_name_ = this->foot_name_ + "_" + std::to_string(this->foot_id_);
+    // this->pkg_path = ros::package::getPath("softfoot_thing_visualization");
 
     // Initializing ros variables
     this->je_nh_ = nh;
@@ -110,6 +113,23 @@ void JointsEstimator::calibrate(){
 
     // Set calibrated flag
     this->calibrated_ = true;
+
+}
+
+// Function that calibrates the sensing and saves the calibration data to yaml
+void JointsEstimator::calibrate_and_save(std::string file_name){
+
+    // Get the path to the softfoot viz config folder and append the file name
+    std::string config_file_path = this->pkg_path + "/config/" + file_name + ".yaml";
+
+    // Create yaml emitter and prepare it with foot details
+    YAML::Emitter yaml_out;
+    yaml_out << "# Parameters for SoftFoot Visualization";
+
+    // TODO: Calibrate and write to yaml out
+
+    // Save the emmitter to file
+    std::ofstream file_out(config_file_path);
 
 }
 
