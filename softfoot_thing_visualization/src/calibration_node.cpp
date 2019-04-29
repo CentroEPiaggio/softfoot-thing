@@ -33,16 +33,12 @@ int main(int argc, char** argv) {
     // Calibrating after waiting for some time
     sleep(2);
 
-    // Requesting the name of the file, calibrating and then saving
-    std::string config_name;
-
-    std::cout << "What name do you want to give to the congifuration file to be saved? Please type and press ENTER." << std::endl;
-    std::cin >> config_name;
+    // The name of the saved calibration file will be the same as the foot
 
     ROS_INFO_STREAM("SoftFoot Calibrator : starting to calibrate the sensing for " << 
-        foot_name + std::to_string(foot_id) << ".");
+        foot_name + "_" + std::to_string(foot_id) << ".");
 
-    calibrator.calibrate_and_save(config_name);
+    calibrator.calibrate_and_save(foot_name + "_" + std::to_string(foot_id));
 
     // Start to spin the estimator
     ROS_INFO_STREAM("SoftFoot Calibrator : calibration finished. Saved configuration to file.");

@@ -26,7 +26,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->foot_id_ = foot_id;
     this->foot_name_ = foot_name;
     this->robot_name_ = this->foot_name_ + "_" + std::to_string(this->foot_id_);
-    // this->pkg_path = ros::package::getPath("softfoot_thing_visualization");
+    this->pkg_path = ros::package::getPath("softfoot_thing_visualization");
 
     // Initializing ros variables
     this->je_nh_ = nh;
@@ -120,16 +120,37 @@ void JointsEstimator::calibrate(){
 void JointsEstimator::calibrate_and_save(std::string file_name){
 
     // Get the path to the softfoot viz config folder and append the file name
-    std::string config_file_path = this->pkg_path + "/config/" + file_name + ".yaml";
+    std::string config_file_path = this->pkg_path + "/configs/" + file_name + ".yaml";
+    std::cout << "File path is " << config_file_path << "." << std::endl;
 
     // Create yaml emitter and prepare it with foot details
     YAML::Emitter yaml_out;
-    yaml_out << "# Parameters for SoftFoot Visualization";
+    yaml_out << YAML::Comment("Calibration Data for SoftFoot Joint Estimation");
 
-    // TODO: Calibrate and write to yaml out
+    // Calibrating the foot sensors
+    this->calibrate();
+
+    // Writing result of calibration to yaml
+    yaml_out << YAML::BeginMap;                     // begin: foot name
+    yaml_out << YAML::Key << this->robot_name_;
+
+    yaml_out << YAML::BeginMap;                     // begin: base_accelerations
+    yaml_out << YAML::Key << "base_accelerations";
+
+    // Saving all of the base calibrated accelerations
+    yaml_out << YAML::BeginSeq;
+    for (auto it : this->acc_vec_0_) {
+        yaml_out << YAML::Flow << YAML::BeginSeq << it(0) << it(1) << it(2) << YAML::EndSeq;
+        std::cout << "step" << std::endl;
+    }
+    yaml_out << YAML::EndSeq;
+
+    yaml_out << YAML::EndMap;                       // end: foot name
+    yaml_out << YAML::EndMap;                       // end: base_accelerations
 
     // Save the emmitter to file
     std::ofstream file_out(config_file_path);
+    file_out << yaml_out.c_str();
 
 }
 
@@ -138,9 +159,14 @@ bool JointsEstimator::spinEstimator(){
 
     // Check if the foot has been calibrated
     if (!this->calibrated_) {
-        ROS_FATAL_STREAM("You did not calibrate the sensing for " << this->robot_name_ 
-            << ", shutting down!");
-        return false;
+        ROS_FATAL_STREAM("No on the fly calibration was requested for " << this->robot_name_ 
+            << ", looking for an offline calibration data file for this foot!");
+
+        // Trying to parse an offline calibration yaml
+        std::vector<std::vector<double>> temp_acc_0;
+        // TODO: parse the base_accelerations, if not possible return false
+
+        return true;
     }
 
     // Spin as fast as possible until node is shut down
