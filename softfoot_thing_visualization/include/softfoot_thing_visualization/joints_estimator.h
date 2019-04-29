@@ -19,7 +19,6 @@
 #include "qb_interface/inertialSensorArray.h"
 
 // Softfoot visualization includes
-#include "softfoot_thing_visualization/madgwick_filter.h"
 
 // Other includes
 #include <tf/transform_listener.h>

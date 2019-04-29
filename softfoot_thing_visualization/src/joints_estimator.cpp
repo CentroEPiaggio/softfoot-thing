@@ -141,7 +141,6 @@ void JointsEstimator::calibrate_and_save(std::string file_name){
     yaml_out << YAML::BeginSeq;
     for (auto it : this->acc_vec_0_) {
         yaml_out << YAML::Flow << YAML::BeginSeq << it(0) << it(1) << it(2) << YAML::EndSeq;
-        std::cout << "step" << std::endl;
     }
     yaml_out << YAML::EndSeq;
 
