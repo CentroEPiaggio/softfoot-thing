@@ -15,7 +15,7 @@
 #define     DEBUG_JE        0       // Prints out additional info about the Object
 #define     DEBUG_JS        0       // Prints out info about estimated joint states
 #define     DEBUG_PARSED    0       // Prints out info about parsed stuff
-#define     DEBUG_ANGLES    1       // Prints out only raw estimated angles
+#define     DEBUG_ANGLES    0       // Prints out only raw estimated angles
 
 #define     N_CAL_IT        100     // Number of calibration iterations
 
@@ -452,7 +452,7 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
     angle_2 = (float) atan2(determinant, dot_product);
 
     // 4) Compute the final joint state combining the two angles
-    js = angle_1 + angle_2;
+    js = angle_1 - angle_2;
 
     // 5) Return the found joint state of the joint relative to the specifies pair
     return js;
