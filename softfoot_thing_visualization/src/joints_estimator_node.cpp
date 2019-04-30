@@ -35,7 +35,12 @@ int main(int argc, char** argv) {
 
     // Check if calibrated before spinning
     ROS_INFO_STREAM("SoftFoot Joint Estimator : checking for correct calibration.");
-    joint_estimator.check_calibration();
+    bool all_calibrated = true;
+    if (!joint_estimator.check_calibration()) all_calibrated = false;
+    if (!all_calibrated) {
+        ROS_INFO_STREAM("SoftFoot Joint Estimator : not all feet are calibrated...");
+        return 1;
+    }
 
     // Spin estimators as fast as possible until node is shut down
     ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to spin");
