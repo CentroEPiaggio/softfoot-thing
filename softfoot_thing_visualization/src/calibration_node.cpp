@@ -28,10 +28,12 @@ int main(int argc, char** argv) {
     softfoot_thing_visualization::JointsEstimator calibrator(nh, foot_id, foot_name);
 
     ROS_INFO_STREAM("SoftFoot Calibrator : started. Please ensure that " << 
-        foot_name + std::to_string(foot_id) << " is in neutral position on a flat surface.");
+        foot_name + std::to_string(foot_id) << " is in neutral position on a flat"
+            << " and don't move them until calibration is finished!" 
+            << "This might take some time...");
  
     // Calibrating after waiting for some time
-    sleep(2);
+    sleep(5);
 
     // The name of the saved calibration file will be the same as the foot
 
