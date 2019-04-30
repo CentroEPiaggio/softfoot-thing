@@ -99,7 +99,6 @@ class JointsEstimator {
         // ROS variables
         ros::NodeHandle je_nh_;
         ros::AsyncSpinner spinner;
-        ros::Subscriber sub_imu_;
         ros::Subscriber sub_imu_acc_;
         ros::Subscriber sub_imu_gyro_;
         ros::Publisher pub_js_;
@@ -112,38 +111,36 @@ class JointsEstimator {
         tf::StampedTransform stamped_transform_;
 
         // qb readings and the mutex
-        std::mutex imu_mutex_;                                      // Not used for now as everything is done in callback.
-        std::vector<qb_interface::inertialSensor> imu_acc_;
-        std::vector<qb_interface::inertialSensor> imu_gyro_;
+        std::mutex imu_mutex_;                                      // Not used yet
+        std::vector<qb_interface::inertialSensor> imu_acc_;         // Raw acceleration msg from qb
+        std::vector<qb_interface::inertialSensor> imu_gyro_;        // Raw gyro msg from qb
 
         // Acceleration vectors
-        std::vector<Eigen::Vector3d> acc_vec_0_;
-        std::vector<Eigen::Vector3d> acc_vec_;
-        std::vector<Eigen::Vector3d> acc_vec_olds_;
+        std::vector<Eigen::Vector3d> acc_vec_0_;                    // Calibration acceleration
+        std::vector<Eigen::Vector3d> acc_vec_;                      // Current acceleration
+        std::vector<Eigen::Vector3d> acc_vec_olds_;                 // Previous acceleration
 
         // Joint variables
-        std::vector<float> joint_values_;
-        std::vector<float> joint_offset_;
-        std::vector<float> js_values_;                              // js_values_ = joint_values_ - joint_offset_     
-        std::vector<std::pair<float, float>> joint_limits_;
-        sensor_msgs::JointState joint_states_;
+        std::vector<float> joint_values_;                           // Raw joint values
+        std::vector<float> js_values_;                              // Joint states 
+        std::vector<std::pair<float, float>> joint_limits_;         // parsed fron robot model
+        sensor_msgs::JointState joint_states_;                      // Joint states message
 
         // Constants
         int foot_id_;
         std::string foot_name_;
-        std::string robot_name_;
-        std::string pkg_path;
+        std::string robot_name_;                                    // Foot name + id
+        std::string pkg_path;                                       // Path to this package (parsed later)
         std::string imu_topic_ = "/qb_class_imu/quat";
         std::string imu_topic_acc_ = "/qb_class_imu/acc";
         std::string imu_topic_gyro_ = "/qb_class_imu/gyro";
 
         // Parsed variables
-        bool use_filter;
-        std::vector<std::pair<int, int>> joint_pairs_;
-        std::vector<std::string> joint_names_;
-        std::vector<std::string> joint_frame_names_;
+        std::vector<std::pair<int, int>> joint_pairs_;              // Pairs of imu ids for each joint
+        std::vector<std::string> joint_names_;                      // Names of each joint
+        std::vector<std::string> joint_frame_names_;                // Names of the frames of each joint
         std::vector<std::pair<Eigen::Vector3d, 
-        Eigen::Vector3d>> axes_pairs_;                              // For each imu pair, the axis of sensor frame aligned with joint axis
+            Eigen::Vector3d>> axes_pairs_;                          // For each imu pair, the axis of sensor frame aligned with joint axis
         XmlRpc::XmlRpcValue je_params_;                             // For nested params
 
 };

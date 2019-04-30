@@ -46,11 +46,9 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
         ("/" + this->foot_name_ + "_" + std::to_string(this->foot_id_) + "/joint_states", 1);
 
     // Temporarily building parsable variables here (TODO: parse them)
-    this->use_filter = false;
     this->joint_pairs_ = {{0, 1}, {0, 3}, {1, 2}};
     this->joint_names_ = {"front_arch_joint", "back_arch_joint", "roll_joint"};
     this->joint_frame_names_ = {"front_arch_link", "back_arch_link", "roll_link"};
-    this->joint_offset_ = {1.90, 1.98, 2.74};
 
     // Temporarily building parsable variables here (TODO: parse them)
     Eigen::Vector3d x_loc(1, 0, 0);
@@ -200,6 +198,9 @@ bool JointsEstimator::spinEstimator(){
             std::cout << "The parsed calibration matrix is " << std::endl;
             std::cout << base_accelerations << std::endl;
         }
+
+        // Set calibrated
+        this->calibrated_ = true;
     }
 
     // Spin as fast as possible until node is shut down
@@ -221,13 +222,6 @@ bool JointsEstimator::spinEstimator(){
 // Function to parse parameters
 bool JointsEstimator::parse_parameters(ros::NodeHandle& nh){
     
-    // Parsing jont offsets
-    if (!nh.getParam("softfoot_viz/" + this->robot_name_ + "/joint_offset", this->joint_offset_)) {
-        ROS_FATAL_STREAM("Cannot find the joint offsets for " << this->robot_name_ 
-            << ", shutting down!");
-        return false;
-    }
-
     // TODO: parse needed params
 
     // Parsing joint limits of the foot (joint_names_ needs to be set before)
@@ -312,7 +306,6 @@ void JointsEstimator::correct_offset(){
     // Compute the real joint states by removing the offset
     for (int i = 0; i < this->joint_values_.size(); i++) {
         this->js_values_[i] = this->joint_values_[i];
-        // this->js_values_[i] = this->joint_values_[i] - this->joint_offset_[i];
     }
 
 }
