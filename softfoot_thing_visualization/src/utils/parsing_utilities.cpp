@@ -240,8 +240,12 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
     }
 
     // Make sure that the parameter is of the correct type
-    std::cout << "Param type is " << params[param_name].getType() << std::endl;
-    ROS_ASSERT(params[param_name].getType() == XmlRpc::XmlRpcValue::TypeStruct);
+    if (params[param_name].getType() == XmlRpc::XmlRpcValue::TypeArray) {
+        std::cout << "Param type is TypeArray" << std::endl;
+    }
+    
+    ROS_ASSERT(params[param_name].getType() == XmlRpc::XmlRpcValue::TypeStruct ||
+        params[param_name].getType() == XmlRpc::XmlRpcValue::TypeArray);
 
     // Resizing matrix param to correct dimensions
     int matrix_rows = params[param_name].size();
@@ -267,7 +271,7 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
         }
         param.block(i, 0, current_row.rows(), current_row.cols()) = current_row;
     }
-
+    
     // Copy the temporary map into the input map and return
     ROS_DEBUG_STREAM("Parsed the matrix " << param_name << " = \n" << param << ".");
 

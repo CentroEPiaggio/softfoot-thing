@@ -104,8 +104,13 @@ void JointsEstimator::calibrate(){
         // Fill up the initial accelerations and others
         for (int i = 0; i < 4; i++) {
             sample << this->imu_acc_[i].x, this->imu_acc_[i].y, this->imu_acc_[i].z;
-            this->acc_vec_0_[i] = (this->acc_vec_0_[i] + sample) / double(k+1);
+            this->acc_vec_0_[i] = (this->acc_vec_0_[i] + sample);
         }
+    }
+
+    // Divide by N_CAL_IT to get the mean
+    for (int i = 0; i < 4; i++) {
+        this->acc_vec_0_[i] = (this->acc_vec_0_[i] / N_CAL_IT);
     }
 
     // Setting current and old accs to initial
@@ -130,7 +135,11 @@ void JointsEstimator::calibrate_and_save(std::string file_name){
 
     // Calibrating the foot sensors
     this->calibrate();
-
+    std::cout << "The calibrated acceleraations are: " << std::endl;
+    for (auto it : this->acc_vec_0_) {
+        std::cout << it.transpose() << std::endl;
+    }
+    
     // Writing result of calibration to yaml
     yaml_out << YAML::BeginMap;                     // begin: foot name
     yaml_out << YAML::Key << this->robot_name_;
@@ -141,7 +150,8 @@ void JointsEstimator::calibrate_and_save(std::string file_name){
     // Saving all of the base calibrated accelerations
     yaml_out << YAML::BeginSeq;
     for (auto it : this->acc_vec_0_) {
-        yaml_out << YAML::Flow << YAML::BeginSeq << it(0) << it(1) << it(2) << YAML::EndSeq;
+        std::vector<double> temp = {it(0), it(1), it(2)};
+        yaml_out << YAML::Flow << temp;
     }
     yaml_out << YAML::EndSeq;
 
@@ -159,7 +169,7 @@ bool JointsEstimator::spinEstimator(){
 
     // Check if the foot has been calibrated
     if (!this->calibrated_) {
-        ROS_FATAL_STREAM("No on the fly calibration was requested for " << this->robot_name_ 
+        ROS_WARN_STREAM("No on the fly calibration was requested for " << this->robot_name_ 
             << ", looking for an offline calibration data file for this foot!");
 
         // Trying to parse an offline calibration yaml
@@ -181,14 +191,15 @@ bool JointsEstimator::spinEstimator(){
             }
 
             // Filling vector of base accelerations from parsed matrix
+            Eigen::Vector3d sample;
             for (int i = 0; i < this->acc_vec_0_.size(); i++) {
-                this->acc_vec_0_[i] = Eigen::Vector3d(base_accelerations.block(i, 0, 1, 3));
+                sample << base_accelerations(i, 0), base_accelerations(i, 1), base_accelerations(i, 2);
+                this->acc_vec_0_[i] = sample;
             }
 
-            std::cout << "The parsed calibration matrix is " << base_accelerations << std::endl;
+            std::cout << "The parsed calibration matrix is " << std::endl;
+            std::cout << base_accelerations << std::endl;
         }
-
-        return true;
     }
 
     // Spin as fast as possible until node is shut down
@@ -202,6 +213,8 @@ bool JointsEstimator::spinEstimator(){
     }
 
     this->spinner.stop();
+
+    return true;
 
 }
 
