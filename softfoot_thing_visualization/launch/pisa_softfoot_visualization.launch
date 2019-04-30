@@ -29,6 +29,11 @@
     
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
 
+    <!-- QB Interface -->
+    <group unless="$(arg gui)">
+        <include file="$(find qb_interface)/launch/qb_interface_imu_5_boards.launch"></include>
+    </group>
+
     <!-- Loading viz config file to param server -->
 	<rosparam command="load" file="$(arg footconfig)"/>
 
@@ -37,7 +42,7 @@
 
     <!-- Joints Estimator -->
     <group unless="$(arg gui)">
-        <!-- TODO: joint_estimator_node -->
+        <node name="js_estimator" pkg="softfoot_thing_visualization" type="softfoot_thing_visualization_joints_estimator" required="true" output="screen"/>
     </group>
 
     <!-- RViz for visualization -->
