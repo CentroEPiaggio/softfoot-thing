@@ -11,21 +11,28 @@ int main(int argc, char** argv) {
     ros::init (argc, argv, "softfoot_thing_visualization_joints_estimator");
     ros::NodeHandle nh;
 
+    // Get needed params
+    bool online_calib = false;
+    if (!nh.getParam("softfoot_viz/calibrate_online", online_calib)) {
+         ROS_INFO_STREAM("SoftFoot Joint Estimator : No specific request for calibration.");
+    };
+
     // Joint estimator object
     softfoot_thing_visualization::JointsEstimator joint_estimator(nh, 3, "softfoot");
 
-    ROS_INFO_STREAM("SoftFoot Joint Estimator : started. Please ensure that the feet are in neutral position.");
+    ROS_INFO_STREAM("SoftFoot Joint Estimator : started.");
 
-    // Calibrating after waiting for some time
+    // If needed calibrating after waiting for some time
     sleep(2);
 
-    ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to calibrate the sensing.");
-
-    joint_estimator.calibrate();
+    if (online_calib) {
+        ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to calibrate the sensing.");
+        joint_estimator.calibrate();
+        ROS_INFO_STREAM("SoftFoot Joint Estimator : calibration finished.");
+    }
 
     // Start to spin the estimator
-    ROS_INFO_STREAM("SoftFoot Joint Estimator : calibration finished. Starting to spin");
-
+    ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to spin");
     joint_estimator.spinEstimator();
 
     // Shutting down when finished

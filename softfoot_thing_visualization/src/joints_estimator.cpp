@@ -9,6 +9,7 @@
 #include <kdl_parser/kdl_parser.hpp>
 #include "yaml-cpp/yaml.h"
 
+#include "softfoot_thing_visualization/utils/parsing_utilities.h"
 #include "softfoot_thing_visualization/joints_estimator.h"
 
 #define     DEBUG_JE        0       // Prints out additional info about the Object
@@ -162,8 +163,30 @@ bool JointsEstimator::spinEstimator(){
             << ", looking for an offline calibration data file for this foot!");
 
         // Trying to parse an offline calibration yaml
-        std::vector<std::vector<double>> temp_acc_0;
-        // TODO: parse the base_accelerations, if not possible return false
+        if (!this->je_nh_.getParam(this->robot_name_, this->je_params_)) {
+            ROS_FATAL_STREAM("No offline calibration found for " << this->robot_name_ 
+            << ", this is bad!");
+            return false;
+        } else {
+            // Getting parameters
+            Eigen::MatrixXd base_accelerations(4, 3);
+            parseParameter(this->je_params_, base_accelerations, "base_accelerations");
+
+            // Check for parameter consistency
+            if (base_accelerations.rows() != this->acc_vec_0_.size() || 
+                base_accelerations.cols() != 3) {
+                    ROS_FATAL_STREAM("The parsed calibration for " << this->robot_name_ 
+                        << " is inconsistent, this is bad!");
+                    return false;
+            }
+
+            // Filling vector of base accelerations from parsed matrix
+            for (int i = 0; i < this->acc_vec_0_.size(); i++) {
+                this->acc_vec_0_[i] = Eigen::Vector3d(base_accelerations.block(i, 0, 1, 3));
+            }
+
+            std::cout << "The parsed calibration matrix is " << base_accelerations << std::endl;
+        }
 
         return true;
     }
