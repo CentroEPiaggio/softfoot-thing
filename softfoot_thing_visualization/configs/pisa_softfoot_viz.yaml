@@ -4,7 +4,7 @@
 softfoot_viz:
 
   # Calibrate online
-  calibrate_online: true
+  calibrate_online: false
 
   # Names of the joints of the softfoot
   joint_names: ["front_arch_joint", "back_arch_joint", "roll_joint"]
