@@ -29,8 +29,8 @@ int main(int argc, char** argv) {
 
     ROS_INFO_STREAM("SoftFoot Calibrator : started. Please ensure that " << 
         foot_name + std::to_string(foot_id) << " is in neutral position on a flat"
-            << " and don't move them until calibration is finished!" 
-            << "This might take some time...");
+            << " and DON'T MOVE it until calibration is finished!" 
+            << " This might take some time...");
  
     // Calibrating after waiting for some time
     sleep(5);

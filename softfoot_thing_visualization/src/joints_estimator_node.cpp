@@ -28,8 +28,8 @@ int main(int argc, char** argv) {
     if (online_calib) {
         ROS_INFO_STREAM("SoftFoot Joint Estimator : online calibration is set.");
         ROS_INFO_STREAM("SoftFoot Joint Estimator : Please assure that the feet are on a flat" 
-            << " surface and don't move them until calibration is finished!" 
-            << "This might take some time...");
+            << " surface and DON'T MOVE them until calibration is finished!" 
+            << " This might take some time...");
         sleep(5);
         ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to calibrate the sensing...");
         joint_estimator.calibrate();
