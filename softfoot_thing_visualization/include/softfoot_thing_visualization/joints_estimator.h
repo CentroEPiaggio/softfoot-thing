@@ -43,7 +43,10 @@ class JointsEstimator {
         void calibrate_and_save(std::string file_name);
 
         // Function that spins the estimator
-        bool spinEstimator();
+        bool check_calibration();
+
+        // Function that estimates the joint angles
+        bool estimate();
 
     private:
 
@@ -73,9 +76,6 @@ class JointsEstimator {
 
         // Function to fill joint states with est. values and publish
         void fill_and_publish(std::vector<float> joint_values);
-
-        // Function that estimates the joint angles
-        bool estimate();
 
         // Callback to imu accelerations topic
         void acc_callback(const qb_interface::inertialSensorArray::ConstPtr &msg);

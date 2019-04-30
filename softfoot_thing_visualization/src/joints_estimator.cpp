@@ -163,7 +163,7 @@ void JointsEstimator::calibrate_and_save(std::string file_name){
 }
 
 // Function that spins the estimator
-bool JointsEstimator::spinEstimator(){
+bool JointsEstimator::check_calibration(){
 
     // Check if the foot has been calibrated
     if (!this->calibrated_) {
@@ -203,18 +203,47 @@ bool JointsEstimator::spinEstimator(){
         this->calibrated_ = true;
     }
 
-    // Spin as fast as possible until node is shut down
-    this->spinner.start();
+    return true;
 
-    while (ros::ok()) {
+}
 
-        // Estimate and publish joint states
-        this->estimate();
+// Function that estimates the joint angles
+bool JointsEstimator::estimate(){
 
+    // Check if the foot has been calibrated
+    if (!this->calibrated_) {
+        ROS_FATAL_STREAM("Foot " << this->robot_name_  
+            << "has not been calibrated, this is bad!");
+        return false;
     }
 
-    this->spinner.stop();
+    // Estimating the angles
+    for (int i = 0; i < this->joint_pairs_.size(); i++) {
+        this->joint_values_[i] = this->compute_joint_state_from_pair(this->joint_pairs_[i]);
+    }
 
+    // Filling up jointstates and publishing
+    this->fill_and_publish(this->joint_values_);
+
+    if (DEBUG_ANGLES) {
+        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[0].first 
+            << ", " << this->joint_pairs_[0].second << ") is " << this->joint_values_[0] << "rads \n");
+        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[1].first 
+            << ", " << this->joint_pairs_[1].second << ") is " << this->joint_values_[1] << "rads \n");
+        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[2].first 
+            << ", " << this->joint_pairs_[2].second << ") is " << this->joint_values_[2] << "rads \n");
+    }
+
+    if (DEBUG_JS) {
+        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[0].first 
+            << ", " << this->joint_pairs_[0].second << ") is " << this->js_values_[0] << "rads \n");
+        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[1].first 
+            << ", " << this->joint_pairs_[1].second << ") is " << this->js_values_[1] << "rads \n");
+        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[2].first 
+            << ", " << this->joint_pairs_[2].second << ") is " << this->js_values_[2] << "rads \n");
+    }
+
+    // Returning
     return true;
 
 }
@@ -465,40 +494,6 @@ void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
         this->joint_states_.position[i] = (this->js_values_[i]);
     }
     this->pub_js_.publish(this->joint_states_);
-
-}
-
-// Function that estimates the joint angles
-bool JointsEstimator::estimate(){
-
-    // Estimating the angles
-    for (int i = 0; i < this->joint_pairs_.size(); i++) {
-        this->joint_values_[i] = this->compute_joint_state_from_pair(this->joint_pairs_[i]);
-    }
-
-    // Filling up jointstates and publishing
-    this->fill_and_publish(this->joint_values_);
-
-    if (DEBUG_ANGLES) {
-        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[0].first 
-            << ", " << this->joint_pairs_[0].second << ") is " << this->joint_values_[0] << "rads \n");
-        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[1].first 
-            << ", " << this->joint_pairs_[1].second << ") is " << this->joint_values_[1] << "rads \n");
-        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[2].first 
-            << ", " << this->joint_pairs_[2].second << ") is " << this->joint_values_[2] << "rads \n");
-    }
-
-    if (DEBUG_JS) {
-        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[0].first 
-            << ", " << this->joint_pairs_[0].second << ") is " << this->js_values_[0] << "rads \n");
-        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[1].first 
-            << ", " << this->joint_pairs_[1].second << ") is " << this->js_values_[1] << "rads \n");
-        ROS_INFO_STREAM("The estimated joint state for imu pair (" << this->joint_pairs_[2].first 
-            << ", " << this->joint_pairs_[2].second << ") is " << this->js_values_[2] << "rads \n");
-    }
-
-    // Returning
-    return true;
 
 }
 
