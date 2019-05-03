@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:property name="negligible_mass" value="0.1"/>
+  <xacro:property name="negligible_mass" value="00000.1"/>
   <xacro:property name="mm2tom2" value="0.000001"/>
 
   <!-- INERTIA MATRICES FOR LINKS (wrt frames in urdf inertial) -->
@@ -50,7 +50,8 @@
   <xacro:property name="negligible_inertia">
       <origin xyz="0 0 0"/>
       <mass value="${negligible_mass}"/>
-      <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
+      <inertia  ixx="${mm2tom2 * 0.0001}" iyy="${mm2tom2 * 0.0001}" izz="${mm2tom2 * 0.0001}" 
+                ixy="0.0" ixz="0.0" iyz="0.0"/>
   </xacro:property>
 
 </robot>
