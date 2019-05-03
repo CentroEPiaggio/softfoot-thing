@@ -1,0 +1,58 @@
+<?xml version='1.0'?>
+
+<sdf version='1.5'>
+    <model name='SoftFootThing'>
+
+    <!-- WORLD -->
+    <link name='world'>
+    </link>
+
+    <!-- LEG -->
+    <joint name="world_to_leg" type="revolute">
+        <parent>world</parent>
+        <child>leg_link</child>
+        <axis>
+            <xyz>0 0 1</xyz>
+            <limit>
+                <upper>0</upper>
+                <lower>0</lower>
+            </limit>
+        </axis>
+    </joint>
+
+    <link name='leg_link'>
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.001</mass>
+            <inertia>
+                <ixx>0.07472</ixx>
+                <ixy>-3.6e-06</ixy>
+                <ixz>-4.705e-05</ixz>
+                <iyy>0.08145</iyy>
+                <iyz>0.004567</iyz>
+                <izz>0.01306</izz>
+            </inertia>
+        </inertial>
+        <collision>
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+                <cylinder>
+                    <radius>0.1</radius>
+                    <length>0.015</length>
+                </cylinder>
+            </geometry>
+        </collision>
+        <visual>
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+                <cylinder>
+                    <radius>0.1</radius>
+                    <length>0.015</length>
+                </cylinder>
+            </geometry>
+        </visual>
+    </link>
+
+    </model>
+</sdf>
