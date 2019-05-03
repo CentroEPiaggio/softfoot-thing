@@ -26,30 +26,108 @@
             <pose>0 0 0 0 0 0</pose>
             <mass>0.001</mass>
             <inertia>
-                <ixx>0.07472</ixx>
-                <ixy>-3.6e-06</ixy>
-                <ixz>-4.705e-05</ixz>
-                <iyy>0.08145</iyy>
-                <iyz>0.004567</iyz>
-                <izz>0.01306</izz>
+                <ixx>0.000001</ixx>
+                <iyy>0.000001</iyy>
+                <izz>0.000001</izz>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyz>0</iyz>
             </inertia>
         </inertial>
-        <collision>
+        <collision name='leg_link_collision'>
             <pose>0 0 0 0 0 0</pose>
             <geometry>
                 <cylinder>
-                    <radius>0.1</radius>
-                    <length>0.015</length>
+                    <radius>0.015</radius>
+                    <length>0.1</length>
                 </cylinder>
             </geometry>
         </collision>
-        <visual>
+        <visual name='leg_link_visual'>
             <pose>0 0 0 0 0 0</pose>
             <geometry>
                 <cylinder>
-                    <radius>0.1</radius>
-                    <length>0.015</length>
+                    <radius>0.015</radius>
+                    <length>0.1</length>
                 </cylinder>
+            </geometry>
+        </visual>
+    </link>
+
+    <!-- FOOT -->
+
+    <!-- ANKLE BASE -->
+    <joint name="leg_link_softfoot_3_ankle_base_joint" type="revolute">
+        <parent>leg_link</parent>
+        <child>softfoot_3_ankle_base_link</child>
+        <axis>
+            <xyz>0 0 1</xyz>
+            <limit>
+                <upper>0</upper>
+                <lower>0</lower>
+            </limit>
+        </axis>
+    </joint>
+
+    <link name='softfoot_3_ankle_base_link'>
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.001</mass>
+            <inertia>
+                <ixx>0.000001</ixx>
+                <iyy>0.000001</iyy>
+                <izz>0.000001</izz>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyz>0</iyz>
+            </inertia>
+        </inertial>
+    </link>
+
+     <!-- ANKLE -->
+    <joint name="softfoot_3_ankle_joint" type="revolute">
+        <parent>softfoot_3_ankle_base_link</parent>
+        <child>softfoot_3_ankle_link</child>
+        <axis>
+            <xyz>0 0 1</xyz>
+            <limit>
+                <upper>0</upper>
+                <lower>0</lower>
+            </limit>
+        </axis>
+    </joint>
+
+    <link name='softfoot_3_ankle_link'>
+        <pose>0 0 0 0 0 0</pose>
+        <inertial>
+            <pose>0 0 0 0 0 0</pose>
+            <mass>0.001</mass>
+            <inertia>
+                <ixx>0.000001</ixx>
+                <iyy>0.000001</iyy>
+                <izz>0.000001</izz>
+                <ixy>0</ixy>
+                <ixz>0</ixz>
+                <iyz>0</iyz>
+            </inertia>
+        </inertial>
+        <collision name='leg_link_collision'>
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+                <mesh>
+                    <scale>.001 .001 .001</scale>
+                    <uri>model://meshes/visual/ankle.stl</uri>
+                </mesh>
+            </geometry>
+        </collision>
+        <visual name='leg_link_visual'>
+            <pose>0 0 0 0 0 0</pose>
+            <geometry>
+                <mesh>
+                    <scale>.001 .001 .001</scale>
+                    <uri>model://meshes/visual/ankle.stl</uri>
+                </mesh>
             </geometry>
         </visual>
     </link>

@@ -10,21 +10,26 @@
     <arg name="z" default="0.0"/>
     <arg name="sdf_robot_file" default="$(find softfoot_thing_description)/sdf/softfoot_thing.sdf"/>
     <arg name="robot_name" default="softfoot_thing"/>
-
-    <arg name="gui" default="false"/>
-    <arg name="sim" default="true"/>
     <arg name="env_name" default="pisa_softfoot"/>
-    <arg name="model" default="$(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
-    <arg name="controllersconfig" default="$(find softfoot_thing_visualization)/configs/pisa_softfoot_viz.yaml"/>
-    <arg name="rvizconfig" default="$(find softfoot_thing_description)/configs/pisa_softfoot.rviz"/>
-    <arg name="footconfig" default="$(find softfoot_thing_visualization)/configs/pisa_softfoot_viz.yaml"/>
 
     <!-- START LAUNCH -->
 
     <!-- Robot description -->
     <param name="robot_description" command="cat $(arg sdf_robot_file)"/>
+
+    <!-- Launch Gazebo -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find softfoot_thing_description)/worlds/$(arg env_name).world"/>
+        <arg name="paused" value="true"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="true"/>
+        <arg name="verbose" value="true" />
+	    <arg name="debug" value="false"/>
+	</include>
     
     <!-- Spawn the full robot into Gazebo  -->
-    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-sdf -x $(arg x) -y $(arg y) -z $(arg z)  -model $(arg robot_name) -param robot_description"/>
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" 
+        args="-file $(arg sdf_robot_file) -sdf -x $(arg x) -y $(arg y) -z $(arg z)  -model $(arg robot_name)"/>
 
 </launch>
