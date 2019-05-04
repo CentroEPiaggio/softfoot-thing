@@ -22,12 +22,12 @@
     <group unless="$(arg gui)">
         <group if="$(arg sim)">
             <include file="$(find gazebo_ros)/launch/empty_world.launch">
-                <arg name="world_name" value="$(find softfoot_thing_description)/worlds/$(arg env_name).world"/>
+                <!-- <arg name="world_name" value="$(find softfoot_thing_description)/worlds/$(arg env_name).world"/> -->
                 <arg name="paused" value="true"/>
                 <arg name="use_sim_time" value="true"/>
                 <arg name="gui" value="true"/>
-                <arg name="headless" value="true"/>
-                <arg name="verbose" value="true" />
+                <arg name="headless" value="false"/>
+                <arg name="verbose" value="false" />
 		        <arg name="debug" value="false"/>
 	        </include>
 
