@@ -43,6 +43,11 @@
 		</collision>
   </link>
 
+  <gazebo reference="leg_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Black</material>
+		</gazebo>
+
   <!-- FOOT -->
   <xacro:softfoot_thing name="softfoot_3" parent="leg_link">
     <origin xyz="0 0 -0.05" rpy="0 0 0"/>
