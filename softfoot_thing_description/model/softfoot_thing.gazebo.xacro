@@ -3,11 +3,19 @@
 
 	<xacro:macro name="softfoot_thing_gazebo" params="name">
 
+		<!-- Ros control (For future actuated case) -->
 		<!-- <gazebo>
             <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
                 <robotNamespace>${name}</robotNamespace>
             </plugin>
         </gazebo> -->
+
+		<!-- Custom simulation plugin -->
+		<gazebo>
+			<plugin name="${name}_gazebo_sim" filename="libsoftfoot_thing_gazebo_plugin.so">
+				<!-- <robotNamespace>${name}</robotNamespace> -->
+			</plugin>
+		</gazebo>
 
 		<!-- Provide joint feedback when simulating -->
 		<gazebo>

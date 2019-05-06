@@ -26,8 +26,11 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
         return;
     }
 
-    // Save the model pointer for later use.
+    // Save the model and link pointers for later use.
     this->model = _model;
+    this->link = model->GetLink("softfoot_3_roll_link");
+
+    std::cerr << "Loaded plugin for SoftFoot simulation!\n";
 
 }
 
