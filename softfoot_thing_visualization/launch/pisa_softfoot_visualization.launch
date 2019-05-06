@@ -37,7 +37,7 @@
     <!-- Loading viz config file to param server -->
 	<rosparam command="load" file="$(arg footconfig)"/>
 
-    <!-- Loading caliration config files for feet to param server -->
+    <!-- Loading calibration config files for feet to param server -->
 	<rosparam command="load" file="$(arg foot3calib)"/>
 
     <!-- Joints Estimator -->
