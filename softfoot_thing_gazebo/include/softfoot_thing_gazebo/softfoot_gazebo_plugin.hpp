@@ -11,11 +11,21 @@ namespace gazebo
     // A plugin to simulate the softfoot in gazebo.
     class SoftFootGazeboPlugin : public ModelPlugin {
         
-        // Constructor
-        public: SoftFootGazeboPlugin();
+        public:
 
-        // Plugin Load function
-        public: void Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf);
+            // Constructor
+            SoftFootGazeboPlugin();
+
+            // Plugin Load function
+            virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
+
+        private:
+
+            /// \brief Pointer to the model.
+            private: physics::ModelPtr model;
+
+            /// \brief Pointer to the joint.
+            private: physics::LinkPtr link;
 
   };
 }

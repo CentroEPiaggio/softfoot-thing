@@ -18,7 +18,16 @@ SoftFootGazeboPlugin::SoftFootGazeboPlugin(){
 }
 
 // Plugin Load function
-void SoftFootGazeboPlugin::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf){
+void SoftFootGazeboPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
+
+    // Safety check
+    if (_model->GetJointCount() == 0) {
+        std::cerr << "Invalid number joints, SoftFoot Gazebo Plugin not loaded!\n";
+        return;
+    }
+
+    // Save the model pointer for later use.
+    this->model = _model;
 
 }
 
