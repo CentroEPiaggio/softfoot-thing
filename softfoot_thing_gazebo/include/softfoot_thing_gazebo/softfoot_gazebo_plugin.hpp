@@ -20,21 +20,25 @@ namespace gazebo
             SoftFootGazeboPlugin();
 
             // Plugin Load Function
-            virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
+            virtual void Load(physics::ModelPtr model, sdf::ElementPtr sdf);
 
             // Plugin Update Function
             virtual void OnUpdate();
 
         private:
 
-            // Pointer to the model.
-            physics::ModelPtr model;
+            // Pointers to the model
+            physics::ModelPtr model_;
+            sdf::ElementPtr sdf_;
 
-            // Pointer to the joint
-            physics::LinkPtr link;
+            // Pointer to the link to be contolled
+            physics::LinkPtr link_;
 
             // Pointer to the update event connection
-            event::ConnectionPtr updateConnection;
+            event::ConnectionPtr updateConnection_;
+
+            // Namespace of the foot
+            std::string foot_namespace_;
 
   };
 }

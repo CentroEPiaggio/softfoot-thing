@@ -16,20 +16,38 @@ SoftFootGazeboPlugin::SoftFootGazeboPlugin(){
 }
 
 // Plugin Load Function
-void SoftFootGazeboPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
+void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 
     // Safety check
-    if (_model->GetJointCount() == 0) {
+    if (model->GetJointCount() == 0) {
         ROS_FATAL_STREAM("Invalid number joints, SoftFoot Gazebo Plugin not loaded!\n");
         return;
     }
 
     // Save the model and link pointers for later use.
-    this->model = _model;
-    this->link = model->GetLink("softfoot_3_roll_link");
+    this->model_ = model;
+    this->sdf_ = sdf;
+
+    // Check if model can be found
+    if (!model) {
+        ROS_FATAL_STREAM("Parent model is NULL! SoftFoot Gazebo Plugin cannot be loaded!\n");
+        return;
+    }
+
+    // Get the namespace of the foot
+    if (sdf->HasElement("robotNamespace")) {
+        this->foot_namespace_ = sdf->GetElement("robotNamespace")->Get<std::string>();
+    } else {
+        this->foot_namespace_ = model->GetName();
+    }
+
+    ROS_WARN_STREAM("Namespace is " << this->foot_namespace_);
+
+    // Get the link to be controlled
+    this->link_ = model->GetLink(this->foot_namespace_ + "_back_roll_link");
 
     // Listen to the update event
-    this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+    this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
         std::bind(&SoftFootGazeboPlugin::OnUpdate, this));
 
     // Plugin loaded successfully
@@ -39,8 +57,10 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
 
 // Plugin Update Function
 void SoftFootGazeboPlugin::OnUpdate(){
-    // Apply a small linear velocity to the model.
-    this->model->SetLinearVel(ignition::math::Vector3d(.3, 0, 0));
+
+    // Apply a small linear velocity to the link
+    this->link_->SetAngularVel(ignition::math::Vector3d(0.3, 0.0, 0.0));
+
 }
 
 // Register this plugin with the simulator
