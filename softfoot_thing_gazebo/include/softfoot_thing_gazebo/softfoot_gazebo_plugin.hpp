@@ -6,6 +6,9 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
 
+// ROS
+#include <ros/ros.h>
+
 namespace gazebo
 {
     // A plugin to simulate the softfoot in gazebo.
@@ -16,16 +19,22 @@ namespace gazebo
             // Constructor
             SoftFootGazeboPlugin();
 
-            // Plugin Load function
+            // Plugin Load Function
             virtual void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf);
+
+            // Plugin Update Function
+            virtual void OnUpdate();
 
         private:
 
-            /// \brief Pointer to the model.
-            private: physics::ModelPtr model;
+            // Pointer to the model.
+            physics::ModelPtr model;
 
-            /// \brief Pointer to the joint.
-            private: physics::LinkPtr link;
+            // Pointer to the joint
+            physics::LinkPtr link;
+
+            // Pointer to the update event connection
+            event::ConnectionPtr updateConnection;
 
   };
 }

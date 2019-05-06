@@ -2,10 +2,8 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
-// Gazebo
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
-#include <gazebo/common/common.hh>
+// Other includes
+#include <ignition/math/Vector3.hh>
 
 // Custom include
 #include "softfoot_thing_gazebo/softfoot_gazebo_plugin.hpp"
@@ -17,12 +15,12 @@ SoftFootGazeboPlugin::SoftFootGazeboPlugin(){
 
 }
 
-// Plugin Load function
+// Plugin Load Function
 void SoftFootGazeboPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
 
     // Safety check
     if (_model->GetJointCount() == 0) {
-        std::cerr << "Invalid number joints, SoftFoot Gazebo Plugin not loaded!\n";
+        ROS_FATAL_STREAM("Invalid number joints, SoftFoot Gazebo Plugin not loaded!\n");
         return;
     }
 
@@ -30,8 +28,19 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf){
     this->model = _model;
     this->link = model->GetLink("softfoot_3_roll_link");
 
-    std::cerr << "Loaded plugin for SoftFoot simulation!\n";
+    // Listen to the update event
+    this->updateConnection = event::Events::ConnectWorldUpdateBegin(
+        std::bind(&SoftFootGazeboPlugin::OnUpdate, this));
 
+    // Plugin loaded successfully
+    ROS_WARN_STREAM("Loaded plugin for SoftFoot simulation!\n");
+
+}
+
+// Plugin Update Function
+void SoftFootGazeboPlugin::OnUpdate(){
+    // Apply a small linear velocity to the model.
+    this->model->SetLinearVel(ignition::math::Vector3d(.3, 0, 0));
 }
 
 // Register this plugin with the simulator

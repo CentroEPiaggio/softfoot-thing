@@ -13,7 +13,7 @@
 		<!-- Custom simulation plugin -->
 		<gazebo>
 			<plugin name="${name}_gazebo_sim" filename="libsoftfoot_thing_gazebo_plugin.so">
-				<!-- <robotNamespace>${name}</robotNamespace> -->
+				<robotNamespace>${name}</robotNamespace>
 			</plugin>
 		</gazebo>
 
