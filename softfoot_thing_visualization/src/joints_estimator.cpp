@@ -133,7 +133,7 @@ void JointsEstimator::calibrate_and_save(std::string file_name){
 
     // Calibrating the foot sensors
     this->calibrate();
-    std::cout << "The calibrated acceleraations are: " << std::endl;
+    std::cout << "The calibrated accelerations are: " << std::endl;
     for (auto it : this->acc_vec_0_) {
         std::cout << it.transpose() << std::endl;
     }
