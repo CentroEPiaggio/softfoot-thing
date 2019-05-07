@@ -7,6 +7,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  roslib
   std_msgs
   message_generation
   geometry_msgs
@@ -18,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
   qb_interface
 )
 
+find_package(yaml-cpp REQUIRED)
+
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS std_msgs message_runtime
@@ -25,7 +28,7 @@ catkin_package(
 
 set(OBJECTS_SOURCE_FILES
   src/joints_estimator.cpp
-  src/madgwick_filter.cpp
+  src/utils/parsing_utilities.cpp
 )
 
 include_directories(
@@ -34,7 +37,12 @@ include_directories(
   /usr/include/eigen3
 )
 
-# NODE: Lower level position controls
+# NODE: Joint state estimator
 add_executable(${PROJECT_NAME}_joints_estimator src/joints_estimator_node.cpp ${OBJECTS_SOURCE_FILES})
 add_dependencies(${PROJECT_NAME}_joints_estimator ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(${PROJECT_NAME}_joints_estimator ${catkin_LIBRARIES} ${ROS_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_joints_estimator ${catkin_LIBRARIES} ${ROS_LIBRARIES} yaml-cpp)
+
+# NODE: Foot calibrator
+add_executable(${PROJECT_NAME}_calibration src/calibration_node.cpp ${OBJECTS_SOURCE_FILES})
+add_dependencies(${PROJECT_NAME}_calibration ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(${PROJECT_NAME}_calibration ${catkin_LIBRARIES} ${ROS_LIBRARIES} yaml-cpp)

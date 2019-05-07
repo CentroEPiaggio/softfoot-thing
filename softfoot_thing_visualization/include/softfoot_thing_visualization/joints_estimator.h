@@ -9,18 +9,16 @@
 // ROS includes
 #include <ros/ros.h>
 #include <ros/node_handle.h>
+#include <ros/package.h>
 #include <string>
 #include <mutex>
 
 // MSG includes
 #include <sensor_msgs/JointState.h>
-#include "qb_interface/quaternion.h"
-#include "qb_interface/quaternionArray.h"
 #include "qb_interface/inertialSensor.h"
 #include "qb_interface/inertialSensorArray.h"
 
 // Softfoot visualization includes
-#include "softfoot_thing_visualization/madgwick_filter.h"
 
 // Other includes
 #include <tf/transform_listener.h>
@@ -37,6 +35,18 @@ class JointsEstimator {
         JointsEstimator(ros::NodeHandle& nh, int foot_id, std::string foot_name);
 
         ~JointsEstimator();
+
+        // Function that calibrates the sensing
+        void calibrate();
+
+        // Function that calibrates the sensing and saves the calibration data to yaml
+        void calibrate_and_save(std::string file_name);
+
+        // Function that spins the estimator
+        bool check_calibration();
+
+        // Function that estimates the joint angles
+        bool estimate();
 
     private:
 
@@ -64,17 +74,8 @@ class JointsEstimator {
         // Function to compute the joint angle from pair of imu ids
         float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
 
-        // Function to compute the relative transforms for all pairs (use if quaternions from topic are wrt global frame)
-        void compute_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
-
-        // Function to compute the relative transforms for all pairs (uses madgwick filter with acc and gyro)
-        void filter_relative_trasforms(std::vector<std::pair<int, int>> imu_pairs);
-
         // Function to fill joint states with est. values and publish
         void fill_and_publish(std::vector<float> joint_values);
-
-        // Callback to imu angles topic
-        void imu_callback(const qb_interface::quaternionArray::ConstPtr &msg);
 
         // Callback to imu accelerations topic
         void acc_callback(const qb_interface::inertialSensorArray::ConstPtr &msg);
@@ -97,49 +98,50 @@ class JointsEstimator {
 
         // ROS variables
         ros::NodeHandle je_nh_;
-        ros::Subscriber sub_imu_;
+        ros::AsyncSpinner spinner;
         ros::Subscriber sub_imu_acc_;
         ros::Subscriber sub_imu_gyro_;
         ros::Publisher pub_js_;
+
+        // Initialization variables
+        bool calibrated_ = false;
 
         // Transform listener and stamped transform for lookupTransform
         tf::TransformListener tf_listener_;
         tf::StampedTransform stamped_transform_;
 
-        // Madgwick filter
-        MadgwickFilter mw_filter;
-
         // qb readings and the mutex
-        std::mutex imu_mutex_;                      // Not used for now as everything is done in callback.
-        std::vector<qb_interface::quaternion> imu_poses_;
-        std::vector<qb_interface::inertialSensor> imu_acc_;
-        std::vector<qb_interface::inertialSensor> imu_gyro_;
-        std::vector<Eigen::Quaternion<float>> rel_poses_;
+        std::mutex imu_mutex_;                                      // Not used yet
+        std::vector<qb_interface::inertialSensor> imu_acc_;         // Raw acceleration msg from qb
+        std::vector<qb_interface::inertialSensor> imu_gyro_;        // Raw gyro msg from qb
 
-        // Old values
-        std::vector<Eigen::Vector3d> acc_1_olds_;
-        std::vector<Eigen::Vector3d> acc_2_olds_;
+        // Acceleration vectors
+        std::vector<Eigen::Vector3d> acc_vec_0_;                    // Calibration acceleration
+        std::vector<Eigen::Vector3d> acc_vec_;                      // Current acceleration
+        std::vector<Eigen::Vector3d> acc_vec_olds_;                 // Previous acceleration
 
         // Joint variables
-        std::vector<float> joint_values_;
-        std::vector<float> joint_offset_;
-        std::vector<float> js_values_;              // js_values_ = joint_values_ - joint_offset_     
-        std::vector<std::pair<float, float>> joint_limits_;
-        sensor_msgs::JointState joint_states_;
+        std::vector<float> joint_values_;                           // Raw joint values
+        std::vector<float> js_values_;                              // Joint states 
+        std::vector<std::pair<float, float>> joint_limits_;         // parsed fron robot model
+        sensor_msgs::JointState joint_states_;                      // Joint states message
 
         // Constants
-        std::string foot_name_;
         int foot_id_;
-        std::string robot_name_;
+        std::string foot_name_;
+        std::string robot_name_;                                    // Foot name + id
+        std::string pkg_path;                                       // Path to this package (parsed later)
         std::string imu_topic_ = "/qb_class_imu/quat";
         std::string imu_topic_acc_ = "/qb_class_imu/acc";
         std::string imu_topic_gyro_ = "/qb_class_imu/gyro";
 
         // Parsed variables
-        bool use_filter;
-        std::vector<std::pair<int, int>> joint_pairs_;
-        std::vector<std::string> joint_names_;
-        std::vector<std::string> joint_frame_names_;
+        std::vector<std::pair<int, int>> joint_pairs_;              // Pairs of imu ids for each joint
+        std::vector<std::string> joint_names_;                      // Names of each joint
+        std::vector<std::string> joint_frame_names_;                // Names of the frames of each joint
+        std::vector<std::pair<Eigen::Vector3d, 
+            Eigen::Vector3d>> axes_pairs_;                          // For each imu pair, the axis of sensor frame aligned with joint axis
+        XmlRpc::XmlRpcValue je_params_;                             // For nested params
 
 };
 

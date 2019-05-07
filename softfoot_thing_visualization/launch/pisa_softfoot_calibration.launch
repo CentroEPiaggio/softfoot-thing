@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 
-<!-- THIS FILE LAUNCHES THE PISA SOFTFOOT VISUALIZATION ON RVIZ -->
+<!-- THIS FILE LAUNCHES THE PISA SOFTFOOT CALIBRATION WITH RVIZ -->
 
 <launch>
     
@@ -40,9 +40,9 @@
     <!-- Loading calibration config files for feet to param server -->
 	<rosparam command="load" file="$(arg foot3calib)"/>
 
-    <!-- Joints Estimator -->
+    <!-- Joints Calibrator -->
     <group unless="$(arg gui)">
-        <node name="js_estimator" pkg="softfoot_thing_visualization" type="softfoot_thing_visualization_joints_estimator" required="true" output="screen"/>
+        <node name="js_calibrator" pkg="softfoot_thing_visualization" type="softfoot_thing_visualization_calibration" required="true" output="screen"/>
     </group>
 
     <!-- RViz for visualization -->

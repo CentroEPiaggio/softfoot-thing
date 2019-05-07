@@ -3,6 +3,9 @@
 
 softfoot_viz:
 
+  # Calibrate online
+  calibrate_online: false
+
   # Names of the joints of the softfoot
   joint_names: ["front_arch_joint", "back_arch_joint", "roll_joint"]
   # Names of the frames of the joints to get axes
@@ -12,24 +15,16 @@ softfoot_viz:
 
   # Anterior left foot
   softfoot_1:
-    use_filter: false
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
-    joint_offset: [1.93, 2.42, 0.64]
   
   # Anterior right foot
   softfoot_2:
-    use_filter: false
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
-    joint_offset: [1.67, 1.98, 2.74]
 
   # Posterior left foot
   softfoot_3:
-    use_filter: false
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
-    joint_offset: [2.87, 2.01, 2.15]
 
   # Posterior right foot
   softfoot_4:
-    use_filter: false
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
-    joint_offset: [1.90, 1.98, 2.74]

@@ -50,7 +50,8 @@
   <xacro:property name="negligible_inertia">
       <origin xyz="0 0 0"/>
       <mass value="${negligible_mass}"/>
-      <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0.0" ixz="0.0" iyz="0.0"/>
+      <inertia  ixx="${mm2tom2 * 0.0001}" iyy="${mm2tom2 * 0.0001}" izz="${mm2tom2 * 0.0001}" 
+                ixy="0.0" ixz="0.0" iyz="0.0"/>
   </xacro:property>
 
 </robot>

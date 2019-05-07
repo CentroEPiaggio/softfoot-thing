@@ -8,8 +8,10 @@
     <arg name="gui" default="false"/>
     <arg name="sim" default="true"/>
     <arg name="env_name" default="pisa_softfoot"/>
-    <arg name="model" default="--inorder $(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
+    <arg name="model" default="$(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
+    <arg name="controllersconfig" default="$(find softfoot_thing_visualization)/configs/pisa_softfoot_viz.yaml"/>
     <arg name="rvizconfig" default="$(find softfoot_thing_description)/configs/pisa_softfoot.rviz"/>
+    <arg name="footconfig" default="$(find softfoot_thing_visualization)/configs/pisa_softfoot_viz.yaml"/>
 
     <!-- START LAUNCH -->
 
@@ -20,11 +22,12 @@
     <group unless="$(arg gui)">
         <group if="$(arg sim)">
             <include file="$(find gazebo_ros)/launch/empty_world.launch">
-                <arg name="world_name" value="$(find softfoot_thing_description)/worlds/$(arg env_name).world"/>
+                <!-- <arg name="world_name" value="$(find softfoot_thing_description)/worlds/$(arg env_name).world"/> -->
                 <arg name="paused" value="true"/>
                 <arg name="use_sim_time" value="true"/>
                 <arg name="gui" value="true"/>
-                <arg name="headless" value="true"/>
+                <arg name="headless" value="false"/>
+                <arg name="verbose" value="false" />
 		        <arg name="debug" value="false"/>
 	        </include>
 
@@ -34,9 +37,24 @@
     </group>
 
     <!-- Joint state and robot state publishers of the full robot description -->
-    <param name="use_gui" value="$(arg gui)"/>
-    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+    <group if="$(arg gui)">
+        <param name="use_gui" value="$(arg gui)"/>
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+    </group>
+    <group unless="$(arg gui)">
+        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+            <rosparam param="source_list">[/softfoot_3/joint_states]</rosparam>
+        </node>
+    </group>
+
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+
+    <!-- Spawning foot controllers -->
+    <!-- <rosparam command="load" file="$(arg controllersconfig)"/>
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/softfoot_3" args="joint_state_controller" /> -->
+
+    <!-- Loading viz config file to param server -->
+	<rosparam command="load" file="$(arg footconfig)"/>
 
     <!-- Joints Estimator -->
     <group unless="$(arg gui)">
