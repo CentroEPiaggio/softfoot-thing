@@ -11,9 +11,6 @@ int main(int argc, char** argv) {
     ros::init (argc, argv, "softfoot_thing_visualization_joints_estimator");
     ros::NodeHandle nh;
 
-    // Joint estimator object
-    softfoot_thing_visualization::JointsEstimator joint_estimator(nh, 3, "softfoot");
-
     ros::AsyncSpinner spinner(4);
 
     // Get needed softfeet global params
