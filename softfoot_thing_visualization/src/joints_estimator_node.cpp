@@ -18,9 +18,27 @@ int main(int argc, char** argv) {
     if (!nh.getParam("softfoot_viz/calibrate_online", online_calib)) {
          ROS_INFO_STREAM("SoftFoot Joint Estimator : No specific request for calibration.");
     };
+    std::string connected_feet_name;
+    if (!nh.getParam("softfoot_viz/connected_feet_name", connected_feet_name)) {
+         ROS_FATAL_STREAM("SoftFoot Joint Estimator : Could not find the feet name.");
+         return 1;
+    };
+    std::vector<int> connected_feet_ids;
+    if (!nh.getParam("softfoot_viz/connected_feet_ids", connected_feet_ids)) {
+         ROS_FATAL_STREAM("SoftFoot Joint Estimator : Could not find the feet ids.");
+         return 1;
+    };
 
-    // Joint estimator objects
-    softfoot_thing_visualization::JointsEstimator joint_estimator(nh, 3, "softfoot");
+    // Determine the number of feet
+    int n_feet = connected_feet_ids.size();
+    ROS_INFO_STREAM("SoftFoot Joint Estimator : Currently no. of connected feet is " << n_feet << ".");
+
+    // Array of pointers to joint estimator objects
+    std::vector<std::shared_ptr<softfoot_thing_visualization::JointsEstimator>> joint_estimators;
+    for (int i = 0; i < n_feet; i++) {
+        joint_estimators.push_back(std::make_shared
+            <softfoot_thing_visualization::JointsEstimator>(nh, connected_feet_ids[i], connected_feet_name));
+    }
 
     ROS_INFO_STREAM("SoftFoot Joint Estimator : starting...");
 
@@ -32,16 +50,21 @@ int main(int argc, char** argv) {
             << " This might take some time...");
         sleep(5);
         ROS_INFO_STREAM("SoftFoot Joint Estimator : starting to calibrate the sensing...");
-        joint_estimator.calibrate();
+        for (auto it : joint_estimators) {
+            it->calibrate();
+        }
+        
         ROS_INFO_STREAM("SoftFoot Joint Estimator : calibration finished.");
     }
 
     // Check if calibrated before spinning
     ROS_INFO_STREAM("SoftFoot Joint Estimator : checking for correct calibration...");
     bool all_calibrated = true;
-    if (!joint_estimator.check_calibration()) all_calibrated = false;
+    for (auto it : joint_estimators) {
+        if (!it->check_calibration()) all_calibrated = false;
+    }
     if (!all_calibrated) {
-        ROS_INFO_STREAM("SoftFoot Joint Estimator : not all feet are calibrated, this is bad!");
+        ROS_FATAL_STREAM("SoftFoot Joint Estimator : not all feet are calibrated, this is bad!");
         return 1;
     }
 
@@ -51,7 +74,9 @@ int main(int argc, char** argv) {
     while (ros::ok()) {
 
         // Estimate and publish joint states
-        joint_estimator.estimate();
+        for (auto it : joint_estimators) {
+            it->estimate();
+        }
 
     }
     spinner.stop();
