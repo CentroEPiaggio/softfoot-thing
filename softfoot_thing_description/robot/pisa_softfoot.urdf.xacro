@@ -11,14 +11,14 @@
   <link name="world">
   </link>
 
-  <!-- LEG -->
-  <joint name="world_to_leg" type="fixed">
+  <!-- LEG 1 -->
+  <joint name="world_to_leg_1" type="fixed">
     <origin xyz="0 0 0.2" rpy="0 0 0"/>
     <parent link="world"/>
-    <child link="leg_link"/>
+    <child link="leg_link_1"/>
   </joint>
   
-  <link name="leg_link">
+  <link name="leg_link_1">
     <inertial>
 			<mass value="${leg_mass}"/>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -40,13 +40,54 @@
 		</collision>
   </link>
 
-  <gazebo reference="leg_link">
+  <gazebo reference="leg_link_1">
 			<gravity>true</gravity>
 			<material>Gazebo/Black</material>
 		</gazebo>
 
-  <!-- FOOT -->
-  <xacro:softfoot_thing name="softfoot_3" parent="leg_link">
+  <!-- FOOT 1 -->
+  <xacro:softfoot_thing name="softfoot_3" parent="leg_link_1">
     <origin xyz="0 0 -0.05" rpy="0 0 0"/>
   </xacro:softfoot_thing>
+
+
+  <!-- LEG 2 -->
+  <joint name="world_to_leg_2" type="fixed">
+    <origin xyz="0 0.2 0.2" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="leg_link_2"/>
+  </joint>
+  
+  <link name="leg_link_2">
+    <inertial>
+			<mass value="${leg_mass}"/>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<inertia  ixx="${mm2tom2 * 1}" iyy="${mm2tom2 * 1}" izz="${mm2tom2 * 1}"
+                ixy="0" ixz="0" iyz="0"/>
+		</inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder length="0.1" radius="0.015"/>
+      </geometry>
+      <material name="SoftFoot/Black"/>
+    </visual>
+    <collision>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+			<geometry>
+        <cylinder length="0.1" radius="0.015"/>
+      </geometry>
+		</collision>
+  </link>
+
+  <gazebo reference="leg_link_2">
+			<gravity>true</gravity>
+			<material>Gazebo/Black</material>
+		</gazebo>
+
+  <!-- FOOT 2 -->
+  <xacro:softfoot_thing name="softfoot_4" parent="leg_link_2">
+    <origin xyz="0 0 -0.05" rpy="0 0 0"/>
+  </xacro:softfoot_thing>
+
 </robot>
