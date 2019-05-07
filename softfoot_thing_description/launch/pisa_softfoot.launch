@@ -43,7 +43,7 @@
     </group>
     <group unless="$(arg gui)">
         <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-            <rosparam param="source_list">[/softfoot_3/joint_states]</rosparam>
+            <rosparam param="source_list">[/softfoot_3/joint_states, /softfoot_4/joint_states]</rosparam>
         </node>
     </group>
 
