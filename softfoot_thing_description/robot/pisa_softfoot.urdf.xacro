@@ -86,7 +86,7 @@
 		</gazebo>
 
   <!-- FOOT 2 -->
-  <xacro:softfoot_thing name="softfoot_4" parent="leg_link_2">
+  <xacro:softfoot_thing name="softfoot_1" parent="leg_link_2">
     <origin xyz="0 0 -0.05" rpy="0 0 0"/>
   </xacro:softfoot_thing>
 
