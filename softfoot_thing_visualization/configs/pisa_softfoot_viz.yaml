@@ -13,7 +13,7 @@ softfoot_viz:
 
   # Connected feet (should be also in the urdf)
   connected_feet_name: "softfoot"
-  connected_feet_ids: [3]
+  connected_feet_ids: [3, 4]
 
   # Anterior left foot
   softfoot_1:

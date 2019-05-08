@@ -7,7 +7,7 @@ Panels:
         - /Status1
         - /TF1
         - /TF1/Frames1
-      Splitter Ratio: 0.4333333373069763
+      Splitter Ratio: 0.5777778029441833
     Tree Height: 713
   - Class: rviz/Selection
     Name: Selection
@@ -68,6 +68,44 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        leg_link_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        softfoot_1_ankle_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        softfoot_1_ankle_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        softfoot_1_back_arch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        softfoot_1_back_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        softfoot_1_front_arch_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        softfoot_1_front_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        softfoot_1_roll_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         softfoot_3_ankle_base_link:
           Alpha: 1
           Show Axes: false
@@ -118,6 +156,22 @@ Visualization Manager:
         All Enabled: false
         leg_link_1:
           Value: false
+        leg_link_2:
+          Value: false
+        softfoot_1_ankle_base_link:
+          Value: false
+        softfoot_1_ankle_link:
+          Value: false
+        softfoot_1_back_arch_link:
+          Value: false
+        softfoot_1_back_roll_link:
+          Value: false
+        softfoot_1_front_arch_link:
+          Value: false
+        softfoot_1_front_roll_link:
+          Value: true
+        softfoot_1_roll_link:
+          Value: false
         softfoot_3_ankle_base_link:
           Value: false
         softfoot_3_ankle_link:
@@ -152,6 +206,17 @@ Visualization Manager:
                     {}
                   softfoot_3_roll_link:
                     {}
+          leg_link_2:
+            softfoot_1_ankle_base_link:
+              softfoot_1_ankle_link:
+                softfoot_1_back_arch_link:
+                  softfoot_1_back_roll_link:
+                    {}
+                softfoot_1_front_arch_link:
+                  softfoot_1_front_roll_link:
+                    {}
+                  softfoot_1_roll_link:
+                    {}
       Update Interval: 0
       Value: true
   Enabled: true
@@ -182,16 +247,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.24862098693847656
+      Distance: 0.3296056091785431
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.06202780455350876
-        Y: 0.07281358540058136
-        Z: 0.1738680899143219
+        X: -0.002177346032112837
+        Y: 0.14672401547431946
+        Z: 0.13660824298858643
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
