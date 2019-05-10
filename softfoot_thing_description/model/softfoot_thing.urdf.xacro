@@ -18,6 +18,7 @@
 	<xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing.transmission.xacro"/>
 
     <!-- Utilities -->
+	<xacro:include filename="$(find softfoot_thing_description)/model/chain_thing.urdf.xacro"/>
     <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_inertia.xacro"/>
     <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_materials.xacro"/>
 
@@ -258,6 +259,12 @@
         
 		<link name="${name}_back_roll_dummy"/> -->
 
+		<!-- 5) Chain - joints along y-axis to pitch -->
+		<xacro:chain_thing name="middle_chain" parent="${name}_front_roll_link">
+    		<!-- <origin xyz="-0.00209969 0 -0.0118454" rpy="0 0.1046328 0"/> -->
+			<origin xyz="-0.00209969 0 -0.0118454" rpy="${-(const_pi / 2) + 0.1046328} 0 ${const_pi / 2}"/>
+  		</xacro:chain_thing>
+		
 		<!-- Gazebo elements -->
 		<xacro:softfoot_thing_gazebo name="${name}"/>
 		<xacro:softfoot_thing_transmission name="${name}"/>

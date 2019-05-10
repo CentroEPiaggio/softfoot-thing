@@ -45,9 +45,9 @@
     <rosparam command="load" file="$(arg foot4calib)"/>
 
     <!-- Joints Estimator -->
-    <group unless="$(arg gui)">
+    <!-- <group unless="$(arg gui)">
         <node name="js_estimator" pkg="softfoot_thing_visualization" type="softfoot_thing_visualization_joints_estimator" required="true" output="screen"/>
-    </group>
+    </group> -->
 
     <!-- RViz for visualization -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
