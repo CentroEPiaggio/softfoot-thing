@@ -59,7 +59,7 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 void SoftFootGazeboPlugin::OnUpdate(){
 
     // Apply a small linear velocity to the link
-    this->link_->SetAngularVel(ignition::math::Vector3d(0.3, 0.0, 0.0));
+    // this->link_->SetAngularVel(ignition::math::Vector3d(0.3, 0.0, 0.0));
 
 }
 
