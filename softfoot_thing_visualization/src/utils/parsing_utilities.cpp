@@ -238,11 +238,6 @@ bool parseParameter(XmlRpc::XmlRpcValue& params, Eigen::MatrixXd& param, std::st
         ROS_ERROR_STREAM("No value found for " << param_name <<" parameter.");
         return false;
     }
-
-    // Make sure that the parameter is of the correct type
-    if (params[param_name].getType() == XmlRpc::XmlRpcValue::TypeArray) {
-        std::cout << "Param type is TypeArray" << std::endl;
-    }
     
     ROS_ASSERT(params[param_name].getType() == XmlRpc::XmlRpcValue::TypeStruct ||
         params[param_name].getType() == XmlRpc::XmlRpcValue::TypeArray);
