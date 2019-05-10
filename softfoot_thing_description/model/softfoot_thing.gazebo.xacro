@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<xacro:macro name="softfoot_thing_gazebo" params="name">
+	<xacro:macro name="softfoot_thing_gazebo" params="name chain_name">
 
 		<!-- Ros control (For future actuated case) -->
 		<!-- <gazebo>
@@ -21,12 +21,20 @@
 		<gazebo>
        		<plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
          		<robotNamespace>${name}</robotNamespace>
-         		<jointName>${name}_front_arch_joint, ${name}_back_arch_joint, ${name}_roll_joint, ${name}_front_roll_joint, ${name}_back_roll_joint</jointName>
+         		<jointName>	${name}_front_arch_joint, ${name}_back_arch_joint, 
+				 			${name}_roll_joint, ${name}_front_roll_joint,
+							${name}_back_roll_joint, ${name}_${chain_name}_1_joint,
+							${name}_${chain_name}_2_joint, ${name}_${chain_name}_3_joint,
+							${name}_${chain_name}_4_joint, ${name}_${chain_name}_5_joint,
+							${name}_${chain_name}_6_joint, ${name}_${chain_name}_7_joint,
+							${name}_${chain_name}_8_joint, ${name}_${chain_name}_9_joint
+				</jointName>
          		<updateRate>10.0</updateRate>
          		<alwaysOn>true</alwaysOn>
        		</plugin>
    		</gazebo>
 
+		<!-- Foot -->
 		<gazebo reference="${name}_ankle_link">
 			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
@@ -48,6 +56,52 @@
 		</gazebo>
 
 		<gazebo reference="${name}_back_roll_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<!-- Chain -->
+		<gazebo reference="${name}_${chain_name}_1_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_${chain_name}_2_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_${chain_name}_3_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_${chain_name}_4_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_${chain_name}_5_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_${chain_name}_6_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_${chain_name}_7_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_${chain_name}_8_link">
+			<gravity>true</gravity>
+			<material>Gazebo/Grey</material>
+		</gazebo>
+
+		<gazebo reference="${name}_${chain_name}_9_link">
 			<gravity>true</gravity>
 			<material>Gazebo/Grey</material>
 		</gazebo>
