@@ -297,6 +297,15 @@
 			</collision>
 		</link>
 
+		<!-- 9) Chain Tip - fixed joint -->
+		<joint name="${foot}_${name}_tip_joint" type="fixed">
+			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
+			<parent link="${foot}_${name}_9_link"/>
+			<child link="${foot}_${name}_tip_link"/>
+		</joint>
+
+		<link name="${foot}_${name}_tip_link"/>
+
 	</xacro:macro>
 
 </robot>
