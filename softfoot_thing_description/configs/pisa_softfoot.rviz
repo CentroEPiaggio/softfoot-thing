@@ -86,6 +86,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        softfoot_3_chain_insertion_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         softfoot_3_front_arch_link:
           Alpha: 1
           Show Axes: false
@@ -141,6 +145,10 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        softfoot_3_middle_chain_tip_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         softfoot_3_roll_link:
           Alpha: 1
           Show Axes: false
@@ -170,6 +178,8 @@ Visualization Manager:
           Value: false
         softfoot_3_back_roll_link:
           Value: false
+        softfoot_3_chain_insertion_link:
+          Value: true
         softfoot_3_front_arch_link:
           Value: false
         softfoot_3_front_roll_link:
@@ -192,6 +202,8 @@ Visualization Manager:
           Value: false
         softfoot_3_middle_chain_9_link:
           Value: false
+        softfoot_3_middle_chain_tip_link:
+          Value: true
         softfoot_3_roll_link:
           Value: false
         world:
@@ -208,7 +220,8 @@ Visualization Manager:
               softfoot_3_ankle_link:
                 softfoot_3_back_arch_link:
                   softfoot_3_back_roll_link:
-                    {}
+                    softfoot_3_chain_insertion_link:
+                      {}
                 softfoot_3_front_arch_link:
                   softfoot_3_front_roll_link:
                     softfoot_3_middle_chain_1_link:
@@ -220,7 +233,8 @@ Visualization Manager:
                                 softfoot_3_middle_chain_7_link:
                                   softfoot_3_middle_chain_8_link:
                                     softfoot_3_middle_chain_9_link:
-                                      {}
+                                      softfoot_3_middle_chain_tip_link:
+                                        {}
                   softfoot_3_roll_link:
                     {}
       Update Interval: 0
@@ -289,5 +303,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1861
-  X: 59
+  X: 1979
   Y: 0
