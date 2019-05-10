@@ -126,6 +126,9 @@ class JointsEstimator {
         std::vector<std::pair<float, float>> joint_limits_;         // parsed fron robot model
         sensor_msgs::JointState joint_states_;                      // Joint states message
 
+        // Chain variables
+        std::string chain_name_ = "middle_chain";
+
         // Constants
         int foot_id_;
         std::string foot_name_;

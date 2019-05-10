@@ -72,6 +72,13 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->joint_values_.resize(this->joint_pairs_.size());
     this->js_values_.resize(this->joint_pairs_.size());
 
+    // Adding also chain joint states
+    for (int i = 1; i <= 9; i++) {
+        this->joint_states_.name.push_back(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
+            + "_" + this->chain_name_ + "_" + std::to_string(i) + "_joint");
+        this->joint_states_.position.push_back(0.1);
+    }
+
     // Setting old accelerations to null
     this->acc_vec_0_.resize(4);
     this->acc_vec_.resize(4);
