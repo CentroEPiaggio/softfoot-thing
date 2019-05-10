@@ -15,11 +15,13 @@
 	<!-- URDF -->
 	<xacro:macro name="chain_thing" params="parent name foot *origin">
 
+		<!-- TODO: Rotation axes now around x, it might be beter to change meshes to revolute around y -->
+
 		<!-- 0) Chain 1 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_1_joint" type="revolute">
 			<xacro:insert_block name="origin"/>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${parent}"/>
@@ -50,7 +52,7 @@
 		<!-- 1) Chain 2 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_2_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_1_link"/>
@@ -81,7 +83,7 @@
 		<!-- 2) Chain 3 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_3_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_2_link"/>
@@ -112,7 +114,7 @@
 		<!-- 3) Chain 4 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_4_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_3_link"/>
@@ -143,7 +145,7 @@
 		<!-- 4) Chain 5 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_5_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_4_link"/>
@@ -174,7 +176,7 @@
 		<!-- 5) Chain 6 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_6_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_5_link"/>
@@ -205,7 +207,7 @@
 		<!-- 6) Chain 7 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_7_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_6_link"/>
@@ -236,7 +238,7 @@
 		<!-- 7) Chain 8 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_8_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_7_link"/>
@@ -267,7 +269,7 @@
 		<!-- 8) Chain 9 - joint along y-axis to pitch -->
 		<joint name="${foot}_${name}_9_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
-			<axis xyz="0 1 0"/>
+			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_8_link"/>
