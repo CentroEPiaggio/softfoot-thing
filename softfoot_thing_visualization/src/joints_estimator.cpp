@@ -69,6 +69,8 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(this->chain_chain_,this->chain_min_,
         this->chain_max_,*this->fk_pos_solver_,*this->ik_vel_solver_));
 
+    // TODO: Fuction to solve chain ik
+
     // Filling up main parts of the joint state msg and setting size of values
     for (auto it : this->joint_names_) {
         this->joint_states_.name.push_back(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
