@@ -63,6 +63,12 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
         this->je_nh_.shutdown();
     }
 
+    // Setting up the solvers for foot chain reconstruction
+    this->fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(this->chain_chain_));
+    this->ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(this->chain_chain_));
+    this->ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(this->chain_chain_,this->chain_min_,
+        this->chain_max_,*this->fk_pos_solver_,*this->ik_vel_solver_));
+
     // Filling up main parts of the joint state msg and setting size of values
     for (auto it : this->joint_names_) {
         this->joint_states_.name.push_back(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
@@ -76,7 +82,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     for (int i = 1; i <= 9; i++) {
         this->joint_states_.name.push_back(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
             + "_" + this->chain_name_ + "_" + std::to_string(i) + "_joint");
-        this->joint_states_.position.push_back(0.1);
+        this->joint_states_.position.push_back(0.0);
     }
 
     // Setting old accelerations to null
@@ -315,6 +321,31 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
             std::cout << "(" << it.first << ", " << it.second << ") ";
         }
         std::cout << "- /\n" << std::endl;
+    }
+
+    // Getting also the kinematic chain of the foot chain (chain starts from front_roll_link)
+    kdl_tree.getChain(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
+        + "_front_roll_link", this->foot_name_ + "_" 
+        + std::to_string(this->foot_id_) + "_" + this->chain_name_ + "_tip_link",
+        this->chain_chain_);
+
+    // Parse also the joint limits for the foot chain
+    int index;
+    urdf::JointConstSharedPtr joint_;
+    // Tip link is chose as 9_link and not tip_link because of issues with fixed links
+    urdf::LinkConstSharedPtr link_ = model.getLink(this->foot_name_ 
+        + "_" + std::to_string(this->foot_id_) + + "_" + this->chain_name_ + "_9_link");
+    this->chain_min_.resize(this->chain_chain_.getNrOfJoints());
+    this->chain_max_.resize(this->chain_chain_.getNrOfJoints());
+
+    for (int i = 0; i < this->chain_chain_.getNrOfJoints() && link_; i++) {
+        joint_ = model.getJoint(link_->parent_joint->name);
+        index = this->chain_chain_.getNrOfJoints() - i - 1;
+    
+        this->chain_min_(index) = joint_->limits->lower;
+        this->chain_max_(index) = joint_->limits->upper;
+
+        link_ = model.getLink(link_->getParent()->name);
     }
 
     // After everything return success

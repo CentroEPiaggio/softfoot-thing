@@ -18,7 +18,11 @@
 #include "qb_interface/inertialSensor.h"
 #include "qb_interface/inertialSensorArray.h"
 
-// Softfoot visualization includes
+// KDL includes
+#include <kdl/chain.hpp>
+#include <kdl/chainfksolverpos_recursive.hpp>
+#include <kdl/chainiksolvervel_pinv.hpp>
+#include <kdl/chainiksolverpos_nr_jl.hpp>
 
 // Other includes
 #include <tf/transform_listener.h>
@@ -128,6 +132,12 @@ class JointsEstimator {
 
         // Chain variables
         std::string chain_name_ = "middle_chain";
+        KDL::Chain chain_chain_;
+        KDL::JntArray chain_min_;
+        KDL::JntArray chain_max_;
+        boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
+		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;
+        boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;
 
         // Constants
         int foot_id_;
