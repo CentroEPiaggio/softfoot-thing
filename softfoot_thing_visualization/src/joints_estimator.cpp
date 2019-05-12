@@ -534,7 +534,8 @@ void JointsEstimator::chain_ik(){
     // TODO: Approx. pose of chain_9_link is supposed symmetrical to chain_1_link
 
     // Compute ik of the supposed 9_link pose
-    this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_ * this->chain_tip_pose_, this->q_chain_);
+    int res = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_ * this->chain_tip_pose_, 
+        this->q_chain_);
 
 }
 
@@ -545,7 +546,8 @@ void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
     this->correct_offset();
     this->enforce_limits();
 
-    // TODO: Call chain ik function
+    // Estimate the soft chain joint states
+    this->chain_ik();
 
     // Filling up the msg
     this->joint_states_.header.stamp = ros::Time::now();
@@ -553,7 +555,10 @@ void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
         this->joint_states_.position[i] = (this->js_values_[i]);
     }
 
-    // TODO: Fill chain joint states
+    // Fill chain joint states
+    for (int i = this->joint_names_.size(); i < this->joint_states_.position.size(); i++) {
+        this->joint_states_.position[i] = (this->q_chain_.data(i - this->joint_names_.size()));
+    }
 
     // Publish to the topic
     this->pub_js_.publish(this->joint_states_);
