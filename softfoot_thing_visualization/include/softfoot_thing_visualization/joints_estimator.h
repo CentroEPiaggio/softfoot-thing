@@ -25,10 +25,11 @@
 #include <kdl/chainiksolverpos_nr_jl.hpp>
 
 // Other includes
+#include <Eigen/Dense>
 #include <tf/transform_listener.h>
 #include <tf_conversions/tf_eigen.h>
-#include <Eigen/Dense>
 #include <eigen_conversions/eigen_msg.h>
+#include <eigen_conversions/eigen_kdl.h>
 
 namespace softfoot_thing_visualization {
 
@@ -77,6 +78,9 @@ class JointsEstimator {
 
         // Function to compute the joint angle from pair of imu ids
         float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
+
+        // Function to compute soft chain IK
+        void chain_ik();
 
         // Function to fill joint states with est. values and publish
         void fill_and_publish(std::vector<float> joint_values);
@@ -130,11 +134,14 @@ class JointsEstimator {
         std::vector<std::pair<float, float>> joint_limits_;         // parsed fron robot model
         sensor_msgs::JointState joint_states_;                      // Joint states message
 
-        // Chain variables
+        // Soft chain variables
         std::string chain_name_ = "middle_chain";
         KDL::Chain chain_chain_;
-        KDL::JntArray chain_min_;
-        KDL::JntArray chain_max_;
+        KDL::JntArray chain_min_;                                   // Upper joint limits of chain
+        KDL::JntArray chain_max_;                                   // Lower joint limits of chain
+        KDL::JntArray q_chain_;                                     // Chain joint states
+        KDL::Frame chain_ins_pose_;                                 // Pose of chain tip in chain base
+        KDL::Frame chain_tip_pose_;                                 // Pose of chain_9_link in chain tip (desired)
         boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
 		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;
         boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;

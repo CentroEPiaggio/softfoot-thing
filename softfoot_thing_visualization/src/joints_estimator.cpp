@@ -69,8 +69,6 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(this->chain_chain_,this->chain_min_,
         this->chain_max_,*this->fk_pos_solver_,*this->ik_vel_solver_));
 
-    // TODO: Fuction to solve chain ik
-
     // Filling up main parts of the joint state msg and setting size of values
     for (auto it : this->joint_names_) {
         this->joint_states_.name.push_back(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
@@ -79,6 +77,10 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     }
     this->joint_values_.resize(this->joint_pairs_.size());
     this->js_values_.resize(this->joint_pairs_.size());
+
+    // Setting joint states of the foot chain
+    this->q_chain_.resize(this->chain_chain_.getNrOfJoints());
+    this->q_chain_.data.setZero();
 
     // Adding also chain joint states
     for (int i = 1; i <= 9; i++) {
@@ -521,6 +523,21 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
 
 }
 
+// Function to compute soft chain IK
+void JointsEstimator::chain_ik(){
+
+    // Get the pose of the chain insertion in chain base
+    tf::transformEigenToKDL(this->getTransform(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
+        + "_front_roll_link", this->foot_name_ + "_" + std::to_string(this->foot_id_) + "_" 
+        + this->chain_name_ + "_tip_link"), this->chain_ins_pose_);
+    
+    // TODO: Approx. pose of chain_9_link is supposed symmetrical to chain_1_link
+
+    // Compute ik of the supposed 9_link pose
+    this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_ * this->chain_tip_pose_, this->q_chain_);
+
+}
+
 // Function to fill joint states with est. values and publish
 void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
 
@@ -528,11 +545,17 @@ void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
     this->correct_offset();
     this->enforce_limits();
 
-    // Filling up the msg and publishing
+    // TODO: Call chain ik function
+
+    // Filling up the msg
     this->joint_states_.header.stamp = ros::Time::now();
     for (int i = 0; i < this->joint_values_.size(); i++) {
         this->joint_states_.position[i] = (this->js_values_[i]);
     }
+
+    // TODO: Fill chain joint states
+
+    // Publish to the topic
     this->pub_js_.publish(this->joint_states_);
 
 }
