@@ -335,13 +335,14 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
         this->chain_chain_);
 
     // Parse also the joint limits for the foot chain
-    int index;
-    urdf::JointConstSharedPtr joint_;
-    // Parsing from 9_link and not tip_link because of issues with fixed links
-    urdf::LinkConstSharedPtr link_ = model.getLink(this->foot_name_ 
-        + "_" + std::to_string(this->foot_id_) + + "_" + this->chain_name_ + "_9_link");
     this->chain_min_.resize(this->chain_chain_.getNrOfJoints());
     this->chain_max_.resize(this->chain_chain_.getNrOfJoints());
+
+    // Parsing from 9_link and not tip_link because of issues with fixed joints
+    int index;
+    urdf::JointConstSharedPtr joint_;
+    urdf::LinkConstSharedPtr link_ = model.getLink(this->foot_name_ 
+        + "_" + std::to_string(this->foot_id_) + + "_" + this->chain_name_ + "_9_link");
 
     for (int i = 0; i < this->chain_chain_.getNrOfJoints() && link_; i++) {
         joint_ = model.getJoint(link_->parent_joint->name);
@@ -353,7 +354,7 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
         link_ = model.getLink(link_->getParent()->name);
     }
 
-    // After everything return success
+    // Finally return success
     return true;
 
 }
