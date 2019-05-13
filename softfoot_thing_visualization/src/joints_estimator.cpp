@@ -16,6 +16,7 @@
 #define     DEBUG_JS        0       // Prints out info about estimated joint states
 #define     DEBUG_PARSED    0       // Prints out info about parsed stuff
 #define     DEBUG_ANGLES    0       // Prints out only raw estimated angles
+#define     DEBUG_CHAIN     1       // Publishes frames to RViz
 
 #define     N_CAL_IT        100     // Number of calibration iterations
 
@@ -336,7 +337,7 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
     // Parse also the joint limits for the foot chain
     int index;
     urdf::JointConstSharedPtr joint_;
-    // Tip link is chose as 9_link and not tip_link because of issues with fixed links
+    // Parsing from 9_link and not tip_link because of issues with fixed links
     urdf::LinkConstSharedPtr link_ = model.getLink(this->foot_name_ 
         + "_" + std::to_string(this->foot_id_) + + "_" + this->chain_name_ + "_9_link");
     this->chain_min_.resize(this->chain_chain_.getNrOfJoints());
@@ -529,12 +530,18 @@ void JointsEstimator::chain_ik(){
     // Get the pose of the chain insertion in chain base
     tf::transformEigenToKDL(this->getTransform(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
         + "_front_roll_link", this->foot_name_ + "_" + std::to_string(this->foot_id_) + "_" 
-        + this->chain_name_ + "_tip_link"), this->chain_ins_pose_);
-    
-    // TODO: Approx. pose of chain_9_link is supposed symmetrical to chain_1_link
+        + this->chain_name_ + "_insertion_link"), this->chain_ins_pose_);
+
+    // Publish debug frames
+    if (DEBUG_CHAIN) {
+        tf::transformKDLToTF(this->chain_ins_pose_ , this->debug_transform_);
+        this->tf_broadcaster_.sendTransform(tf::StampedTransform(this->debug_transform_, 
+            ros::Time::now(), this->foot_name_ + "_" + std::to_string(this->foot_id_) 
+            + "_front_roll_link", "debug_chain_tip"));
+    }
 
     // Compute ik of the supposed 9_link pose
-    int res = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_ * this->chain_tip_pose_, 
+    int res = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_, 
         this->q_chain_);
 
 }

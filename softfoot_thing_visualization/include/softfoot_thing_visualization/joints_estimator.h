@@ -27,7 +27,9 @@
 // Other includes
 #include <Eigen/Dense>
 #include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
 #include <tf_conversions/tf_eigen.h>
+#include <tf_conversions/tf_kdl.h>
 #include <eigen_conversions/eigen_msg.h>
 #include <eigen_conversions/eigen_kdl.h>
 
@@ -140,11 +142,14 @@ class JointsEstimator {
         KDL::JntArray chain_min_;                                   // Upper joint limits of chain
         KDL::JntArray chain_max_;                                   // Lower joint limits of chain
         KDL::JntArray q_chain_;                                     // Chain joint states
-        KDL::Frame chain_ins_pose_;                                 // Pose of chain tip in chain base
-        KDL::Frame chain_tip_pose_;                                 // Pose of chain_9_link in chain tip (desired)
+        KDL::Frame chain_ins_pose_;                                 // Pose of chain tip in chain base (desired)
         boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
 		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;
         boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;
+        
+        // For debug
+        tf::TransformBroadcaster tf_broadcaster_;
+        tf::Transform debug_transform_;
 
         // Constants
         int foot_id_;
