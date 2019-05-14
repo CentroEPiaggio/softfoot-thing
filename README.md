@@ -9,6 +9,8 @@ This repository contains all required packages to use the SoftFoot for Thing EU 
 * **softfoot_thing_gazebo** - simulation plugin
 * **softfoot_thing_visualization** - real time visualization using imus
 
+More details about the individual packages can be found in the respective READMEs.
+
 ## Getting Started
 
 ### Prerequisites
@@ -19,4 +21,4 @@ The above packages are tested on ROS Melodic and their external dependencies are
 
 ### Installing
 
-To install this package just clone it into your catkin_ws, make sure to clone also the external dependencies and `catkin build`.
+To install the package in this repo just clone it into your catkin_ws, make sure to clone also the external dependencies and `catkin build`.
