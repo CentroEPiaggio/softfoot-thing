@@ -1,3 +1,22 @@
 # softfoot-thing
 
-Work in progress. Proceed with caution.
+This repository contains all required packages to use the SoftFoot for Thing EU project.
+
+## Packages
+
+* **softfoot_thing** - metapackage
+* **softfoot_thing_description** - foot meshes, xacros and urdf
+* **softfoot_thing_gazebo** - simulation plugin
+* **softfoot_thing_visualization** - real time visualization using imus
+
+## Getting Started
+
+### Prerequisites
+
+The above packages are tested on ROS Melodic and their external dependencies are the following:
+
+* [`IMU`](https://github.com/NMMI/IMU) (branch `master`)
+
+### Installing
+
+To install this package just clone it into your catkin_ws, make sure to clone also the external dependencies and `catkin build`.
