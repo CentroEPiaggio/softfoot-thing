@@ -37,72 +37,86 @@
 		<!-- Foot -->
 		<gazebo reference="${name}_ankle_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_front_arch_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_back_arch_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_front_roll_link">
 			<gravity>true</gravity>
+			<selfCollide>true</selfCollide>
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_back_roll_link">
 			<gravity>true</gravity>
+			<selfCollide>true</selfCollide>
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<!-- Chain -->
 		<gazebo reference="${name}_${chain_name}_1_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_${chain_name}_2_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_${chain_name}_3_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_${chain_name}_4_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_${chain_name}_5_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_${chain_name}_6_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_${chain_name}_7_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_${chain_name}_8_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
 		<gazebo reference="${name}_${chain_name}_9_link">
 			<gravity>true</gravity>
+			<!-- <selfCollide>true</selfCollide> -->
 			<material>Gazebo/Grey</material>
 		</gazebo>
 
