@@ -19,8 +19,8 @@
 #define     DEBUG_CHAIN     1       // Publishes frames to RViz
 
 #define     N_CAL_IT        100     // Number of calibration iterations
-#define     UPPER_COUP      20.0    // Upper coupling angle limit for arch links
-#define     LOWER_COUP      -30.0   // Upper coupling angle limit for arch links
+#define     UPPER_COUP      60.0    // Upper coupling angle limit for arch links
+#define     LOWER_COUP      -10.0   // Upper coupling angle limit for arch links
 #define     TIPINSMAX       0.03    // Maximum admissible tip insertion distance for chain
 
 using namespace softfoot_thing_visualization;
@@ -362,6 +362,16 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
 
 }
 
+// Function to correct the offset form estimated angles
+void JointsEstimator::correct_offset(){
+
+    // As of now, no offset to compensate for
+    for (int i = 0; i < this->joint_values_.size(); i++) {
+        this->js_values_[i] = this->joint_values_[i];
+    }
+
+}
+
 // Function to enforce joint limits
 void JointsEstimator::enforce_limits(){
     
@@ -380,20 +390,10 @@ void JointsEstimator::enforce_limits(){
 void JointsEstimator::enforce_coupling(){
 
     // Saturate if coupling if violated
-    if ((this->js_values_[0] + this->js_values_[1]) > double(UPPER_COUP)) {
-        this->js_values_[1] = double(UPPER_COUP) - this->js_values_[0];
-    } else if ((this->js_values_[0] + this->js_values_[1]) < double(LOWER_COUP)) {
-        this->js_values_[1] = double(LOWER_COUP) - this->js_values_[0];
-    }
-
-}
-
-// Function to correct the offset form estimated angles
-void JointsEstimator::correct_offset(){
-
-    // As of now, no offset to compensate for
-    for (int i = 0; i < this->joint_values_.size(); i++) {
-        this->js_values_[i] = this->joint_values_[i];
+    if ((this->js_values_[0] + this->js_values_[1]) > deg2rad(double(UPPER_COUP))) {
+        this->js_values_[1] = deg2rad(double(UPPER_COUP)) - this->js_values_[0];
+    } else if ((this->js_values_[0] + this->js_values_[1]) < deg2rad(double(LOWER_COUP))) {
+        this->js_values_[1] = deg2rad(double(LOWER_COUP)) - this->js_values_[0];
     }
 
 }

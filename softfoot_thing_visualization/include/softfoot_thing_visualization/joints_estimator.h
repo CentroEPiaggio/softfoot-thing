@@ -63,14 +63,14 @@ class JointsEstimator {
         // Function to get joint limits
         bool get_joint_limits(ros::NodeHandle& nh);
 
+        // Function to correct the offset form estimated angles
+        void correct_offset();
+
         // Function to enforce joint limits
         void enforce_limits();
 
         // Function to enforce arch links joint coupling
         void enforce_coupling();
-
-        // Function to correct the offset form estimated angles
-        void correct_offset();
 
         // Function to echo transform from pair of frames
         Eigen::Affine3d getTransform(std::string frame_1, std::string frame_2);
