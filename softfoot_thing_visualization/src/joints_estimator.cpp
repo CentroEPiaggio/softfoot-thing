@@ -19,6 +19,9 @@
 #define     DEBUG_CHAIN     1       // Publishes frames to RViz
 
 #define     N_CAL_IT        100     // Number of calibration iterations
+#define     UPPER_COUP      20.0    // Upper coupling angle limit for arch links
+#define     LOWER_COUP      -30.0   // Upper coupling angle limit for arch links
+#define     TIPINSMAX       0.03    // Maximum admissible tip insertion distance for chain
 
 using namespace softfoot_thing_visualization;
 
@@ -44,7 +47,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
         <qb_interface::inertialSensorArray>(this->imu_topic_gyro_, ros::Duration(2.0));
     
     this->pub_js_ = this->je_nh_.advertise<sensor_msgs::JointState>
-        ("/" + this->foot_name_ + "_" + std::to_string(this->foot_id_) + "/joint_states", 1);
+        ("/" + this->robot_name_ + "/joint_states", 1);
 
     // Temporarily building parsable variables here (TODO: parse them)
     this->joint_pairs_ = {{0, 1}, {0, 3}, {1, 2}};
@@ -72,7 +75,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
 
     // Filling up main parts of the joint state msg and setting size of values
     for (auto it : this->joint_names_) {
-        this->joint_states_.name.push_back(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
+        this->joint_states_.name.push_back(this->robot_name_ 
             + "_" + it);
         this->joint_states_.position.push_back(0.0);
     }
@@ -85,7 +88,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
 
     // Adding also chain joint states
     for (int i = 1; i <= 9; i++) {
-        this->joint_states_.name.push_back(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
+        this->joint_states_.name.push_back(this->robot_name_ 
             + "_" + this->chain_name_ + "_" + std::to_string(i) + "_joint");
         this->joint_states_.position.push_back(0.0);
     }
@@ -329,7 +332,7 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
     }
 
     // Getting also the kinematic chain of the foot chain (chain starts from front_roll_link)
-    kdl_tree.getChain(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
+    kdl_tree.getChain(this->robot_name_ 
         + "_front_roll_link", this->foot_name_ + "_" 
         + std::to_string(this->foot_id_) + "_" + this->chain_name_ + "_tip_link",
         this->chain_chain_);
@@ -373,10 +376,22 @@ void JointsEstimator::enforce_limits(){
 
 }
 
+// Function to enforce arch links joint coupling
+void JointsEstimator::enforce_coupling(){
+
+    // Saturate if coupling if violated
+    if ((this->js_values_[0] + this->js_values_[1]) > double(UPPER_COUP)) {
+        this->js_values_[1] = double(UPPER_COUP) - this->js_values_[0];
+    } else if ((this->js_values_[0] + this->js_values_[1]) < double(LOWER_COUP)) {
+        this->js_values_[1] = double(LOWER_COUP) - this->js_values_[0];
+    }
+
+}
+
 // Function to correct the offset form estimated angles
 void JointsEstimator::correct_offset(){
 
-    // Compute the real joint states by removing the offset
+    // As of now, no offset to compensate for
     for (int i = 0; i < this->joint_values_.size(); i++) {
         this->js_values_[i] = this->joint_values_[i];
     }
@@ -525,21 +540,39 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
 
 }
 
+// Function to avoid gradient descent NR for chain getting stuck
+void JointsEstimator::facilitate_chain_ik(){
+
+    // Get distance of tip from insertion
+    this->tip_to_ins_ = this->getTransform(this->robot_name_ 
+        + "_" + this->chain_name_ + "_tip_link", this->robot_name_
+        + "_" + this->chain_name_ + "_insertion_link");
+
+    // If the distance is too much, reset the chain joint config to zeros
+    if (this->tip_to_ins_.translation().norm() > double(TIPINSMAX)) {
+        this->q_chain_.data.setZero();
+    }
+
+}
+
 // Function to compute soft chain IK
 void JointsEstimator::chain_ik(){
 
     // Get the pose of the chain insertion in chain base
-    tf::transformEigenToKDL(this->getTransform(this->foot_name_ + "_" + std::to_string(this->foot_id_) 
-        + "_front_roll_link", this->foot_name_ + "_" + std::to_string(this->foot_id_) + "_" 
+    tf::transformEigenToKDL(this->getTransform(this->robot_name_ 
+        + "_front_roll_link", this->robot_name_ + "_" 
         + this->chain_name_ + "_insertion_link"), this->chain_ins_pose_);
 
     // Publish debug frames
     if (DEBUG_CHAIN) {
         tf::transformKDLToTF(this->chain_ins_pose_ , this->debug_transform_);
         this->tf_broadcaster_.sendTransform(tf::StampedTransform(this->debug_transform_, 
-            ros::Time::now(), this->foot_name_ + "_" + std::to_string(this->foot_id_) 
+            ros::Time::now(), this->robot_name_ 
             + "_front_roll_link", "debug_chain_tip"));
     }
+
+    // Avoid ik getting stuck
+    this->facilitate_chain_ik();
 
     // Compute ik of the supposed 9_link pose
     int res = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_, 
@@ -550,9 +583,10 @@ void JointsEstimator::chain_ik(){
 // Function to fill joint states with est. values and publish
 void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
 
-    // Correcting offste and enforcing the limits on current estimation
+    // Correcting offset and enforcing the limits and coupling on current estimation
     this->correct_offset();
     this->enforce_limits();
+    this->enforce_coupling();
 
     // Estimate the soft chain joint states
     this->chain_ik();

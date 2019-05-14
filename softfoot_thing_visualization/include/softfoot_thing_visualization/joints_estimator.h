@@ -66,6 +66,9 @@ class JointsEstimator {
         // Function to enforce joint limits
         void enforce_limits();
 
+        // Function to enforce arch links joint coupling
+        void enforce_coupling();
+
         // Function to correct the offset form estimated angles
         void correct_offset();
 
@@ -80,6 +83,9 @@ class JointsEstimator {
 
         // Function to compute the joint angle from pair of imu ids
         float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
+
+        // Function to avoid gradient descent NR for chain getting stuck
+        void facilitate_chain_ik();
 
         // Function to compute soft chain IK
         void chain_ik();
@@ -143,6 +149,7 @@ class JointsEstimator {
         KDL::JntArray chain_max_;                                   // Lower joint limits of chain
         KDL::JntArray q_chain_;                                     // Chain joint states
         KDL::Frame chain_ins_pose_;                                 // Pose of chain tip in chain base (desired)
+        Eigen::Affine3d tip_to_ins_;                                // Transform from tip to chain insertion
         boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
 		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;
         boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;
