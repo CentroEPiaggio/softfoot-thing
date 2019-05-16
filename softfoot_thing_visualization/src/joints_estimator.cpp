@@ -20,7 +20,7 @@
 
 #define     N_CAL_IT        100     // Number of calibration iterations
 #define     UPPER_COUP      60.0    // Upper coupling angle limit for arch links
-#define     LOWER_COUP      -10.0   // Upper coupling angle limit for arch links
+#define     LOWER_COUP      0.0     // Upper coupling angle limit for arch links
 #define     TIPINSMAX       0.03    // Maximum admissible tip insertion distance for chain
 
 using namespace softfoot_thing_visualization;
@@ -636,7 +636,11 @@ void JointsEstimator::acc_callback(const qb_interface::inertialSensorArray::Cons
     // Save old accelerations and push new ones
     this->acc_vec_olds_ = this->acc_vec_;
     for (int i = 0; i < 4; i++) {
-        this->acc_vec_[i] << this->imu_acc_[i].x, this->imu_acc_[i].y, this->imu_acc_[i].z;
+        if (this->imu_acc_[i].x < 1.0 && this->imu_acc_[i].y < 1.0 && this->imu_acc_[i].z < 1.0) {
+            this->acc_vec_[i] << this->imu_acc_[i].x, this->imu_acc_[i].y, this->imu_acc_[i].z;
+        } else {
+            this->acc_vec_ = this->acc_vec_olds_;
+        }
     }
 
 }
