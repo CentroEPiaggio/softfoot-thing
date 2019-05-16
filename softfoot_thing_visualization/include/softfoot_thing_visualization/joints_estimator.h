@@ -150,6 +150,7 @@ class JointsEstimator {
         KDL::JntArray q_chain_;                                     // Chain joint states
         KDL::Frame chain_ins_pose_;                                 // Pose of chain tip in chain base (desired)
         Eigen::Affine3d tip_to_ins_;                                // Transform from tip to chain insertion
+        Eigen::VectorXd q_chain_base_;                              // Base config of chain to force upwards ik
         boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
 		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;
         boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;
