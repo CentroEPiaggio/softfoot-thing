@@ -23,6 +23,7 @@
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainiksolvervel_pinv.hpp>
 #include <kdl/chainiksolverpos_nr_jl.hpp>
+#include <kdl/chainiksolverpos_lma.hpp>
 
 // Other includes
 #include <Eigen/Dense>
@@ -148,12 +149,15 @@ class JointsEstimator {
         KDL::JntArray chain_min_;                                   // Upper joint limits of chain
         KDL::JntArray chain_max_;                                   // Lower joint limits of chain
         KDL::JntArray q_chain_;                                     // Chain joint states
+        KDL::JntArray q_chain_lma_;                                 // Chain sigularity robust joint states
         KDL::Frame chain_ins_pose_;                                 // Pose of chain tip in chain base (desired)
         Eigen::Affine3d tip_to_ins_;                                // Transform from tip to chain insertion
         Eigen::VectorXd q_chain_base_;                              // Base config of chain to force upwards ik
         boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
 		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;
         boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;
+        boost::scoped_ptr<KDL::ChainIkSolverPos_LMA> ik_lma_solver_;
+        Eigen::Matrix< double, 6, 1 > lma_weight_;
         
         // For debug
         tf::TransformBroadcaster tf_broadcaster_;

@@ -68,10 +68,12 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     }
 
     // Setting up the solvers for foot chain reconstruction
+    this->lma_weight_ << 1.0, 1.0, 1.0, 0.0, 0.0, 0.0;
     this->fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(this->chain_chain_));
     this->ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(this->chain_chain_));
     this->ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(this->chain_chain_,this->chain_min_,
         this->chain_max_,*this->fk_pos_solver_,*this->ik_vel_solver_, 1000, 1e-3));
+    this->ik_lma_solver_.reset(new KDL::ChainIkSolverPos_LMA(this->chain_chain_));
 
     // Filling up main parts of the joint state msg and setting size of values
     for (auto it : this->joint_names_) {
@@ -84,6 +86,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
 
     // Setting joint states and base of the foot chain
     this->q_chain_.resize(this->chain_chain_.getNrOfJoints());
+    this->q_chain_lma_.resize(this->chain_chain_.getNrOfJoints());
     this->q_chain_base_.resize(this->chain_chain_.getNrOfJoints());
     // The following is by trial and error
     this->q_chain_base_ << 0.15, -0.05, -0.05, -0.05, 0.0, -0.05, -0.05, 0.05, 0.05;
@@ -578,8 +581,12 @@ void JointsEstimator::chain_ik(){
     // Avoid ik getting stuck
     this->facilitate_chain_ik();
 
-    // Compute ik of the supposed 9_link pose
-    int res = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_, 
+    // First compute ik using Levenberg-Marquardt for singularity robustness
+    int res_lma = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_, 
+        this->q_chain_lma_);
+
+    // Compute ik of the tip pose from the Levenberg-Marquardt guess to enforce joint limits
+    int res = this->ik_lma_solver_->CartToJnt(this->q_chain_lma_, this->chain_ins_pose_, 
         this->q_chain_);
 
 }
