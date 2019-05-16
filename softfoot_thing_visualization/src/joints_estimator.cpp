@@ -71,7 +71,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(this->chain_chain_));
     this->ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(this->chain_chain_));
     this->ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(this->chain_chain_,this->chain_min_,
-        this->chain_max_,*this->fk_pos_solver_,*this->ik_vel_solver_, 500));
+        this->chain_max_,*this->fk_pos_solver_,*this->ik_vel_solver_, 1000, 1e-3));
 
     // Filling up main parts of the joint state msg and setting size of values
     for (auto it : this->joint_names_) {
@@ -86,8 +86,8 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->q_chain_.resize(this->chain_chain_.getNrOfJoints());
     this->q_chain_base_.resize(this->chain_chain_.getNrOfJoints());
     // The following is by trial and error
-    // this->q_chain_base_ << 0.1, 0.17, -0.15, -0.1, 0.03, -0.13, -0.3, 0.17, 0.17;
-    this->q_chain_base_ << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+    this->q_chain_base_ << 0.15, -0.05, -0.05, -0.05, 0.0, -0.05, -0.05, 0.05, 0.05;
+    // this->q_chain_base_ << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
     this->q_chain_.data = this->q_chain_base_;
 
     // Adding also chain joint states
