@@ -596,6 +596,7 @@ void JointsEstimator::chain_ik(){
     this->facilitate_chain_ik();
 
     // First compute ik using Levenberg-Marquardt for singularity robustness
+    this->q_chain_.data = this->q_chain_base_;
     int res_lma = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->real_ins_pose_, 
         this->q_chain_lma_);
 
