@@ -91,7 +91,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->q_chain_lma_.resize(this->chain_chain_.getNrOfJoints());
     this->q_chain_base_.resize(this->chain_chain_.getNrOfJoints());
     // The following is by trial and error
-    this->q_chain_base_ << 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1;
+    this->q_chain_base_ << 0.5, -0.1, -0.15, -0.15, 0.0, -0.2, -0.2, -0.2, -0.1;
     // this->q_chain_base_ << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
     this->q_chain_.data = this->q_chain_base_;
 
