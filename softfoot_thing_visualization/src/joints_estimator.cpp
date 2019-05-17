@@ -19,8 +19,8 @@
 #define     DEBUG_CHAIN     1       // Publishes frames to RViz
 
 #define     N_CAL_IT        100     // Number of calibration iterations
-#define     UPPER_COUP      60.0    // Upper coupling angle limit for arch links
-#define     LOWER_COUP      0.0     // Upper coupling angle limit for arch links
+#define     UPPER_COUP      60.0    // Upper (downwards) coupling angle limit for arch links
+#define     LOWER_COUP      0.0     // Lower (upwards) coupling angle limit for arch links
 #define     TIPINSMAX       0.03    // Maximum admissible tip insertion distance for chain
 
 using namespace softfoot_thing_visualization;
