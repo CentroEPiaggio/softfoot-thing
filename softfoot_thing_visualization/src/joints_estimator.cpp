@@ -70,6 +70,7 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     // Setting up the solvers for foot chain reconstruction
     this->lma_weight_ << 1.0, 1.0, 1.0, 0.0, 0.0, 0.0;
     this->fk_pos_solver_.reset(new KDL::ChainFkSolverPos_recursive(this->chain_chain_));
+    this->fk_solver_ins_.reset(new KDL::ChainFkSolverPos_recursive(this->ins_chain_));
     this->ik_vel_solver_.reset(new KDL::ChainIkSolverVel_pinv(this->chain_chain_));
     this->ik_pos_solver_.reset(new KDL::ChainIkSolverPos_NR_JL(this->chain_chain_,this->chain_min_,
         this->chain_max_,*this->fk_pos_solver_,*this->ik_vel_solver_, 1000, 1e-3));
@@ -86,10 +87,11 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
 
     // Setting joint states and base of the foot chain
     this->q_chain_.resize(this->chain_chain_.getNrOfJoints());
+    this->q_ins_.resize(this->ins_chain_.getNrOfJoints());
     this->q_chain_lma_.resize(this->chain_chain_.getNrOfJoints());
     this->q_chain_base_.resize(this->chain_chain_.getNrOfJoints());
     // The following is by trial and error
-    this->q_chain_base_ << 0.15, -0.05, -0.05, -0.05, 0.0, -0.05, -0.05, 0.05, 0.05;
+    this->q_chain_base_ << 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1;
     // this->q_chain_base_ << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
     this->q_chain_.data = this->q_chain_base_;
 
@@ -338,11 +340,16 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
         std::cout << "- /\n" << std::endl;
     }
 
-    // Getting also the kinematic chain of the foot chain (chain starts from front_roll_link)
+    // Getting also the kinematic chain of the foot chain and around it (chains start from front_roll_link)
     kdl_tree.getChain(this->robot_name_ 
         + "_front_roll_link", this->foot_name_ + "_" 
         + std::to_string(this->foot_id_) + "_" + this->chain_name_ + "_tip_link",
         this->chain_chain_);
+
+    kdl_tree.getChain(this->robot_name_ 
+        + "_front_roll_link", this->foot_name_ + "_" 
+        + std::to_string(this->foot_id_) + "_" + this->chain_name_ + "_insertion_link",
+        this->ins_chain_);
 
     // Parse also the joint limits for the foot chain
     this->chain_min_.resize(this->chain_chain_.getNrOfJoints());
@@ -407,7 +414,8 @@ void JointsEstimator::enforce_coupling(){
 
 // Function to echo transform from pair of frames
 Eigen::Affine3d JointsEstimator::getTransform(std::string frame_1, std::string frame_2){
-    // tf echoing using input frame names
+    
+    // Tf echoing using input frame names
     try {
 		this->tf_listener_.waitForTransform(std::string("/") + frame_1,
       std::string("/") + frame_2, ros::Time(0), ros::Duration(1.0) );
@@ -565,14 +573,20 @@ void JointsEstimator::facilitate_chain_ik(){
 // Function to compute soft chain IK
 void JointsEstimator::chain_ik(){
 
+    // Fill the joint array of the kinematic chain aroung the soft chain (TODO: remove hard code)
+    this->q_ins_.data << this->js_values_[2], this->js_values_[0],
+        this->js_values_[1], -this->js_values_[3];
+
     // Get the pose of the chain insertion in chain base
-    tf::transformEigenToKDL(this->getTransform(this->robot_name_ 
-        + "_front_roll_link", this->robot_name_ + "_" 
-        + this->chain_name_ + "_insertion_link"), this->chain_ins_pose_);
+    // tf::transformEigenToKDL(this->getTransform(this->robot_name_ 
+    //     + "_front_roll_link", this->robot_name_ + "_" 
+    //     + this->chain_name_ + "_insertion_link"), this->chain_ins_pose_);
+
+    this->fk_solver_ins_->JntToCart(this->q_ins_, this->real_ins_pose_);
 
     // Publish debug frames
     if (DEBUG_CHAIN) {
-        tf::transformKDLToTF(this->chain_ins_pose_ , this->debug_transform_);
+        tf::transformKDLToTF(this->real_ins_pose_ , this->debug_transform_);
         this->tf_broadcaster_.sendTransform(tf::StampedTransform(this->debug_transform_, 
             ros::Time::now(), this->robot_name_ 
             + "_front_roll_link", "debug_chain_tip"));
@@ -582,12 +596,28 @@ void JointsEstimator::chain_ik(){
     this->facilitate_chain_ik();
 
     // First compute ik using Levenberg-Marquardt for singularity robustness
-    int res_lma = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->chain_ins_pose_, 
+    int res_lma = this->ik_pos_solver_->CartToJnt(this->q_chain_, this->real_ins_pose_, 
         this->q_chain_lma_);
 
     // Compute ik of the tip pose from the Levenberg-Marquardt guess to enforce joint limits
-    int res = this->ik_lma_solver_->CartToJnt(this->q_chain_lma_, this->chain_ins_pose_, 
+    int res = this->ik_lma_solver_->CartToJnt(this->q_chain_lma_, this->real_ins_pose_, 
         this->q_chain_);
+
+}
+
+// Function to check if joint states are "publishable"
+bool JointsEstimator::states_publishable(){
+
+    // Get the two frames from fk
+    this->fk_pos_solver_->JntToCart(this->q_chain_, this->real_tip_pose_);
+    this->fk_solver_ins_->JntToCart(this->q_ins_, this->real_ins_pose_);
+
+    // Check if chain ik has actually been achieved and return accordingly
+    if (KDL::Equal(this->real_tip_pose_.p, this->real_ins_pose_.p, 0.02)) {
+        return true;
+    } else {
+        return false;
+    }
 
 }
 
@@ -614,7 +644,7 @@ void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
     }
 
     // Publish to the topic
-    this->pub_js_.publish(this->joint_states_);
+    if (this->states_publishable()) this->pub_js_.publish(this->joint_states_);
 
 }
 
@@ -643,7 +673,7 @@ void JointsEstimator::acc_callback(const qb_interface::inertialSensorArray::Cons
     // Save old accelerations and push new ones
     this->acc_vec_olds_ = this->acc_vec_;
     for (int i = 0; i < 4; i++) {
-        if (this->imu_acc_[i].x < 1.0 && this->imu_acc_[i].y < 1.0 && this->imu_acc_[i].z < 1.0) {
+        if (this->imu_acc_[i].x < 1.5 && this->imu_acc_[i].y < 1.5 && this->imu_acc_[i].z < 1.5) {
             this->acc_vec_[i] << this->imu_acc_[i].x, this->imu_acc_[i].y, this->imu_acc_[i].z;
         } else {
             this->acc_vec_ = this->acc_vec_olds_;

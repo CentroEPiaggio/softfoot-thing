@@ -91,6 +91,9 @@ class JointsEstimator {
         // Function to compute soft chain IK
         void chain_ik();
 
+        // Function to check if joint states are "publishable"
+        bool states_publishable();
+
         // Function to fill joint states with est. values and publish
         void fill_and_publish(std::vector<float> joint_values);
 
@@ -145,23 +148,29 @@ class JointsEstimator {
 
         // Soft chain variables
         std::string chain_name_ = "middle_chain";
-        KDL::Chain chain_chain_;
+        KDL::Chain chain_chain_;                                    // Kinematic chain of the chain
+        KDL::Chain ins_chain_;                                      // Kinematic chain around the chain to insertion
         KDL::JntArray chain_min_;                                   // Upper joint limits of chain
         KDL::JntArray chain_max_;                                   // Lower joint limits of chain
         KDL::JntArray q_chain_;                                     // Chain joint states
+        KDL::JntArray q_ins_;                                       // Around chain joint states (4 joints)
         KDL::JntArray q_chain_lma_;                                 // Chain sigularity robust joint states
         KDL::Frame chain_ins_pose_;                                 // Pose of chain tip in chain base (desired)
         Eigen::Affine3d tip_to_ins_;                                // Transform from tip to chain insertion
         Eigen::VectorXd q_chain_base_;                              // Base config of chain to force upwards ik
-        boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;
-		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;
-        boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;
-        boost::scoped_ptr<KDL::ChainIkSolverPos_LMA> ik_lma_solver_;
+        
+        boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_solver_ins_;      // FK solver front roll -> insertion
+        boost::scoped_ptr<KDL::ChainFkSolverPos_recursive> fk_pos_solver_;      // FK solver front roll -> chain tip
+		boost::scoped_ptr<KDL::ChainIkSolverVel_pinv> ik_vel_solver_;           // IK vel solver front roll -> chain tip
+        boost::scoped_ptr<KDL::ChainIkSolverPos_NR_JL> ik_pos_solver_;          // IK pos solver front roll -> chain tip
+        boost::scoped_ptr<KDL::ChainIkSolverPos_LMA> ik_lma_solver_;            // IK LMA solver front roll -> chain tip
         Eigen::Matrix< double, 6, 1 > lma_weight_;
         
         // For debug
         tf::TransformBroadcaster tf_broadcaster_;
         tf::Transform debug_transform_;
+        KDL::Frame real_tip_pose_;                                  // Pose of chain tip in chain base (actual)
+        KDL::Frame real_ins_pose_;                                  // Pose of chain tip in chain base (actual)
 
         // Constants
         int foot_id_;
