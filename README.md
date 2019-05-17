@@ -21,4 +21,4 @@ The above packages are tested on ROS Melodic and their external dependencies are
 
 ### Installing
 
-To install the package in this repo just clone it into your catkin_ws, make sure to clone also the external dependencies and `catkin build`.
+To install the packages in this repo just clone it into your catkin_ws, make sure to clone also the external dependencies and `catkin build`.
