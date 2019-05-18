@@ -25,13 +25,13 @@
 
 using namespace softfoot_thing_visualization;
 
-JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string foot_name) : spinner(4) {
+JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string foot_name) {
 
     // Initializing main variables
     this->foot_id_ = foot_id;
     this->foot_name_ = foot_name;
     this->robot_name_ = this->foot_name_ + "_" + std::to_string(this->foot_id_);
-    this->pkg_path = ros::package::getPath("softfoot_thing_visualization");
+    this->pkg_path_ = ros::package::getPath("softfoot_thing_visualization");
 
     // Initializing ros variables
     this->je_nh_ = nh;
@@ -161,7 +161,7 @@ void JointsEstimator::calibrate(){
 void JointsEstimator::calibrate_and_save(std::string file_name){
 
     // Get the path to the softfoot viz config folder and append the file name
-    std::string config_file_path = this->pkg_path + "/configs/" + file_name + ".yaml";
+    std::string config_file_path = this->pkg_path_ + "/configs/" + file_name + ".yaml";
     std::cout << "File path is " << config_file_path << "." << std::endl;
 
     // Create yaml emitter and prepare it with foot details
@@ -615,6 +615,36 @@ void JointsEstimator::chain_ik(){
 
 }
 
+// Function to compute the leg joint state
+float JointsEstimator::compute_leg_joint(){
+
+    // Defining needed variables
+    Eigen::Vector3d axis, acc_0, acc_1;
+    double determinant, dot_product;
+    float js;
+    
+    // 2) Suppose the 1st imu of the 1st joint pair is in the ankle - getting the vectors
+    axis = this->axes_pairs_[0].first; axis.normalize();
+    acc_0 = this->acc_vec_0_[this->joint_pairs_[0].first]; acc_0.normalize();
+    acc_1 = this->acc_vec_[this->joint_pairs_[0].first]; acc_1.normalize();
+
+    // 3) Compute the first angle (variation of first imu inclination around the joint axis)
+    determinant = axis.dot(acc_0.cross(acc_1));             // Calculating det as triple product
+    dot_product = acc_0.dot(acc_1);                         // Getting the dot product
+    js = (float) atan2(determinant, dot_product);
+
+    // 5) Saturate if estimated joint values outside limits (TODO: remove hard code)
+    if (js <= -0.5) {
+        js = -0.5;
+    } else if (js >= 0.5) {
+        js = 0.5;
+    }
+
+    // Return the leg joint state (this might be opposite in sign)
+    return -js;
+
+}
+
 // Function to check if joint states are "publishable"
 bool JointsEstimator::states_publishable(){
 
@@ -641,6 +671,9 @@ void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
 
     // Estimate the soft chain joint states
     this->chain_ik();
+
+    // Estimate leg joint state
+    this->leg_js_ = this->compute_leg_joint();
 
     // Filling up the msg
     this->joint_states_.header.stamp = ros::Time::now();

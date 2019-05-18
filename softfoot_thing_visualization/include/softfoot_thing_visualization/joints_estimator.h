@@ -91,6 +91,9 @@ class JointsEstimator {
         // Function to compute soft chain IK
         void chain_ik();
 
+        // Function to compute the leg joint state
+        float compute_leg_joint();
+
         // Function to check if joint states are "publishable"
         bool states_publishable();
 
@@ -118,7 +121,6 @@ class JointsEstimator {
 
         // ROS variables
         ros::NodeHandle je_nh_;
-        ros::AsyncSpinner spinner;
         ros::Subscriber sub_imu_acc_;
         ros::Subscriber sub_imu_gyro_;
         ros::Publisher pub_js_;
@@ -179,7 +181,7 @@ class JointsEstimator {
         int foot_id_;
         std::string foot_name_;
         std::string robot_name_;                                    // Foot name + id
-        std::string pkg_path;                                       // Path to this package (parsed later)
+        std::string pkg_path_;                                       // Path to this package (parsed later)
         std::string imu_topic_ = "/qb_class_imu/quat";
         std::string imu_topic_acc_ = "/qb_class_imu/acc";
         std::string imu_topic_gyro_ = "/qb_class_imu/gyro";
