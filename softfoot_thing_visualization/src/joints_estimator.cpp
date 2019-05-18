@@ -96,9 +96,16 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->q_chain_.data = this->q_chain_base_;
 
     // Adding also chain joint states
-    for (int i = 1; i <= 9; i++) {
+    for (int i = 1; i <= this->chain_chain_.getNrOfJoints(); i++) {
         this->joint_states_.name.push_back(this->robot_name_ 
             + "_" + this->chain_name_ + "_" + std::to_string(i) + "_joint");
+        this->joint_states_.position.push_back(0.0);
+    }
+
+    // Eventually adding the leg joint to jointstates
+    if (this->publish_leg_pose_) {
+        ROS_WARN_STREAM("Publishing also leg pose for " << this->robot_name_ << "!");
+        this->joint_states_.name.push_back("world_to_leg_" + std::to_string(this->foot_id_));
         this->joint_states_.position.push_back(0.0);
     }
 
@@ -282,6 +289,12 @@ bool JointsEstimator::estimate(){
 bool JointsEstimator::parse_parameters(ros::NodeHandle& nh){
     
     // TODO: parse needed params
+
+    // Parse if leg pose has to be published
+    if (!this->je_nh_.getParam("softfoot_viz/publish_leg_pose", this->publish_leg_pose_)) {
+        ROS_WARN_STREAM("Could not understand if you want me to publish leg pose for " << this->robot_name_ 
+        << ", this is strange! By default, I don't publish!");
+    }
 
     // Parsing joint limits of the foot (joint_names_ needs to be set before)
     if (!this->get_joint_limits(nh)) {
@@ -578,10 +591,6 @@ void JointsEstimator::chain_ik(){
         this->js_values_[1], -this->js_values_[3];
 
     // Get the pose of the chain insertion in chain base
-    // tf::transformEigenToKDL(this->getTransform(this->robot_name_ 
-    //     + "_front_roll_link", this->robot_name_ + "_" 
-    //     + this->chain_name_ + "_insertion_link"), this->chain_ins_pose_);
-
     this->fk_solver_ins_->JntToCart(this->q_ins_, this->real_ins_pose_);
 
     // Publish debug frames
@@ -640,8 +649,14 @@ void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
     }
 
     // Fill chain joint states
-    for (int i = this->joint_names_.size(); i < this->joint_states_.position.size(); i++) {
+    for (int i = this->joint_names_.size(); i < (this->joint_names_.size() + this->chain_chain_.getNrOfJoints()); i++) {
         this->joint_states_.position[i] = (this->q_chain_.data(i - this->joint_names_.size()));
+    }
+
+    // Eventually filling in also the leg joint state
+    if (this->publish_leg_pose_) {
+        this->joint_states_.position[this->joint_names_.size() + this->chain_chain_.getNrOfJoints()] = 
+            (this->leg_js_);
     }
 
     // Publish to the topic

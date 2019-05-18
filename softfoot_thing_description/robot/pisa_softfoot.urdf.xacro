@@ -12,13 +12,16 @@
   </link>
 
   <!-- LEG 1 -->
-  <joint name="world_to_leg_1" type="fixed">
+  <joint name="world_to_leg_3" type="revolute">
     <origin xyz="0 0 0.2" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.50" upper="0.50" effort="1" velocity="1" />
+		<dynamics friction="0.01" damping="0.01"/>
     <parent link="world"/>
-    <child link="leg_link_1"/>
+    <child link="leg_link_3"/>
   </joint>
   
-  <link name="leg_link_1">
+  <link name="leg_link_3">
     <inertial>
 			<mass value="${leg_mass}"/>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -40,25 +43,25 @@
 		</collision>
   </link>
 
-  <gazebo reference="leg_link_1">
+  <gazebo reference="leg_link_3">
 		<gravity>true</gravity>
 		<material>Gazebo/Black</material>
 	</gazebo>
 
   <!-- FOOT 1 -->
-  <xacro:softfoot_thing name="softfoot_3" parent="leg_link_1">
+  <xacro:softfoot_thing name="softfoot_3" parent="leg_link_3">
     <origin xyz="0 0 -0.05" rpy="0 0 0"/>
   </xacro:softfoot_thing>
 
 
   <!-- LEG 2 -->
-  <!-- <joint name="world_to_leg_2" type="fixed">
+  <!-- <joint name="world_to_leg_4" type="fixed">
     <origin xyz="0 0.2 0.2" rpy="0 0 0"/>
     <parent link="world"/>
-    <child link="leg_link_2"/>
+    <child link="leg_link_4"/>
   </joint>
   
-  <link name="leg_link_2">
+  <link name="leg_link_4">
     <inertial>
 			<mass value="${leg_mass}"/>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -80,13 +83,13 @@
 		</collision>
   </link>
 
-  <gazebo reference="leg_link_2">
+  <gazebo reference="leg_link_4">
 		<gravity>true</gravity>
 		<material>Gazebo/Black</material>
 	</gazebo> -->
 
   <!-- FOOT 2 -->
-  <!-- <xacro:softfoot_thing name="softfoot_4" parent="leg_link_2">
+  <!-- <xacro:softfoot_thing name="softfoot_4" parent="leg_link_4">
     <origin xyz="0 0 -0.05" rpy="0 0 0"/>
   </xacro:softfoot_thing> -->
 

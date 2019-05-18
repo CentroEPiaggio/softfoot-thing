@@ -166,6 +166,9 @@ class JointsEstimator {
         boost::scoped_ptr<KDL::ChainIkSolverPos_LMA> ik_lma_solver_;            // IK LMA solver front roll -> chain tip
         Eigen::Matrix< double, 6, 1 > lma_weight_;
         
+        // Leg variables (used if publish_leg_pose_ = true)
+        double leg_js_ = 0.0;
+
         // For debug
         tf::TransformBroadcaster tf_broadcaster_;
         tf::Transform debug_transform_;
@@ -182,6 +185,7 @@ class JointsEstimator {
         std::string imu_topic_gyro_ = "/qb_class_imu/gyro";
 
         // Parsed variables
+        bool publish_leg_pose_ = false;                              // Estimate leg pose from imu and publish
         std::vector<std::pair<int, int>> joint_pairs_;              // Pairs of imu ids for each joint
         std::vector<std::string> joint_names_;                      // Names of each joint
         std::vector<std::string> joint_frame_names_;                // Names of the frames of each joint
