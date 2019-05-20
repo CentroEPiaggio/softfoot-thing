@@ -7,7 +7,7 @@ softfoot_viz:
   calibrate_online: false
 
   # Filter measurments
-  use_filter: false
+  use_filter: true
 
   # Publish leg pose
   publish_leg_pose: true
@@ -42,5 +42,5 @@ softfoot_viz:
     - name: first_low_pass
       type: filters/TransferFunctionFilterDouble
       params:
-        a: [1.0, -0.9971]
-        b: [0.0014, 0.0014]
+        a: [1.0, -0.95]
+        b: [0.01, 0.01]
