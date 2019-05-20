@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(softfoot_thing_visualization)
 
-add_definitions(-std=c++11)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(CMAKE_BUILD_TYPE Debug)
 
 find_package(catkin REQUIRED COMPONENTS
@@ -18,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   urdf
   kdl_parser
   qb_interface
+  filters
 )
 
 find_package(yaml-cpp REQUIRED)

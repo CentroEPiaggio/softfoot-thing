@@ -25,6 +25,9 @@
 #include <kdl/chainiksolverpos_nr_jl.hpp>
 #include <kdl/chainiksolverpos_lma.hpp>
 
+// Filter includes
+#include "filters/filter_chain.h"
+
 // Other includes
 #include <Eigen/Dense>
 #include <tf/transform_listener.h>
@@ -141,6 +144,10 @@ class JointsEstimator {
         std::vector<Eigen::Vector3d> acc_vec_0_;                    // Calibration acceleration
         std::vector<Eigen::Vector3d> acc_vec_;                      // Current acceleration
         std::vector<Eigen::Vector3d> acc_vec_olds_;                 // Previous acceleration
+        std::vector<Eigen::Vector3d> acc_vec_raw_;                  // Raw unfiltered acceleration
+
+        // Low pass filter for accelerations
+        std::vector<std::vector<std::shared_ptr<filters::FilterChain<double>>>> lp_filter_;
 
         // Joint variables
         std::vector<float> joint_values_;                           // Raw joint values
@@ -187,7 +194,8 @@ class JointsEstimator {
         std::string imu_topic_gyro_ = "/qb_class_imu/gyro";
 
         // Parsed variables
-        bool publish_leg_pose_ = false;                              // Estimate leg pose from imu and publish
+        bool publish_leg_pose_ = false;                             // Estimate leg pose from imu and publish
+        bool use_filter_ = false;                                   // Flag to use LP filter on measurments
         std::vector<std::pair<int, int>> joint_pairs_;              // Pairs of imu ids for each joint
         std::vector<std::string> joint_names_;                      // Names of each joint
         std::vector<std::string> joint_frame_names_;                // Names of the frames of each joint

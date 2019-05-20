@@ -36,6 +36,18 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     // Initializing ros variables
     this->je_nh_ = nh;
 
+    // Setting up the filter (This is needed here otherwise when switching controllers, filter memory is not cleared!)
+    this->lp_filter_.clear();
+    for (int i = 0; i < 4; i++) {
+        std::vector<std::shared_ptr<filters::FilterChain<double>>> tmp_lp_vec;
+        for (int j = 0; j < 3; j++) {
+            tmp_lp_vec.push_back(std::make_shared<filters::FilterChain<double>>("double"));
+            tmp_lp_vec[j]->configure("softfoot_viz/low_pass_filter", this->je_nh_);
+        }
+        this->lp_filter_.push_back(tmp_lp_vec);
+    }
+
+    // Initializing subscribers
     this->sub_imu_acc_ = this->je_nh_.subscribe<qb_interface::inertialSensorArray>(this->imu_topic_acc_, 
         1, &JointsEstimator::acc_callback, this);
     qb_interface::inertialSensorArray::ConstPtr temp_msg_2 = ros::topic::waitForMessage
@@ -113,10 +125,12 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->acc_vec_0_.resize(4);
     this->acc_vec_.resize(4);
     this->acc_vec_olds_.resize(4);
+    this->acc_vec_raw_.resize(4);
     for (int i = 0; i < 4; i++) {
         this->acc_vec_0_[i] = Eigen::Vector3d::Zero();
         this->acc_vec_[i] = Eigen::Vector3d::Zero();
         this->acc_vec_olds_[i] = Eigen::Vector3d::Zero();
+        this->acc_vec_raw_[i] = Eigen::Vector3d::Zero();
     }
 
 }
@@ -294,6 +308,12 @@ bool JointsEstimator::parse_parameters(ros::NodeHandle& nh){
     if (!this->je_nh_.getParam("softfoot_viz/publish_leg_pose", this->publish_leg_pose_)) {
         ROS_WARN_STREAM("Could not understand if you want me to publish leg pose for " << this->robot_name_ 
         << ", this is strange! By default, I don't publish!");
+    }
+
+    // Check if filter is needed
+    if (!this->je_nh_.getParam("softfoot_viz/use_filter", this->use_filter_)) {
+        ROS_WARN_STREAM("Could not understand if you want me to filter the measurments for " << this->robot_name_ 
+        << ", this is strange! By default, I don't filter!");
     }
 
     // Parsing joint limits of the foot (joint_names_ needs to be set before)
@@ -494,7 +514,7 @@ bool JointsEstimator::compute_perpendiculars(Eigen::Vector3d in, Eigen::Vector3d
     Eigen::Vector3d &out_2){
 
     // If input vector is near to null, return
-    if((in - Eigen::Vector3d::Zero()).isMuchSmallerThan(0.0001)) return false;
+    if ((in - Eigen::Vector3d::Zero()).isMuchSmallerThan(0.0001)) return false;
     
     Eigen::Vector3d v; Eigen::Vector3d w;
     // Checking if the input vector is on some main plane, else get traditional perpendicular
@@ -719,13 +739,29 @@ void JointsEstimator::acc_callback(const qb_interface::inertialSensorArray::Cons
         std::cout << "/\n" << std::endl;
     }
 
+    // Save raw accelerations
+    for (int i = 0; i < 4; i++) {
+        this->acc_vec_raw_[i] << this->imu_acc_[i].x, this->imu_acc_[i].y, this->imu_acc_[i].z;
+    }
+
     // Save old accelerations and push new ones
     this->acc_vec_olds_ = this->acc_vec_;
+
+    // Filter accelerations if needed
+    if (this->use_filter_) {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 3; j++) {
+                this->lp_filter_.at(i).at(j)->update(this->acc_vec_raw_[i](j), this->acc_vec_[i](j));
+            }
+        }
+    } else {
+        this->acc_vec_ = this->acc_vec_raw_;
+    }
+
+    // Remove high accelerations replacing them with old ones
     for (int i = 0; i < 4; i++) {
-        if (this->imu_acc_[i].x < 1.5 && this->imu_acc_[i].y < 1.5 && this->imu_acc_[i].z < 1.5) {
-            this->acc_vec_[i] << this->imu_acc_[i].x, this->imu_acc_[i].y, this->imu_acc_[i].z;
-        } else {
-            this->acc_vec_ = this->acc_vec_olds_;
+        if (this->imu_acc_[i].x > 1.5 || this->imu_acc_[i].y > 1.5 || this->imu_acc_[i].z > 1.5) {
+            this->acc_vec_[i] = this->acc_vec_olds_[i];
         }
     }
 
