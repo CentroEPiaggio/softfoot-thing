@@ -6,6 +6,9 @@ softfoot_viz:
   # Calibrate online
   calibrate_online: false
 
+  # Filter measurments
+  use_filter: false
+
   # Publish leg pose
   publish_leg_pose: true
 
@@ -33,3 +36,11 @@ softfoot_viz:
   # Posterior right foot
   softfoot_4:
     joint_pairs: [[0, 1], [0, 3], [1, 2]]
+
+  # Low pass filter
+  low_pass_filter:
+    - name: first_low_pass
+      type: filters/TransferFunctionFilterDouble
+      params:
+        a: [1.0, -0.9971]
+        b: [0.0014, 0.0014]
