@@ -15,7 +15,7 @@
 #define     DEBUG_JE        0       // Prints out additional info about the Object
 #define     DEBUG_JS        0       // Prints out info about estimated joint states
 #define     DEBUG_PARSED    0       // Prints out info about parsed stuff
-#define     DEBUG_ANGLES    0       // Prints out only raw estimated angles
+#define     DEBUG_ANGLES    1       // Prints out only raw estimated angles
 #define     DEBUG_CHAIN     1       // Publishes frames to RViz
 
 #define     N_CAL_IT        100     // Number of calibration iterations
@@ -95,6 +95,8 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
         this->joint_states_.position.push_back(0.0);
     }
     this->joint_values_.resize(this->joint_pairs_.size());
+    this->joint_values_old_.resize(this->joint_pairs_.size());
+    this->joint_values_gyro_.resize(this->joint_pairs_.size());
     this->js_values_.resize(this->joint_pairs_.size());
 
     // Setting joint states and base of the foot chain
@@ -121,17 +123,22 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
         this->joint_states_.position.push_back(0.0);
     }
 
-    // Setting old accelerations to null
+    // Setting all accelerations and ang vels to null
     this->acc_vec_0_.resize(4);
     this->acc_vec_.resize(4);
     this->acc_vec_olds_.resize(4);
     this->acc_vec_raw_.resize(4);
+    this->gyro_vec_.resize(4);
     for (int i = 0; i < 4; i++) {
         this->acc_vec_0_[i] = Eigen::Vector3d::Zero();
         this->acc_vec_[i] = Eigen::Vector3d::Zero();
         this->acc_vec_olds_[i] = Eigen::Vector3d::Zero();
         this->acc_vec_raw_[i] = Eigen::Vector3d::Zero();
+        this->gyro_vec_[i] = Eigen::Vector3d::Zero();
     }
+
+    // Initializing time variables
+    this->last_integration_time_ = ros::Time::now();
 
 }
 
@@ -268,21 +275,35 @@ bool JointsEstimator::estimate(){
         return false;
     }
 
-    // Estimating the angles
+    // Save old raw joint values to be used for gyro integration
+    this->joint_values_old_ = this->joint_values_;
+
+    // Estimating the angles from accelerations
     for (int i = 0; i < this->joint_pairs_.size(); i++) {
         this->joint_values_[i] = this->compute_joint_state_from_pair(this->joint_pairs_[i]);
+    }
+
+    // Integrating the angles from angular velocities
+    for (int i = 0; i < this->joint_pairs_.size(); i++) {
+        this->joint_values_gyro_[i] = this->integrate_joint_state_from_pair(this->joint_pairs_[i]);
     }
 
     // Filling up jointstates and publishing
     this->fill_and_publish(this->joint_values_);
 
     if (DEBUG_ANGLES) {
-        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[0].first 
+        ROS_INFO_STREAM("The estimated acc joint angle for imu pair (" << this->joint_pairs_[0].first
             << ", " << this->joint_pairs_[0].second << ") is " << this->joint_values_[0] << "rads \n");
-        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[1].first 
+        ROS_INFO_STREAM("The estimated acc joint angle for imu pair (" << this->joint_pairs_[1].first
             << ", " << this->joint_pairs_[1].second << ") is " << this->joint_values_[1] << "rads \n");
-        ROS_INFO_STREAM("The estimated raw joint angle for imu pair (" << this->joint_pairs_[2].first 
+        ROS_INFO_STREAM("The estimated acc joint angle for imu pair (" << this->joint_pairs_[2].first
             << ", " << this->joint_pairs_[2].second << ") is " << this->joint_values_[2] << "rads \n");
+        ROS_INFO_STREAM("The estimated gyro joint angle for imu pair (" << this->joint_pairs_[0].first
+            << ", " << this->joint_pairs_[0].second << ") is " << this->joint_values_gyro_[0] << "rads \n");
+        ROS_INFO_STREAM("The estimated gyro joint angle for imu pair (" << this->joint_pairs_[1].first
+            << ", " << this->joint_pairs_[1].second << ") is " << this->joint_values_gyro_[1] << "rads \n");
+        ROS_INFO_STREAM("The estimated gyro joint angle for imu pair (" << this->joint_pairs_[2].first
+            << ", " << this->joint_pairs_[2].second << ") is " << this->joint_values_gyro_[2] << "rads \n");
     }
 
     if (DEBUG_JS) {
@@ -588,6 +609,41 @@ float JointsEstimator::compute_joint_state_from_pair(std::pair<int, int> imu_pai
 
 }
 
+// Function to additionally integrate the joint angle using gyro measurments
+float JointsEstimator::integrate_joint_state_from_pair(std::pair<int, int> imu_pair){
+
+    // 1) Getting joint name for current imu pair
+    int pos = std::find(this->joint_pairs_.begin(), this->joint_pairs_.end(),
+         imu_pair) - this->joint_pairs_.begin();
+    if (pos >= this->joint_pairs_.size()) {
+        ROS_FATAL_STREAM("JointsEstimator::integrate_joint_state_from_pair : You specified for "
+            << this->robot_name_ << "  an imu pair which is unknown to me!");
+        this->je_nh_.shutdown();
+    }
+
+    // Defining some variables
+    Eigen::Vector3d axis, gyro;
+    float ang_vel_1, ang_vel_2, js;
+
+    // 2.1) Case imu1 of pair: get the angula velocity around joint axis
+    axis = this->axes_pairs_[pos].first; axis.normalize();
+    gyro = this->gyro_vec_[this->joint_pairs_[pos].first];
+    ang_vel_1 = gyro.dot(axis);
+
+    // 2.2) Case imu2 of pair: get the angula velocity around joint axis
+    axis = this->axes_pairs_[pos].second; axis.normalize();
+    gyro = this->gyro_vec_[this->joint_pairs_[pos].second];
+    ang_vel_2 = gyro.dot(axis);
+
+    // 3) Computing joint value by integration
+    this->dt_ = ros::Time::now() - this->last_integration_time_;
+    js = this->joint_values_old_[pos] + (ang_vel_1 - ang_vel_2) * this->dt_.toSec();
+
+    // Setting last integration time and returning
+    this->last_integration_time_ = ros::Time::now();
+    return js;
+}
+
 // Function to avoid gradient descent NR for chain getting stuck
 void JointsEstimator::facilitate_chain_ik(){
 
@@ -787,6 +843,11 @@ void JointsEstimator::gyro_callback(const qb_interface::inertialSensorArray::Con
             std::cout << it.id << " - ";
         }
         std::cout << "/\n" << std::endl;
+    }
+
+    // Save raw angular velocities
+    for (int i = 0; i < 4; i++) {
+        this->gyro_vec_[i] << this->imu_gyro_[i].x, this->imu_gyro_[i].y, this->imu_gyro_[i].z;
     }
 
 }

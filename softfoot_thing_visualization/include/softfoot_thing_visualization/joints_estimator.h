@@ -88,6 +88,9 @@ class JointsEstimator {
         // Function to compute the joint angle from pair of imu ids
         float compute_joint_state_from_pair(std::pair<int, int> imu_pair);
 
+        // Function to additionally integrate the joint angle using gyro measurments
+        float integrate_joint_state_from_pair(std::pair<int, int> imu_pair);
+
         // Function to avoid gradient descent NR for chain getting stuck
         void facilitate_chain_ik();
 
@@ -146,13 +149,20 @@ class JointsEstimator {
         std::vector<Eigen::Vector3d> acc_vec_olds_;                 // Previous acceleration
         std::vector<Eigen::Vector3d> acc_vec_raw_;                  // Raw unfiltered acceleration
 
+        // Angular velocity vectors
+        std::vector<Eigen::Vector3d> gyro_vec_;                     // Current acceleration
+        ros::Time last_integration_time_;                           // For computing integration dt
+        ros::Duration dt_;                                          // Gyro integration step
+
         // Low pass filter for accelerations
         std::vector<std::vector<std::shared_ptr<filters::FilterChain<double>>>> lp_filter_;
 
         // Joint variables
         std::vector<float> joint_values_;                           // Raw joint values
+        std::vector<float> joint_values_old_;                       // Old raw joint values
+        std::vector<float> joint_values_gyro_;                      // Raw joint values integrated from gyro
         std::vector<float> js_values_;                              // Joint states 
-        std::vector<std::pair<float, float>> joint_limits_;         // parsed fron robot model
+        std::vector<std::pair<float, float>> joint_limits_;         // Parsed from robot model
         sensor_msgs::JointState joint_states_;                      // Joint states message
 
         // Soft chain variables
