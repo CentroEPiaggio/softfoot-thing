@@ -206,6 +206,7 @@ class JointsEstimator {
         // Parsed variables
         bool publish_leg_pose_ = false;                             // Estimate leg pose from imu and publish
         bool use_filter_ = false;                                   // Flag to use LP filter on measurments
+        bool use_gyro_ = false;                                     // Flag to fuse gyro integration
         std::vector<std::pair<int, int>> joint_pairs_;              // Pairs of imu ids for each joint
         std::vector<std::string> joint_names_;                      // Names of each joint
         std::vector<std::string> joint_frame_names_;                // Names of the frames of each joint

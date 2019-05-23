@@ -9,6 +9,9 @@ softfoot_viz:
   # Filter measurments
   use_filter: true
 
+  # Fuse integrated gyro measurments
+  use_gyro: false
+
   # Publish leg pose
   publish_leg_pose: true
 

@@ -15,7 +15,7 @@
 #define     DEBUG_JE        0       // Prints out additional info about the Object
 #define     DEBUG_JS        0       // Prints out info about estimated joint states
 #define     DEBUG_PARSED    0       // Prints out info about parsed stuff
-#define     DEBUG_ANGLES    1       // Prints out only raw estimated angles
+#define     DEBUG_ANGLES    0       // Prints out only raw estimated angles
 #define     DEBUG_CHAIN     1       // Publishes frames to RViz
 
 #define     N_CAL_IT        100     // Number of calibration iterations
@@ -337,6 +337,12 @@ bool JointsEstimator::parse_parameters(ros::NodeHandle& nh){
         << ", this is strange! By default, I don't filter!");
     }
 
+    // Check if gyro fusion is requested
+    if (!this->je_nh_.getParam("softfoot_viz/use_gyro", this->use_gyro_)) {
+        ROS_WARN_STREAM("Could not understand if you want me to fues also the gyro for " << this->robot_name_
+        << ", this is strange! By default, I don't filter!");
+    }
+
     // Parsing joint limits of the foot (joint_names_ needs to be set before)
     if (!this->get_joint_limits(nh)) {
         ROS_FATAL_STREAM("Unable to get the joint limits for " << this->robot_name_ << "!");
@@ -435,7 +441,12 @@ void JointsEstimator::correct_offset(){
 
     // As of now, no offset to compensate for
     for (int i = 0; i < this->joint_values_.size(); i++) {
-        this->js_values_[i] = this->joint_values_[i];
+        if (this->use_gyro_) {
+            // TODO: make the weights variable and dynamic case by case
+            this->js_values_[i] = 0.5 * this->joint_values_[i] + 0.5 * this->joint_values_gyro_[i];
+        } else {
+            this->js_values_[i] = this->joint_values_[i];
+        }
     }
 
 }
