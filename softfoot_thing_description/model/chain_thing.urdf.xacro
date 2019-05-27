@@ -304,7 +304,8 @@
 			<child link="${foot}_${name}_tip_link"/>
 		</joint>
 
-		<link name="${foot}_${name}_tip_link"/>
+                <link name="${foot}_${name}_tip_link">
+                </link>
 
 	</xacro:macro>
 
