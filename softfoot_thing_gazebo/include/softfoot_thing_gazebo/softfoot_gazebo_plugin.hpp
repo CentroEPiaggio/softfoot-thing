@@ -6,6 +6,9 @@
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
 
+// Gazebo Math
+#include <ignition/math/Pose3.hh>
+
 // ROS
 #include <ros/ros.h>
 
@@ -33,6 +36,14 @@ namespace gazebo
 
             // Pointer to the link to be contolled
             physics::LinkPtr link_;
+            physics::LinkPtr link_des_;
+
+            // Fixed trasforms
+            ignition::math::Pose3d roll_to_ins_;
+            ignition::math::Pose3d chain_9_to_tip_;
+
+            // Position error
+            ignition::math::Vector3d error_;
 
             // Pointer to the update event connection
             event::ConnectionPtr updateConnection_;

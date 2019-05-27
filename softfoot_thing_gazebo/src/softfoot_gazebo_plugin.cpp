@@ -44,7 +44,17 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
     ROS_WARN_STREAM("Namespace is " << this->foot_namespace_);
 
     // Get the link to be controlled
-    this->link_ = model->GetLink(this->foot_namespace_ + "_back_roll_link");
+    this->link_ = model->GetLink(this->foot_namespace_ + "_middle_chain_9_link");
+
+    // Get the desired link
+    this->link_des_ = model->GetLink(this->foot_namespace_ + "_back_roll_link");
+
+    // Set the fixed transforms (TODO: change this with getting the transforms from SDF)
+    this->roll_to_ins_.Set(ignition::math::Vector3d(-0.002, 0.000, -0.012),
+                           ignition::math::Vector3d(-1.676, 0.000, -1.571));
+    this->chain_9_to_tip_.Set(ignition::math::Vector3d(0.000, 0.000, 0.013),
+                              ignition::math::Vector3d(0.000, 0.000, 0.000));
+
 
     // Listen to the update event
     this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
@@ -58,8 +68,14 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 // Plugin Update Function
 void SoftFootGazeboPlugin::OnUpdate(){
 
-    // Apply a small linear velocity to the link
-    // this->link_->SetAngularVel(ignition::math::Vector3d(0.3, 0.0, 0.0));
+    // Get the desired pose of the tip link
+    this->error_ = (this->link_des_->WorldPose()).Pos()
+                - (this->link_->WorldPose()).Pos();
+
+//    std::cout << (this->link_des_->WorldPose() * this->roll_to_ins_).Pos() << std::endl;
+
+    // Apply the desired pose to the chain tip link
+    this->link_->SetLinearVel(10 * this->error_);
 
 }
 
