@@ -28,6 +28,10 @@ namespace gazebo
             // Plugin Update Function
             virtual void OnUpdate();
 
+            // Function to compute angular velocity between two frames
+            ignition::math::Vector3d ComputeAngularVel(ignition::math::Pose3d f_1,
+                                                       ignition::math::Pose3d f_2);
+
         private:
 
             // Pointers to the model
@@ -43,7 +47,8 @@ namespace gazebo
             ignition::math::Pose3d chain_9_to_tip_;
 
             // Position error
-            ignition::math::Vector3d error_;
+            ignition::math::Vector3d lin_error_;
+            ignition::math::Vector3d ang_error_;
 
             // Pointer to the update event connection
             event::ConnectionPtr updateConnection_;

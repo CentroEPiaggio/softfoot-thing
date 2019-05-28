@@ -50,10 +50,8 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
     this->link_des_ = model->GetLink(this->foot_namespace_ + "_back_roll_link");
 
     // Set the fixed transforms (TODO: change this with getting the transforms from SDF)
-    this->roll_to_ins_.Set(ignition::math::Vector3d(-0.002, 0.000, -0.012),
-                           ignition::math::Vector3d(-1.676, 0.000, -1.571));
-    this->chain_9_to_tip_.Set(ignition::math::Vector3d(0.000, 0.000, 0.013),
-                              ignition::math::Vector3d(0.000, 0.000, 0.000));
+    this->roll_to_ins_.Set(-0.002, 0.000, -0.012,-1.676, 0.000, -1.571);
+    this->chain_9_to_tip_.Set(0.000, 0.000, 0.013, 0.000, 0.000, 0.000);
 
 
     // Listen to the update event
@@ -68,16 +66,51 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 // Plugin Update Function
 void SoftFootGazeboPlugin::OnUpdate(){
 
-    // Get the desired pose of the tip link
-    this->error_ = (this->link_des_->WorldPose()).Pos()
-                - (this->link_->WorldPose()).Pos();
+    // Force link_9 to be where it's supposed to be
+//    this->link_->SetWorldPose(this->link_des_->WorldPose() * this->roll_to_ins_ * this->chain_9_to_tip_.Inverse(), false, false);
 
-//    std::cout << (this->link_des_->WorldPose() * this->roll_to_ins_).Pos() << std::endl;
+    // Get the linear and anguar errors between the desired and real poses of the tip link
+    this->lin_error_ = (this->chain_9_to_tip_.Inverse() * this->roll_to_ins_
+                        * this->link_des_->WorldPose()).Pos() - (this->link_->WorldPose()).Pos();
+    this->ang_error_ = this->ComputeAngularVel(this->chain_9_to_tip_.Inverse() * this->roll_to_ins_
+                                               * this->link_des_->WorldPose(), this->link_->WorldPose());
 
-    // Apply the desired pose to the chain tip link
-    this->link_->SetLinearVel(10 * this->error_);
+    // Apply a velocity control to the chain 9 link
+    this->link_->SetLinearVel(0.1 * this->lin_error_);
+    this->link_->SetAngularVel(0.1 * this->ang_error_);
+    this->link_des_->SetLinearVel(-0.1 * this->lin_error_);
+    this->link_des_->SetAngularVel(-0.1 * this->ang_error_);
+
+    // Debug print
+//    std::cout << "Back roll position: \n" << this->link_des_->WorldPose().Pos() << std::endl;
+//    std::cout << "Trial position: \n" << (this->link_des_->WorldPose() * this->chain_9_to_tip_).Pos() << std::endl;
+//    std::cout << "Insertion position: \n" << (this->roll_to_ins_ * this->link_des_->WorldPose()).Pos() << std::endl;
+//    std::cout << "Link 9 position des: \n" << (this->link_des_->WorldPose() * this->roll_to_ins_ * this->chain_9_to_tip_.Inverse()).Pos() << std::endl;
+//    std::cout << "Link 9 position real: \n" << (this->link_->WorldPose()).Pos() << std::endl;
+//    std::cout << "Inv 9_to_tip: \n" << this->chain_9_to_tip_.Inverse().Pos() << std::endl;
+//    std::cout << "Angular control: \n" << this->ang_error_ << std::endl;
+    std::cout << "Linear control: \n" << this->lin_error_ << std::endl;
+    std::cout << "Angular control: \n" << this->ang_error_ << std::endl;
 
 }
+
+// Function to compute angular velocity between two frames
+ignition::math::Vector3d SoftFootGazeboPlugin::ComputeAngularVel(ignition::math::Pose3d f_1,
+                                                                 ignition::math::Pose3d f_2){
+
+    // Get the residual transformation
+    ignition::math::Quaterniond Q_res = f_2.Rot() * f_1.Rot().Inverse();
+
+    // Get the axis-angle
+    ignition::math::Vector3d axis;
+    double angle;
+    Q_res.ToAxis(axis, angle);
+
+    // Return the angular displacement
+    return angle * axis;
+
+}
+
 
 // Register this plugin with the simulator
 GZ_REGISTER_MODEL_PLUGIN(SoftFootGazeboPlugin);
