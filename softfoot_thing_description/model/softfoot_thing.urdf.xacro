@@ -164,10 +164,10 @@
 		</joint>
 
         <link name="${name}_roll_link">
-			<inertial>
-				<xacro:insert_block name="negligible_inertia"/>
-			</inertial>
-		</link>
+                        <inertial>
+                                <xacro:insert_block name="really_negligible_inertia"/>
+                        </inertial>
+                </link>
 
         <!-- 4) Front roll - joint along x-axis to roll -->
 		<joint name="${name}_front_roll_joint" type="revolute">

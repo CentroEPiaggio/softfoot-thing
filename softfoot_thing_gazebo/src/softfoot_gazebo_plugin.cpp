@@ -8,6 +8,9 @@
 // Custom include
 #include "softfoot_thing_gazebo/softfoot_gazebo_plugin.hpp"
 
+// Custom defines
+#define     DEBUG_SFGP      0
+
 using namespace gazebo;
 
 // Constructor
@@ -43,7 +46,7 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 
     ROS_WARN_STREAM("Namespace is " << this->foot_namespace_);
 
-    // Get the link to be controlled
+    // Get the links to be controlled
     this->link_ = model->GetLink(this->foot_namespace_ + "_middle_chain_9_link");
 
     // Get the desired link
@@ -66,9 +69,6 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 // Plugin Update Function
 void SoftFootGazeboPlugin::OnUpdate(){
 
-    // Force link_9 to be where it's supposed to be
-//    this->link_->SetWorldPose(this->link_des_->WorldPose() * this->roll_to_ins_ * this->chain_9_to_tip_.Inverse(), false, false);
-
     // Get the linear and anguar errors between the desired and real poses of the tip link
     this->lin_error_ = (this->chain_9_to_tip_.Inverse() * this->roll_to_ins_
                         * this->link_des_->WorldPose()).Pos() - (this->link_->WorldPose()).Pos();
@@ -78,19 +78,12 @@ void SoftFootGazeboPlugin::OnUpdate(){
     // Apply a velocity control to the chain 9 link
     this->link_->SetLinearVel(10 * this->lin_error_);
     this->link_->SetAngularVel(10 * this->ang_error_);
-//    this->link_des_->SetLinearVel(-10 * this->lin_error_);
-//    this->link_des_->SetAngularVel(-10 * this->ang_error_);
 
     // Debug print
-//    std::cout << "Back roll position: \n" << this->link_des_->WorldPose().Pos() << std::endl;
-//    std::cout << "Trial position: \n" << (this->link_des_->WorldPose() * this->chain_9_to_tip_).Pos() << std::endl;
-//    std::cout << "Insertion position: \n" << (this->roll_to_ins_ * this->link_des_->WorldPose()).Pos() << std::endl;
-//    std::cout << "Link 9 position des: \n" << (this->link_des_->WorldPose() * this->roll_to_ins_ * this->chain_9_to_tip_.Inverse()).Pos() << std::endl;
-//    std::cout << "Link 9 position real: \n" << (this->link_->WorldPose()).Pos() << std::endl;
-//    std::cout << "Inv 9_to_tip: \n" << this->chain_9_to_tip_.Inverse().Pos() << std::endl;
-//    std::cout << "Angular control: \n" << this->ang_error_ << std::endl;
-    std::cout << "Linear control: \n" << this->lin_error_ << std::endl;
-    std::cout << "Angular control: \n" << this->ang_error_ << std::endl;
+    if (DEBUG_SFGP) {
+        std::cout << "Linear control: \n" << this->lin_error_ << std::endl;
+        std::cout << "Angular control: \n" << this->ang_error_ << std::endl;
+    }
 
 }
 

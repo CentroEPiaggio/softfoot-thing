@@ -38,15 +38,15 @@ namespace gazebo
             physics::ModelPtr model_;
             sdf::ElementPtr sdf_;
 
-            // Pointer to the link to be contolled
-            physics::LinkPtr link_;
-            physics::LinkPtr link_des_;
+            // Pointer to the links to be contolled
+            physics::LinkPtr link_;                     // chain_9_link
+            physics::LinkPtr link_des_;                 // back_roll_link
 
             // Fixed trasforms
             ignition::math::Pose3d roll_to_ins_;
             ignition::math::Pose3d chain_9_to_tip_;
 
-            // Position error
+            // Position errors for control
             ignition::math::Vector3d lin_error_;
             ignition::math::Vector3d ang_error_;
 
