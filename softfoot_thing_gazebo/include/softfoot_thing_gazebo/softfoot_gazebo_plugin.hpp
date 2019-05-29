@@ -7,6 +7,7 @@
 #include <gazebo/common/common.hh>
 
 // Gazebo Math
+#include <ignition/math/Vector3.hh>
 #include <ignition/math/Pose3.hh>
 
 // ROS

@@ -2,9 +2,6 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 
-// Other includes
-#include <ignition/math/Vector3.hh>
-
 // Custom include
 #include "softfoot_thing_gazebo/softfoot_gazebo_plugin.hpp"
 
@@ -78,6 +75,11 @@ void SoftFootGazeboPlugin::OnUpdate(){
     // Apply a velocity control to the chain 9 link
     this->link_->SetLinearVel(10 * this->lin_error_);
     this->link_->SetAngularVel(10 * this->ang_error_);
+
+    // Apply opposite linear velocity control to the back_roll_link
+    if (this->lin_error_.SquaredLength() > 0.01) {
+        this->link_des_->SetLinearVel(-10.0 * this->lin_error_);
+    }
 
     // Debug print
     if (DEBUG_SFGP) {
