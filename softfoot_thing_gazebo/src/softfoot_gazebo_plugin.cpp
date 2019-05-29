@@ -78,8 +78,8 @@ void SoftFootGazeboPlugin::OnUpdate(){
     // Apply a velocity control to the chain 9 link
     this->link_->SetLinearVel(10 * this->lin_error_);
     this->link_->SetAngularVel(10 * this->ang_error_);
-    this->link_des_->SetLinearVel(-10 * this->lin_error_);
-    this->link_des_->SetAngularVel(-10 * this->ang_error_);
+//    this->link_des_->SetLinearVel(-10 * this->lin_error_);
+//    this->link_des_->SetAngularVel(-10 * this->ang_error_);
 
     // Debug print
 //    std::cout << "Back roll position: \n" << this->link_des_->WorldPose().Pos() << std::endl;
