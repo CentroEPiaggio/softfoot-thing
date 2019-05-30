@@ -29,7 +29,7 @@
                                 ${name}_${chain_name}_6_joint, ${name}_${chain_name}_7_joint,
                                 ${name}_${chain_name}_8_joint, ${name}_${chain_name}_9_joint
                 </jointName>
-                <updateRate>10.0</updateRate>
+                <updateRate>100.0</updateRate>
                 <alwaysOn>true</alwaysOn>
         </plugin>
         </gazebo>
