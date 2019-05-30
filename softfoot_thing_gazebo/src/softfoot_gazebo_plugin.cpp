@@ -5,12 +5,6 @@
 // Custom include
 #include "softfoot_thing_gazebo/softfoot_gazebo_plugin.hpp"
 
-// Custom defines
-#define     DEBUG_SFGP      0       // Prints out additional info
-#define     UPPER_COUP      1.04    // Upper (downwards) coupling angle limit for arch links
-#define     LOWER_COUP      0.0     // Lower (upwards) coupling angle limit for arch links
-#define     TORQUE_LIM      0.01    // Simulation limits on joint torques
-
 using namespace gazebo;
 
 // Constructor
