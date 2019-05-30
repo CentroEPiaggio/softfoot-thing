@@ -64,6 +64,9 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
     this->roll_to_ins_.Set(-0.002, 0.000, -0.012,-1.676, 0.000, -1.571);
     this->chain_9_to_tip_.Set(0.000, 0.000, 0.013, 0.000, 0.000, 0.000);
 
+    // Get time
+    this->last_time_ = model->GetWorld()->SimTime().Double();
+
     // Listen to the update event
     this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
         std::bind(&SoftFootGazeboPlugin::OnUpdate, this));
@@ -77,19 +80,13 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 void SoftFootGazeboPlugin::OnUpdate(){
 
     /* 1) Control the roll joint to mimic symmetrically each other */
-    if (std::abs(this->front_arch_joint_->Position() + this->back_roll_joint_->Position()) > 0.1) {
-        this->back_roll_joint_->SetForce(0, 0.1 * (this->back_roll_joint_->Position()
-                                                  + this->front_roll_joint_->Position()));
+    if (std::abs(this->front_arch_joint_->Position() + this->back_roll_joint_->Position()) > 0.08) {
+        this->back_roll_control_ = 0.1 * (this->back_roll_joint_->Position()
+                                          + this->front_roll_joint_->Position());
+        this->back_roll_joint_->SetForce(0, this->back_roll_control_);
     }
 
-    /* 2) Control the coupling between the arch joints */
-    if ((this->front_arch_joint_->Position() + this->back_arch_joint_->Position()) > double(UPPER_COUP)) {
-        this->back_arch_joint_->SetForce(0, 0.1 * (double(UPPER_COUP) - this->front_arch_joint_->Position()));
-        this->front_arch_joint_->SetForce(0, 0.1 * (double(UPPER_COUP) - this->back_arch_joint_->Position()));
-    } else if ((this->front_arch_joint_->Position() + this->back_arch_joint_->Position()) < double(LOWER_COUP)) {
-        this->back_arch_joint_->SetForce(0, 0.1 * (double(LOWER_COUP) - this->front_arch_joint_->Position()));
-        this->front_arch_joint_->SetForce(0, 0.1 * (double(LOWER_COUP) - this->back_arch_joint_->Position()));
-    }
+    /* 2) Control the coupling between the arch joints (NEEDED?) */
 
     /* 3) Control the tip of the chain to be inserted where it should be */
     // Get the linear and anguar errors between the desired and real poses of the tip link
@@ -98,25 +95,41 @@ void SoftFootGazeboPlugin::OnUpdate(){
     this->ang_error_ = this->ComputeAngularVel(this->chain_9_to_tip_.Inverse() * this->roll_to_ins_
                                                * this->link_des_->WorldPose(), this->link_->WorldPose());
 
+    // Update times and get also the integral of the error
+    this->dt_ = this->model_->GetWorld()->SimTime().Double() - this->last_time_;
+    this->last_time_ = this->model_->GetWorld()->SimTime().Double();
+    if (sqrt(this->lin_error_.SquaredLength()) > 0.01) {
+        this->error_integral_ += sqrt(this->lin_error_.SquaredLength()) * this->dt_;
+    } else {
+        this->error_integral_ = 0.0;
+    }
+
+    // Compute the linear error in 9_link frame
+    this->lin_error_loc_ = this->link_->WorldPose().Rot().Inverse() * this->lin_error_;
+
+    // If the integral of the error is not negligible, add a push back component to the linear velocity
+    if (this->error_integral_ > 0.01) {
+        this->int_error_.Set(0.0, this->lin_error_loc_.Y(), -0.01);
+        this->lin_error_ += this->link_->WorldPose().Rot() * this->int_error_;
+    }
+
     // Apply a velocity control to the chain 9 link
     this->link_->SetLinearVel(10 * this->lin_error_);
     this->link_->SetAngularVel(10 * this->ang_error_);
 
     // Apply opposite linear velocity control to the back_roll_link
-    if (this->lin_error_.SquaredLength() > 0.01) {
+    if (sqrt(this->lin_error_.SquaredLength()) > 0.01) {
         this->link_des_->SetLinearVel(-10.0 * this->lin_error_);
     }
 
     // Debug print
     if (DEBUG_SFGP) {
-        std::cout << "Back vel. torque control: \n" << 0.1 * (this->back_roll_joint_->Position()
-                                                             + this->front_roll_joint_->Position()) << std::endl;
-        std::cout << "Front arch torque control: \n" << 0.1 * (double(UPPER_COUP)
-                                                               - this->back_arch_joint_->Position()) << std::endl;
-        std::cout << "Back arch torque control: \n" << 0.1 * (double(UPPER_COUP)
-                                                              - this->front_arch_joint_->Position()) << std::endl;
+        std::cout << "Back roll torque control: \n" << this->back_roll_control_ << std::endl;
         std::cout << "Tip lin. vel. control: \n" << 10 * this->lin_error_ << std::endl;
         std::cout << "Tip ang. vel. control: \n" << 10 * this->ang_error_ << std::endl;
+        std::cout << "Distance tip - des: \n" << sqrt(this->lin_error_.SquaredLength()) << std::endl;
+        std::cout << "Integral of tip lin. error: \n" << this->error_integral_ << std::endl;
+        std::cout << "Tip lin. I control: \n" << this->link_->WorldPose().Rot() * this->int_error_ << std::endl;
         std::cout << "\n ---- \n" << std::endl;
     }
 

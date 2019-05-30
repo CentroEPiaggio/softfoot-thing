@@ -62,7 +62,14 @@ namespace gazebo
 
             // Position errors for control
             ignition::math::Vector3d lin_error_;
+            ignition::math::Vector3d lin_error_loc_;
+            ignition::math::Vector3d int_error_;
             ignition::math::Vector3d ang_error_;
+
+            // Time dependent variables
+            double dt_ = 0.0;
+            double last_time_;
+            double error_integral_ = 0.0;               // integral of the error
 
             // Pointer to the update event connection
             event::ConnectionPtr updateConnection_;
