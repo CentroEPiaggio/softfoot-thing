@@ -39,18 +39,9 @@ namespace gazebo
             physics::ModelPtr model_;
             sdf::ElementPtr sdf_;
 
-            // Pointers to the roll joints
-            physics::JointPtr front_roll_joint_;
-            physics::JointPtr back_roll_joint_;
-
-            // Pointers to the arch joints
-            physics::JointPtr front_arch_joint_;
-            physics::JointPtr back_arch_joint_;
-
-            // Joint controls
-            double back_roll_control_;
-            double front_arch_control_;
-            double back_arch_control_;
+            // Insertion joint
+            physics::JointPtr insertion_joint_;
+            ignition::math::Vector3d insertion_axis_;
 
             // Pointers to the links to be contolled
             physics::LinkPtr link_;                     // chain_9_link
@@ -59,17 +50,6 @@ namespace gazebo
             // Fixed trasforms
             ignition::math::Pose3d roll_to_ins_;
             ignition::math::Pose3d chain_9_to_tip_;
-
-            // Position errors for control
-            ignition::math::Vector3d lin_error_;
-            ignition::math::Vector3d lin_error_loc_;
-            ignition::math::Vector3d int_error_;
-            ignition::math::Vector3d ang_error_;
-
-            // Time dependent variables
-            double dt_ = 0.0;
-            double last_time_;
-            double error_integral_ = 0.0;               // integral of the error
 
             // Pointer to the update event connection
             event::ConnectionPtr updateConnection_;

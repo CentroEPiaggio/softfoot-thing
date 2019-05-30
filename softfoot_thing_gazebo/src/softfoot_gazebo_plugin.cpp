@@ -6,7 +6,7 @@
 #include "softfoot_thing_gazebo/softfoot_gazebo_plugin.hpp"
 
 // Custom defines
-#define     DEBUG_SFGP      1       // Prints out additional info
+#define     DEBUG_SFGP      0       // Prints out additional info
 #define     UPPER_COUP      1.04    // Upper (downwards) coupling angle limit for arch links
 #define     LOWER_COUP      0.0     // Lower (upwards) coupling angle limit for arch links
 #define     TORQUE_LIM      0.01    // Simulation limits on joint torques
@@ -46,26 +46,18 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 
     ROS_WARN_STREAM("Namespace is " << this->foot_namespace_);
 
-    // Get the roll joints
-    this->front_roll_joint_ = model->GetJoint(this->foot_namespace_ + "_front_roll_joint");
-    this->back_roll_joint_ = model->GetJoint(this->foot_namespace_ + "_back_roll_joint");
-
-    // Get the arch joints
-    this->front_arch_joint_ = model->GetJoint(this->foot_namespace_ + "_front_arch_joint");
-    this->back_arch_joint_ = model->GetJoint(this->foot_namespace_ + "_back_arch_joint");
-
     // Get the links to be controlled
     this->link_ = model->GetLink(this->foot_namespace_ + "_middle_chain_9_link");
 
     // Get the desired link
     this->link_des_ = model->GetLink(this->foot_namespace_ + "_back_roll_link");
 
-    // Set the fixed transforms (TODO: change this with getting the transforms from SDF)
-    this->roll_to_ins_.Set(-0.002, 0.000, -0.012,-1.676, 0.000, -1.571);
-    this->chain_9_to_tip_.Set(0.000, 0.000, 0.013, 0.000, 0.000, 0.000);
-
-    // Get time
-    this->last_time_ = model->GetWorld()->SimTime().Double();
+    // ADDING A JOINT BETWEEN CHAIN TIP AND BACK ROLL
+    this->insertion_joint_ = model_->GetWorld()->Physics()->CreateJoint("revolute", model);
+    this->insertion_joint_->Load(this->link_des_, this->link_, this->roll_to_ins_);
+    this->insertion_joint_->Attach(this->link_des_, this->link_);
+    this->insertion_axis_ = ignition::math::Vector3d(1.0, 0.0, 0.0);
+    this->insertion_joint_->SetAxis(0, this->insertion_axis_);
 
     // Listen to the update event
     this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
@@ -79,79 +71,9 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 // Plugin Update Function
 void SoftFootGazeboPlugin::OnUpdate(){
 
-    /* 1) Control the roll joint to mimic symmetrically each other */
-    if (std::abs(this->front_arch_joint_->Position() + this->back_roll_joint_->Position()) > 0.08) {
-        this->back_roll_control_ = 0.1 * (this->back_roll_joint_->Position()
-                                          + this->front_roll_joint_->Position());
-        this->back_roll_joint_->SetForce(0, this->back_roll_control_);
-    }
-
-    /* 2) Control the coupling between the arch joints (NEEDED?) */
-
-    /* 3) Control the tip of the chain to be inserted where it should be */
-    // Get the linear and anguar errors between the desired and real poses of the tip link
-    this->lin_error_ = (this->chain_9_to_tip_.Inverse() * this->roll_to_ins_
-                        * this->link_des_->WorldPose()).Pos() - (this->link_->WorldPose()).Pos();
-    this->ang_error_ = this->ComputeAngularVel(this->chain_9_to_tip_.Inverse() * this->roll_to_ins_
-                                               * this->link_des_->WorldPose(), this->link_->WorldPose());
-
-    // Update times and get also the integral of the error
-    this->dt_ = this->model_->GetWorld()->SimTime().Double() - this->last_time_;
-    this->last_time_ = this->model_->GetWorld()->SimTime().Double();
-    if (sqrt(this->lin_error_.SquaredLength()) > 0.01) {
-        this->error_integral_ += sqrt(this->lin_error_.SquaredLength()) * this->dt_;
-    } else {
-        this->error_integral_ = 0.0;
-    }
-
-    // Compute the linear error in 9_link frame
-    this->lin_error_loc_ = this->link_->WorldPose().Rot().Inverse() * this->lin_error_;
-
-    // If the integral of the error is not negligible, add a push back component to the linear velocity
-    if (this->error_integral_ > 0.01) {
-        this->int_error_.Set(0.0, this->lin_error_loc_.Y(), -0.01);
-        this->lin_error_ += this->link_->WorldPose().Rot() * this->int_error_;
-    }
-
-    // Apply a velocity control to the chain 9 link
-    this->link_->SetLinearVel(10 * this->lin_error_);
-    this->link_->SetAngularVel(10 * this->ang_error_);
-
-    // Apply opposite linear velocity control to the back_roll_link
-    if (sqrt(this->lin_error_.SquaredLength()) > 0.01) {
-        this->link_des_->SetLinearVel(-10.0 * this->lin_error_);
-    }
-
-    // Debug print
-    if (DEBUG_SFGP) {
-        std::cout << "Back roll torque control: \n" << this->back_roll_control_ << std::endl;
-        std::cout << "Tip lin. vel. control: \n" << 10 * this->lin_error_ << std::endl;
-        std::cout << "Tip ang. vel. control: \n" << 10 * this->ang_error_ << std::endl;
-        std::cout << "Distance tip - des: \n" << sqrt(this->lin_error_.SquaredLength()) << std::endl;
-        std::cout << "Integral of tip lin. error: \n" << this->error_integral_ << std::endl;
-        std::cout << "Tip lin. I control: \n" << this->link_->WorldPose().Rot() * this->int_error_ << std::endl;
-        std::cout << "\n ---- \n" << std::endl;
-    }
+    /* Nothing to do here */
 
 }
-
-// Function to compute angular velocity between two frames
-ignition::math::Vector3d SoftFootGazeboPlugin::ComputeAngularVel(ignition::math::Pose3d f_1,
-                                                                 ignition::math::Pose3d f_2){
-
-    // Get the residual transformation
-    ignition::math::Quaterniond Q_res = f_2.Rot() * f_1.Rot().Inverse();
-
-    // Get the axis-angle
-    ignition::math::Vector3d axis;
-    double angle;
-    Q_res.ToAxis(axis, angle);
-
-    // Return the angular displacement
-    return angle * axis;
-
-}
-
 
 // Register this plugin with the simulator
 GZ_REGISTER_MODEL_PLUGIN(SoftFootGazeboPlugin);
