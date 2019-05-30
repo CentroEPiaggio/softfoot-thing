@@ -39,7 +39,20 @@ namespace gazebo
             physics::ModelPtr model_;
             sdf::ElementPtr sdf_;
 
-            // Pointer to the links to be contolled
+            // Pointers to the roll joints
+            physics::JointPtr front_roll_joint_;
+            physics::JointPtr back_roll_joint_;
+
+            // Pointers to the arch joints
+            physics::JointPtr front_arch_joint_;
+            physics::JointPtr back_arch_joint_;
+
+            // Joint controls
+            double back_roll_control_;
+            double front_arch_control_;
+            double back_arch_control_;
+
+            // Pointers to the links to be contolled
             physics::LinkPtr link_;                     // chain_9_link
             physics::LinkPtr link_des_;                 // back_roll_link
 
