@@ -35,6 +35,12 @@ namespace gazebo
 
         private:
 
+            // Auxiliary funtion for deg2rad conversion
+            inline double deg2rad (double degrees) {
+                static const double k_pi_on_180 = 4.0 * atan (1.0) / 180.0;
+                return degrees * k_pi_on_180;
+            }
+
             // Pointers to the model
             physics::ModelPtr model_;
             sdf::ElementPtr sdf_;
