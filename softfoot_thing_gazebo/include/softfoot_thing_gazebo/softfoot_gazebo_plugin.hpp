@@ -55,6 +55,7 @@ namespace gazebo
 
             // Fixed trasforms
             ignition::math::Pose3d roll_to_ins_;
+            ignition::math::Pose3d chain_9_to_tip_;
 
             // Pointer to the update event connection
             event::ConnectionPtr updateConnection_;
