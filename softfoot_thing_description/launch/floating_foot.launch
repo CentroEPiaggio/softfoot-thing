@@ -23,6 +23,6 @@
 </include>
 
 <!-- Spawn the full robot into Gazebo  -->
-<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model $(arg model) -param robot_description -unpause"/>
+<node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf  -z 2 -model $(arg model) -param robot_description -unpause"/>
 
 </launch>
