@@ -468,7 +468,7 @@ void JointsEstimator::compute_gyro_weights(){
         }
 
         // Debug print out
-        if (DEBUG_JS) {
+        if (true) {
             std::cout << "The " << i << "the joint gyro weight is " <<
                          std::abs(weight) << std::endl;
         }
@@ -695,7 +695,7 @@ float JointsEstimator::integrate_joint_state_from_pair(std::pair<int, int> imu_p
 
     // 3) Computing joint value by integration
     this->dt_ = ros::Time::now() - this->last_integration_time_;
-    js = this->joint_values_old_[pos] + (ang_vel_1 - ang_vel_2) * this->dt_.toSec();
+    js = this->joint_values_old_[pos] + (ang_vel_1 + ang_vel_2) * this->dt_.toSec();
 
     // Setting last integration time and returning
     this->last_integration_time_ = ros::Time::now();
@@ -905,7 +905,7 @@ void JointsEstimator::gyro_callback(const qb_interface::inertialSensorArray::Con
 
     // Save raw angular velocities
     for (int i = 0; i < 4; i++) {
-        this->gyro_vec_[i] << this->imu_gyro_[i].x, this->imu_gyro_[i].y, this->imu_gyro_[i].z;
+        this->gyro_vec_[i] << this->deg2rad(this->imu_gyro_[i].x), this->deg2rad(this->imu_gyro_[i].y), this->deg2rad(this->imu_gyro_[i].z);
     }
 
 }
