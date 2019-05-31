@@ -10,7 +10,7 @@ softfoot_viz:
   use_filter: true
 
   # Fuse integrated gyro measurments
-  use_gyro: false
+  use_gyro: true
 
   # Publish leg pose
   publish_leg_pose: true

@@ -72,6 +72,10 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     Eigen::Vector3d z_loc(0, 0, 1);
     this->axes_pairs_ = {{y_loc, x_loc}, {-y_loc, -y_loc}, {y_loc, -z_loc}};
 
+    // Setting the complimentary filter weights
+    this->gyro_weights_.resize(this->joint_pairs_.size());
+    std::fill(this->gyro_weights_.begin(), this->gyro_weights_.end(), 0.5);
+
     // Parsing needed parameters
     if (!this->parse_parameters(this->je_nh_)) {
         ROS_FATAL_STREAM("JointsEstimator::JointsEstimator : Could not get parameters for " 
@@ -289,7 +293,7 @@ bool JointsEstimator::estimate(){
     }
 
     // Filling up jointstates and publishing
-    this->fill_and_publish(this->joint_values_);
+    this->fill_and_publish();
 
     if (DEBUG_ANGLES) {
         ROS_INFO_STREAM("The estimated acc joint angle for imu pair (" << this->joint_pairs_[0].first
@@ -443,7 +447,8 @@ void JointsEstimator::correct_offset(){
     for (int i = 0; i < this->joint_values_.size(); i++) {
         if (this->use_gyro_) {
             // TODO: make the weights variable and dynamic case by case
-            this->js_values_[i] = 0.5 * this->joint_values_[i] + 0.5 * this->joint_values_gyro_[i];
+            this->js_values_[i] = (1.0 - this->gyro_weights_[i]) * this->joint_values_[i]
+                    + this->gyro_weights_[i] * this->joint_values_gyro_[i];
         } else {
             this->js_values_[i] = this->joint_values_[i];
         }
@@ -749,7 +754,7 @@ bool JointsEstimator::states_publishable(){
 }
 
 // Function to fill joint states with est. values and publish
-void JointsEstimator::fill_and_publish(std::vector<float> joint_values){
+void JointsEstimator::fill_and_publish(){
 
     // Correcting offset and enforcing the limits and coupling on current estimation
     this->correct_offset();

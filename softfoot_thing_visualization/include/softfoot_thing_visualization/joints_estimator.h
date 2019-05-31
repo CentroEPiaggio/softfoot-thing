@@ -104,7 +104,7 @@ class JointsEstimator {
         bool states_publishable();
 
         // Function to fill joint states with est. values and publish
-        void fill_and_publish(std::vector<float> joint_values);
+        void fill_and_publish();
 
         // Callback to imu accelerations topic
         void acc_callback(const qb_interface::inertialSensorArray::ConstPtr &msg);
@@ -156,6 +156,9 @@ class JointsEstimator {
 
         // Low pass filter for accelerations
         std::vector<std::vector<std::shared_ptr<filters::FilterChain<double>>>> lp_filter_;
+
+        // Complementary filter weights
+        std::vector<double> gyro_weights_;
 
         // Joint variables
         std::vector<float> joint_values_;                           // Raw joint values
