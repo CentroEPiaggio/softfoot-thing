@@ -440,10 +440,52 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
 
 }
 
+// Function to increase gyro weights only when needed
+void JointsEstimator::compute_gyro_weights(){
+
+    // Iterate over the accelerations and see if any in algorithmic singularity
+    Eigen::Vector3d acceleration, axis;
+    double weight;
+
+    for (int i = 0; i < this->joint_pairs_.size(); i++) {
+
+        /* 1) First imu of joint */
+        acceleration = this->acc_vec_[this->joint_pairs_[i].first];
+        axis = this->axes_pairs_[i].first;
+
+        // Check how much the acceleration is aligned with axis
+        acceleration.normalize(); axis.normalize();
+        weight = acceleration.dot(axis);
+
+        /* 2) Second imu of joint */
+        acceleration = this->acc_vec_[this->joint_pairs_[i].second];
+        axis = this->axes_pairs_[i].second;
+
+        // Check how much the acceleration is aligned with axis
+        acceleration.normalize(); axis.normalize();
+        if (acceleration.dot(axis) > weight) {
+            weight = acceleration.dot(axis);
+        }
+
+        // Debug print out
+        if (DEBUG_JS) {
+            std::cout << "The " << i << "the joint gyro weight is " <<
+                         std::abs(weight) << std::endl;
+        }
+
+        // Absolute valuew of weight is exactly the gyro_weight for joint;
+        this->gyro_weights_[i] = std::abs(weight);
+    }
+
+}
+
 // Function to correct the offset form estimated angles
 void JointsEstimator::correct_offset(){
 
-    // As of now, no offset to compensate for
+    // Compute the weights for the complementary filter
+    this->compute_gyro_weights();
+
+    // Complementary filter using weighted acc. and gyro estimated joint states
     for (int i = 0; i < this->joint_values_.size(); i++) {
         if (this->use_gyro_) {
             // TODO: make the weights variable and dynamic case by case

@@ -67,6 +67,9 @@ class JointsEstimator {
         // Function to get joint limits
         bool get_joint_limits(ros::NodeHandle& nh);
 
+        // Function to increase gyro weights only when needed
+        void compute_gyro_weights();
+
         // Function to correct the offset form estimated angles
         void correct_offset();
 
