@@ -2,10 +2,10 @@
 <robot name="softfoot_thing" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 	<!-- Properties -->
-    <xacro:property name="const_pi" value="3.1415926535897931"/>
+        <xacro:property name="const_pi" value="3.1415926535897931"/>
 	<xacro:property name="ankle_mass" value="0.0181"/>
-    <xacro:property name="arch_mass" value="0.0256"/>
-    <xacro:property name="roll_mass" value="0.0177"/>
+        <xacro:property name="arch_mass" value="0.0256"/>
+        <xacro:property name="roll_mass" value="0.0177"/>
 	<xacro:property name="velocity_scale" value="1"/>
 	<xacro:property name="effort_scale" value="1"/>
 
@@ -13,14 +13,14 @@
 	<xacro:property name="min_stiffness" value="0"/>
 	<xacro:property name="rate_stiffness" value="20"/>
     
-    <!-- Gazebo and Transmission -->
+        <!-- Gazebo and Transmission -->
 	<xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing.gazebo.xacro"/>
 	<xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing.transmission.xacro"/>
 
-    <!-- Utilities -->
+        <!-- Utilities -->
 	<xacro:include filename="$(find softfoot_thing_description)/model/chain_thing.urdf.xacro"/>
-    <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_inertia.xacro"/>
-    <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_materials.xacro"/>
+        <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_inertia.xacro"/>
+        <xacro:include filename="$(find softfoot_thing_description)/model/softfoot_thing_materials.xacro"/>
 
 	<!-- URDF -->
 	<xacro:macro name="softfoot_thing" params="parent name *origin">
@@ -98,9 +98,9 @@
 			</collision>
 		</link>
 
-        <!-- 2) Front arch - stiffness -->
-        <!-- <joint name="${name}_front_arch_joint_stiffness" type="revolute">
-            <origin xyz="0 0 0" rpy="0 0 0"/>
+                <!-- 2) Front arch - stiffness -->
+                <!-- <joint name="${name}_front_arch_joint_stiffness" type="revolute">
+                        <origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 1 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
 			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="10" k_velocity="10"/>
@@ -110,7 +110,7 @@
         
 		<link name="${name}_front_arch_dummy"/> -->
 
-        <!-- 3) Back arch - joint along y-axis to pitch -->
+                <!-- 3) Back arch - joint along y-axis to pitch -->
 		<joint name="${name}_back_arch_joint" type="revolute">
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 -1 0"/>
@@ -141,9 +141,9 @@
 			</collision>
 		</link>
 
-        <!-- 3) Back arch - stiffness -->
-        <!-- <joint name="${name}_back_arch_joint_stiffness" type="revolute">
-            <origin xyz="0 0 0" rpy="0 0 0"/>
+                <!-- 3) Back arch - stiffness -->
+                <!-- <joint name="${name}_back_arch_joint_stiffness" type="revolute">
+                        <origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="0 -1 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
 			<safety_controller soft_lower_limit="${min_stiffness}" soft_upper_limit="${max_stiffness}" k_position="10" k_velocity="10"/>
@@ -153,7 +153,7 @@
         
 		<link name="${name}_back_arch_dummy"/> -->
 
-        <!-- x) Roll driving joint - we suppose the roll joints move specularly -->
+                <!-- x) Roll driving joint - we suppose the roll joints move specularly -->
 		<joint name="${name}_roll_joint" type="revolute">
 			<origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
@@ -163,19 +163,19 @@
 			<child link="${name}_roll_link"/>
 		</joint>
 
-        <link name="${name}_roll_link">
+                <link name="${name}_roll_link">
                         <inertial>
                                 <xacro:insert_block name="really_negligible_inertia"/>
                         </inertial>
                 </link>
 
-        <!-- 4) Front roll - joint along x-axis to roll -->
+                <!-- 4) Front roll - joint along x-axis to roll -->
 		<joint name="${name}_front_roll_joint" type="revolute">
 			<origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
-            <mimic joint="${name}_roll_joint" multiplier="1"/>
+                        <mimic joint="${name}_roll_joint" multiplier="1"/>
 			<parent link="${name}_front_arch_link"/>
 			<child link="${name}_front_roll_link"/>
 		</joint>
@@ -201,9 +201,9 @@
 			</collision>
 		</link>
 
-        <!-- 4) Front roll - stiffness -->
-        <!-- <joint name="${name}_front_roll_joint_stiffness" type="revolute">
-            <origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
+                <!-- 4) Front roll - stiffness -->
+                <!-- <joint name="${name}_front_roll_joint_stiffness" type="revolute">
+                        <origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
 			<mimic joint="${name}_roll_joint" multiplier="1"/>
@@ -214,13 +214,13 @@
         
 		<link name="${name}_front_roll_dummy"/> -->
 
-        <!-- 4) Back roll - joint along x-axis to roll -->
+                 <!-- 4) Back roll - joint along x-axis to roll -->
 		<joint name="${name}_back_roll_joint" type="revolute">
 			<origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
 			<dynamics friction="0.0001" damping="0.0001"/>
-            <mimic joint="${name}_roll_joint" multiplier="-1"/>
+                        <mimic joint="${name}_roll_joint" multiplier="-1"/>
 			<parent link="${name}_back_arch_link"/>
 			<child link="${name}_back_roll_link"/>
 		</joint>
@@ -246,9 +246,9 @@
 			</collision>
 		</link>
 
-        <!-- 4) Back roll - stiffness -->
-        <!-- <joint name="${name}_back_roll_joint_stiffness" type="revolute">
-            <origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
+                <!-- 4) Back roll - stiffness -->
+                <!-- <joint name="${name}_back_roll_joint_stiffness" type="revolute">
+                        <origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="${min_stiffness}" upper="${max_stiffness}" effort="0" velocity="${rate_stiffness}" />
 			<mimic joint="${name}_roll_joint" multiplier="-1"/>
@@ -260,7 +260,7 @@
 		<link name="${name}_back_roll_dummy"/> -->
 
 		<!-- 5) Middle chain insertion point -->
-        <joint name="${name}_middle_chain_insertion_joint" type="fixed">
+                <joint name="${name}_middle_chain_insertion_joint" type="fixed">
 			<origin xyz="-0.00209969 0 -0.0118454" rpy="${-(const_pi / 2) - 0.105} 0 ${-const_pi / 2}"/>
 			<parent link="${name}_back_roll_link"/>
 			<child link="${name}_middle_chain_insertion_link"/>
@@ -268,10 +268,20 @@
         
 		<link name="${name}_middle_chain_insertion_link"/>
 
-		<!-- 6) Chain - starting from front -->
+                <!-- 6) Middle chain - starting from front -->
 		<xacro:chain_thing name="middle_chain" foot="${name}" parent="${name}_front_roll_link">
 			<origin xyz="-0.00209969 0 -0.0118454" rpy="${-(const_pi / 2) + 0.1046328} 0 ${const_pi / 2}"/>
   		</xacro:chain_thing>
+
+                <!-- 7) Right chain - starting from front -->
+                <xacro:chain_thing name="right_chain" foot="${name}" parent="${name}_front_roll_link">
+                        <origin xyz="-0.00209969 -0.0191500 -0.0118454" rpy="${-(const_pi / 2) + 0.1046328} 0 ${const_pi / 2}"/>
+                </xacro:chain_thing>
+
+                <!-- 8) Left chain - starting from front -->
+                <xacro:chain_thing name="left_chain" foot="${name}" parent="${name}_front_roll_link">
+                        <origin xyz="-0.00209969 0.0191500 -0.0118454" rpy="${-(const_pi / 2) + 0.1046328} 0 ${const_pi / 2}"/>
+                </xacro:chain_thing>
 		
 		<!-- Gazebo elements -->
 		<xacro:softfoot_thing_gazebo name="${name}" chain_name="middle_chain"/>
