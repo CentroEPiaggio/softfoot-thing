@@ -5,6 +5,7 @@
 <launch>
 
 <!-- LAUNCH ARGUMENTS -->
+<arg name="env_name" default="pisa_softfoot"/>
 <arg name="model" default="$(find softfoot_thing_description)/robot/floating_softfoot.urdf.xacro"/>
 
 <!-- START LAUNCH -->
@@ -14,6 +15,7 @@
 
 <!-- Load Gazebo simulation environment -->
 <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find softfoot_thing_description)/worlds/$(arg env_name).world"/>
     <arg name="paused" value="true"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
