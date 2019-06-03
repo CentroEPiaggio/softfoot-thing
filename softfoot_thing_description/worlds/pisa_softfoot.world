@@ -1,12 +1,21 @@
 <?xml version="1.0" ?>
-<sdf version="1.4">
-  <!-- Custom world for the softfoot_thing. -->
-  <!-- One can change this world to his needs or use another one. -->
-  
-  <world name="pisa_softfoot_world">
-	
-		<!-- TODO: Put light source and ground... Don't use otherwise! Model might show up grey! -->
 
-  </world>
+<sdf version="1.4">
+    <!-- Custom world for the softfoot_thing. -->
+    <!-- One can change this world to his needs or use another one. -->
+  
+    <world name="pisa_softfoot_world">
+        <include>
+            <uri>model://ground_plane</uri>
+        </include>
+        <include>
+            <uri>model://sun</uri>
+        </include>
+        <gui>
+            <camera name="user_camera">
+                <pose>0.104 0.645 0.226 0.000 0.332 -1.811</pose>
+            </camera>
+        </gui>
+    </world>
   
 </sdf>
