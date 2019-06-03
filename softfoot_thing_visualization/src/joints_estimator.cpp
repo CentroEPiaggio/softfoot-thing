@@ -280,7 +280,7 @@ bool JointsEstimator::estimate(){
     }
 
     // Save old raw joint values to be used for gyro integration
-    this->joint_values_old_ = this->joint_values_;
+    this->joint_values_old_ = this->js_values_;
 
     // Estimating the angles from accelerations
     for (int i = 0; i < this->joint_pairs_.size(); i++) {
