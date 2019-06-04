@@ -38,8 +38,10 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
         this->foot_namespace_ = model->GetName();
     }
 
-    // Get the links to be controlled
-    this->link_ = model->GetLink(this->foot_namespace_ + "_middle_chain_9_link");
+    // Get the links to be controlled (chain tips)
+    this->link_l_ = model->GetLink(this->foot_namespace_ + "_left_chain_9_link");
+    this->link_m_ = model->GetLink(this->foot_namespace_ + "_middle_chain_9_link");
+    this->link_r_ = model->GetLink(this->foot_namespace_ + "_right_chain_9_link");
 
     // Get the desired link
     this->link_des_ = model->GetLink(this->foot_namespace_ + "_back_roll_link");
@@ -48,11 +50,41 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
     this->roll_to_ins_.Set(-0.002, 0.000, -0.012,-1.676, 0.000, -1.571);
     this->chain_9_to_tip_.Set(0.000, 0.000, 0.013, 0.000, 0.000, 0.000);
 
+    // Adding joint between left_chain 9_link and back_roll_link
+    this->insertion_joint_ = model->CreateJoint(this->foot_namespace_ + "_left_chain_attach_joint",
+                                                 "revolute", this->link_des_, this->link_l_);
+    this->insertion_joint_->Load(this->link_des_, this->link_l_, this->chain_9_to_tip_);
+    this->insertion_joint_->Attach(this->link_des_, this->link_l_);
+    this->insertion_joint_->SetModel(model);
+    this->insertion_axis_ = ignition::math::Vector3d(1.0, 0.0, 0.0);
+    this->insertion_joint_->SetAxis(0, this->insertion_axis_);
+    this->insertion_joint_->SetLowerLimit(0, this->deg2rad(-45.0));
+    this->insertion_joint_->SetUpperLimit(0, this->deg2rad(45.0));
+    this->insertion_joint_->SetEffortLimit(0, 1.0);
+    this->insertion_joint_->SetVelocityLimit(0, 1.0);
+    this->insertion_joint_->SetDamping(0, 0.0001);
+    this->insertion_joint_->SetParam("friction", 0, 0.0001);
+
     // Adding joint between middle_chain 9_link and back_roll_link
     this->insertion_joint_ = model->CreateJoint(this->foot_namespace_ + "_middle_chain_attach_joint",
-                                                 "revolute", this->link_des_, this->link_);
-    this->insertion_joint_->Load(this->link_des_, this->link_, this->chain_9_to_tip_);
-    this->insertion_joint_->Attach(this->link_des_, this->link_);
+                                                 "revolute", this->link_des_, this->link_m_);
+    this->insertion_joint_->Load(this->link_des_, this->link_m_, this->chain_9_to_tip_);
+    this->insertion_joint_->Attach(this->link_des_, this->link_m_);
+    this->insertion_joint_->SetModel(model);
+    this->insertion_axis_ = ignition::math::Vector3d(1.0, 0.0, 0.0);
+    this->insertion_joint_->SetAxis(0, this->insertion_axis_);
+    this->insertion_joint_->SetLowerLimit(0, this->deg2rad(-45.0));
+    this->insertion_joint_->SetUpperLimit(0, this->deg2rad(45.0));
+    this->insertion_joint_->SetEffortLimit(0, 1.0);
+    this->insertion_joint_->SetVelocityLimit(0, 1.0);
+    this->insertion_joint_->SetDamping(0, 0.0001);
+    this->insertion_joint_->SetParam("friction", 0, 0.0001);
+
+    // Adding joint between right_chain 9_link and back_roll_link
+    this->insertion_joint_ = model->CreateJoint(this->foot_namespace_ + "_right_chain_attach_joint",
+                                                 "revolute", this->link_des_, this->link_r_);
+    this->insertion_joint_->Load(this->link_des_, this->link_r_, this->chain_9_to_tip_);
+    this->insertion_joint_->Attach(this->link_des_, this->link_r_);
     this->insertion_joint_->SetModel(model);
     this->insertion_axis_ = ignition::math::Vector3d(1.0, 0.0, 0.0);
     this->insertion_joint_->SetAxis(0, this->insertion_axis_);

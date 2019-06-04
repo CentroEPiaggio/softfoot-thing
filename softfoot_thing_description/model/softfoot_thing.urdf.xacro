@@ -284,7 +284,7 @@
                 </xacro:chain_thing>
 		
 		<!-- Gazebo elements -->
-		<xacro:softfoot_thing_gazebo name="${name}" chain_name="middle_chain"/>
+                <xacro:softfoot_thing_gazebo name="${name}" left_chain_name="left_chain" middle_chain_name="middle_chain" right_chain_name="right_chain"/>
 		<xacro:softfoot_thing_transmission name="${name}"/>
 
 	</xacro:macro>

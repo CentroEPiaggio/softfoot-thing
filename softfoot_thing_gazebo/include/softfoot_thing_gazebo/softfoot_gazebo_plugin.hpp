@@ -50,7 +50,9 @@ namespace gazebo
             ignition::math::Vector3d insertion_axis_;
 
             // Pointers to the links to be contolled
-            physics::LinkPtr link_;                     // chain_9_link
+            physics::LinkPtr link_l_;                   // left_chain_9_link
+            physics::LinkPtr link_m_;                   // middle_chain_9_link
+            physics::LinkPtr link_r_;                   // right_chain_9_link
             physics::LinkPtr link_des_;                 // back_roll_link
 
             // Fixed trasforms

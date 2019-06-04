@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:macro name="softfoot_thing_gazebo" params="name chain_name">
+    <xacro:macro name="softfoot_thing_gazebo" params="name left_chain_name middle_chain_name right_chain_name">
 
         <!-- Ros control (For future actuated case) -->
         <!-- <gazebo>
@@ -23,11 +23,21 @@
                 <robotNamespace>${name}</robotNamespace>
                 <jointName>	${name}_front_arch_joint, ${name}_back_arch_joint,
                                 ${name}_roll_joint, ${name}_front_roll_joint,
-                                ${name}_back_roll_joint, ${name}_${chain_name}_1_joint,
-                                ${name}_${chain_name}_2_joint, ${name}_${chain_name}_3_joint,
-                                ${name}_${chain_name}_4_joint, ${name}_${chain_name}_5_joint,
-                                ${name}_${chain_name}_6_joint, ${name}_${chain_name}_7_joint,
-                                ${name}_${chain_name}_8_joint, ${name}_${chain_name}_9_joint
+                                ${name}_back_roll_joint, ${name}_${left_chain_name}_1_joint,
+                                ${name}_${left_chain_name}_2_joint, ${name}_${left_chain_name}_3_joint,
+                                ${name}_${left_chain_name}_4_joint, ${name}_${left_chain_name}_5_joint,
+                                ${name}_${left_chain_name}_6_joint, ${name}_${left_chain_name}_7_joint,
+                                ${name}_${left_chain_name}_8_joint, ${name}_${left_chain_name}_9_joint,
+                                ${name}_back_roll_joint, ${name}_${middle_chain_name}_1_joint,
+                                ${name}_${middle_chain_name}_2_joint, ${name}_${middle_chain_name}_3_joint,
+                                ${name}_${middle_chain_name}_4_joint, ${name}_${middle_chain_name}_5_joint,
+                                ${name}_${middle_chain_name}_6_joint, ${name}_${middle_chain_name}_7_joint,
+                                ${name}_${middle_chain_name}_8_joint, ${name}_${middle_chain_name}_9_joint,
+                                ${name}_back_roll_joint, ${name}_${right_chain_name}_1_joint,
+                                ${name}_${right_chain_name}_2_joint, ${name}_${right_chain_name}_3_joint,
+                                ${name}_${right_chain_name}_4_joint, ${name}_${right_chain_name}_5_joint,
+                                ${name}_${right_chain_name}_6_joint, ${name}_${right_chain_name}_7_joint,
+                                ${name}_${right_chain_name}_8_joint, ${name}_${right_chain_name}_9_joint
                 </jointName>
                 <updateRate>100.0</updateRate>
                 <alwaysOn>true</alwaysOn>
@@ -65,56 +75,167 @@
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <!-- Chain -->
-        <gazebo reference="${name}_${chain_name}_1_link">
+        <!-- Left Chain -->
+        <gazebo reference="${name}_${left_chain_name}_1_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <gazebo reference="${name}_${chain_name}_2_link">
+        <gazebo reference="${name}_${left_chain_name}_2_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <gazebo reference="${name}_${chain_name}_3_link">
+        <gazebo reference="${name}_${left_chain_name}_3_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <gazebo reference="${name}_${chain_name}_4_link">
+        <gazebo reference="${name}_${left_chain_name}_4_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <gazebo reference="${name}_${chain_name}_5_link">
+        <gazebo reference="${name}_${left_chain_name}_5_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <gazebo reference="${name}_${chain_name}_6_link">
+        <gazebo reference="${name}_${left_chain_name}_6_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <gazebo reference="${name}_${chain_name}_7_link">
+        <gazebo reference="${name}_${left_chain_name}_7_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <gazebo reference="${name}_${chain_name}_8_link">
+        <gazebo reference="${name}_${left_chain_name}_8_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
         </gazebo>
 
-        <gazebo reference="${name}_${chain_name}_9_link">
+        <gazebo reference="${name}_${left_chain_name}_9_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <!-- Middle Chain -->
+        <gazebo reference="${name}_${middle_chain_name}_1_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${middle_chain_name}_2_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${middle_chain_name}_3_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${middle_chain_name}_4_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${middle_chain_name}_5_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${middle_chain_name}_6_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${middle_chain_name}_7_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${middle_chain_name}_8_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${middle_chain_name}_9_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+
+        <!-- Right Chain -->
+        <gazebo reference="${name}_${right_chain_name}_1_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${right_chain_name}_2_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${right_chain_name}_3_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${right_chain_name}_4_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${right_chain_name}_5_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${right_chain_name}_6_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${right_chain_name}_7_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${right_chain_name}_8_link">
+                <gravity>true</gravity>
+                <!-- <selfCollide>true</selfCollide> -->
+                <material>Gazebo/Grey</material>
+        </gazebo>
+
+        <gazebo reference="${name}_${right_chain_name}_9_link">
                 <gravity>true</gravity>
                 <!-- <selfCollide>true</selfCollide> -->
                 <material>Gazebo/Grey</material>
