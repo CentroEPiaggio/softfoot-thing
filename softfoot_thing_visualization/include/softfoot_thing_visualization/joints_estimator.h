@@ -172,7 +172,7 @@ class JointsEstimator {
         sensor_msgs::JointState joint_states_;                      // Joint states message
 
         // Soft chain variables
-        std::string chain_name_ = "middle_chain";
+        std::vector<std::string> chain_names_ = {"middle_chain", "left_chain", "right_chain"};
         KDL::Chain chain_chain_;                                    // Kinematic chain of the chain
         KDL::Chain ins_chain_;                                      // Kinematic chain around the chain to insertion
         KDL::JntArray chain_min_;                                   // Upper joint limits of chain

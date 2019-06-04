@@ -114,10 +114,12 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     this->q_chain_.data = this->q_chain_base_;
 
     // Adding also chain joint states
-    for (int i = 1; i <= this->chain_chain_.getNrOfJoints(); i++) {
-        this->joint_states_.name.push_back(this->robot_name_ 
-            + "_" + this->chain_name_ + "_" + std::to_string(i) + "_joint");
-        this->joint_states_.position.push_back(0.0);
+    for(auto it : this->chain_names_) {
+        for (int i = 1; i <= this->chain_chain_.getNrOfJoints(); i++) {
+            this->joint_states_.name.push_back(this->robot_name_
+                + "_" + it + "_" + std::to_string(i) + "_joint");
+            this->joint_states_.position.push_back(0.0);
+        }
     }
 
     // Eventually adding the leg joint to jointstates
@@ -407,12 +409,12 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
     // Getting also the kinematic chain of the foot chain and around it (chains start from front_roll_link)
     kdl_tree.getChain(this->robot_name_ 
         + "_front_roll_link", this->foot_name_ + "_" 
-        + std::to_string(this->foot_id_) + "_" + this->chain_name_ + "_tip_link",
+        + std::to_string(this->foot_id_) + "_" + this->chain_names_[0] + "_tip_link",
         this->chain_chain_);
 
     kdl_tree.getChain(this->robot_name_ 
         + "_front_roll_link", this->foot_name_ + "_" 
-        + std::to_string(this->foot_id_) + "_" + this->chain_name_ + "_insertion_link",
+        + std::to_string(this->foot_id_) + "_" + this->chain_names_[0] + "_insertion_link",
         this->ins_chain_);
 
     // Parse also the joint limits for the foot chain
@@ -423,7 +425,7 @@ bool JointsEstimator::get_joint_limits(ros::NodeHandle& nh){
     int index;
     urdf::JointConstSharedPtr joint_;
     urdf::LinkConstSharedPtr link_ = model.getLink(this->foot_name_ 
-        + "_" + std::to_string(this->foot_id_) + + "_" + this->chain_name_ + "_9_link");
+        + "_" + std::to_string(this->foot_id_) + + "_" + this->chain_names_[0] + "_9_link");
 
     for (int i = 0; i < this->chain_chain_.getNrOfJoints() && link_; i++) {
         joint_ = model.getJoint(link_->parent_joint->name);
@@ -468,7 +470,7 @@ void JointsEstimator::compute_gyro_weights(){
         }
 
         // Debug print out
-        if (true) {
+        if (DEBUG_ANGLES) {
             std::cout << "The " << i << "the joint gyro weight is " <<
                          std::abs(weight) << std::endl;
         }
@@ -707,8 +709,8 @@ void JointsEstimator::facilitate_chain_ik(){
 
     // Get distance of tip from insertion
     this->tip_to_ins_ = this->getTransform(this->robot_name_ 
-        + "_" + this->chain_name_ + "_tip_link", this->robot_name_
-        + "_" + this->chain_name_ + "_insertion_link");
+        + "_" + this->chain_names_[0] + "_tip_link", this->robot_name_
+        + "_" + this->chain_names_[0] + "_insertion_link");
 
     // If the distance is too much, reset the chain joint config to zeros
     if (this->tip_to_ins_.translation().norm() > double(TIPINSMAX)) {
@@ -815,14 +817,20 @@ void JointsEstimator::fill_and_publish(){
         this->joint_states_.position[i] = (this->js_values_[i]);
     }
 
-    // Fill chain joint states
-    for (int i = this->joint_names_.size(); i < (this->joint_names_.size() + this->chain_chain_.getNrOfJoints()); i++) {
-        this->joint_states_.position[i] = (this->q_chain_.data(i - this->joint_names_.size()));
+    // Fill chain joint states (HP: same joint states for all joints)
+    int starting_index = this->joint_names_.size();
+    int ending_index = this->joint_names_.size() + this->chain_chain_.getNrOfJoints();
+    for (auto it : this->chain_names_) {
+        for (int i = starting_index; i < ending_index; i++) {
+            this->joint_states_.position[i] = (this->q_chain_.data(i - starting_index));
+        }
+        starting_index += this->chain_chain_.getNrOfJoints();
+        ending_index += this->chain_chain_.getNrOfJoints();
     }
 
     // Eventually filling in also the leg joint state
     if (this->publish_leg_pose_) {
-        this->joint_states_.position[this->joint_names_.size() + this->chain_chain_.getNrOfJoints()] = 
+        this->joint_states_.position[this->joint_names_.size() + 3 * this->chain_chain_.getNrOfJoints()] =
             (this->leg_js_);
     }
 
