@@ -41,12 +41,17 @@ namespace gazebo
                 return degrees * k_pi_on_180;
             }
 
-            // Pointers to the model
-            physics::ModelPtr model_;
+            // Pointers to physics variables
             sdf::ElementPtr sdf_;
+            physics::ModelPtr model_;
+            physics::WorldPtr world_;
+            physics::PhysicsEnginePtr engine_;
 
-            // Insertion joint
-            physics::JointPtr insertion_joint_;
+
+            // Insertion joints
+            physics::JointPtr insertion_joint_l_;
+            physics::JointPtr insertion_joint_m_;
+            physics::JointPtr insertion_joint_r_;
             ignition::math::Vector3d insertion_axis_;
 
             // Pointers to the links to be contolled
