@@ -13,7 +13,7 @@
         </include>
         <gui>
             <camera name="user_camera">
-                <pose>0.104 0.645 0.226 0.000 0.332 -1.811</pose>
+                <pose>-0.231 -0.351 0.419 0.000 0.744 1.020</pose>
             </camera>
         </gui>
     </world>
