@@ -126,7 +126,7 @@
 
         <gazebo reference="${name}_${left_chain_name}_9_link">
                 <gravity>true</gravity>
-                <!-- <selfCollide>true</selfCollide> -->
+                <selfCollide>true</selfCollide>
                 <material>Gazebo/Grey</material>
         </gazebo>
 
@@ -181,7 +181,7 @@
 
         <gazebo reference="${name}_${middle_chain_name}_9_link">
                 <gravity>true</gravity>
-                <!-- <selfCollide>true</selfCollide> -->
+                <selfCollide>true</selfCollide>
                 <material>Gazebo/Grey</material>
         </gazebo>
 
@@ -237,7 +237,7 @@
 
         <gazebo reference="${name}_${right_chain_name}_9_link">
                 <gravity>true</gravity>
-                <!-- <selfCollide>true</selfCollide> -->
+                <selfCollide>true</selfCollide>
                 <material>Gazebo/Grey</material>
         </gazebo>
 
