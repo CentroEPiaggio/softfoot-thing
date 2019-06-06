@@ -62,7 +62,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/ankle.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/ankle.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -93,7 +93,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/front_arch_front.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/front_arch_front.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -136,7 +136,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/front_arch_back.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/front_arch_back.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -196,7 +196,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/roll_link_v04.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/roll_link_v04.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -241,7 +241,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/roll_link_v04.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/roll_link_v04.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>

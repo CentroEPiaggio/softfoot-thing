@@ -44,7 +44,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/inner_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/inner_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -75,7 +75,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/outer_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/outer_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -106,7 +106,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/inner_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/inner_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -137,7 +137,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/outer_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/outer_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -168,7 +168,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/inner_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/inner_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -199,7 +199,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/outer_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/outer_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -230,7 +230,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/inner_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/inner_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -261,7 +261,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/outer_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/outer_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
@@ -292,7 +292,7 @@
 			<collision>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
 				<geometry>
-					<mesh filename="package://softfoot_thing_description/meshes/visual/inner_chain.stl" scale=" .001 .001 .001"/>
+                                        <mesh filename="package://softfoot_thing_description/meshes/collision/inner_chain.stl" scale=" .001 .001 .001"/>
 				</geometry>
 			</collision>
 		</link>
