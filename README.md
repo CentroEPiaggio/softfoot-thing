@@ -15,7 +15,7 @@ More details about the individual packages can be found in the respective README
 
 ### Prerequisites
 
-The above packages are tested on ROS Melodic and their external dependencies are the following:
+The above packages are tested on ROS Melodic and their main external dependencies are the following:
 
 * [`IMU`](https://github.com/NMMI/IMU) (branch `master`)
 
