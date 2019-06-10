@@ -13,7 +13,7 @@ Connect the foot to your computer, and launche the following:
 
 `roslaunch softfoot_thing_visualization pisa_softfoot_calibration.launch`
 
-You will be asked to type the *Name* and *ID* of the foot. A good rule would be to give as *Name* a basic identifier (e.g. softfoot or footthing), which will be the same for all feet of the robot, and the *ID* should be the `boad_id` of the real foot.
+You will be asked to type the *Name* and *ID* of the foot. A good rule would be to give as *Name* a basic identifier (e.g. softfoot or footthing), which will be the same for all feet of the robot, and the *ID* should be the `board_id` of the real foot.
 
 A file named `Name_ID.yaml` file will be saved to the `config` folder of this package. Then, make sure to add it to your foot visualization launch file so to load its parameters into the ROS parameter server.
 
@@ -21,14 +21,17 @@ A file named `Name_ID.yaml` file will be saved to the `config` folder of this pa
 
 #### Prerequisites
 
+##### Setup the foot on your robot
+
 Setting up the robot model properly is vital for the estimated joint states to be published into the correct topic so that they can be sourced by the `joint_state_publisher`.
 
 > For example:
-> Suppose you calibrated a softfoot with Name = softfoot and ID = 4.
+> Suppose you calibrated a SoftFoot with *Name* = softfoot and *ID* = 4.
 > When adding the model of that particular foot to the urdf.xacro of your robot, make sure to give that xacro the name softfoot_4.
 > ```xml
-> <xacro:softfoot_thing name="<softfoot-name>_<softfoot-id>" parent="<parent-link>">
+> <xacro:softfoot_thing name="softfoot_4" parent="<parent-link>">
 >     <origin xyz="0 0 0" rpy="0 0 0"/>
 > </xacro:softfoot_thing>
 > ```
 
+##### Specify the visualization parameters
