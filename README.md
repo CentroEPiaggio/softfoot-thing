@@ -2,6 +2,8 @@
 
 This repository contains all required packages to use the SoftFoot for Thing EU project.
 
+![SoftFootV2](https://github.com/CentroEPiaggio/softfoot-thing/blob/master/images/softfoot-gazebo.png)
+
 ## Packages
 
 * **softfoot_thing** - metapackage
