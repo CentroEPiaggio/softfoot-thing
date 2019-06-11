@@ -54,11 +54,19 @@ namespace gazebo
             physics::JointPtr insertion_joint_r_;
             ignition::math::Vector3d insertion_axis_;
 
-            // Pointers to the links to be contolled
+            // Coupling spring joint
+            physics::JointPtr coupling_joint_;
+            ignition::math::Vector3d coupling_axis_;
+
+            // Pointers to the links to join for chains
             physics::LinkPtr link_l_;                   // left_chain_9_link
             physics::LinkPtr link_m_;                   // middle_chain_9_link
             physics::LinkPtr link_r_;                   // right_chain_9_link
             physics::LinkPtr link_des_;                 // back_roll_link
+
+            // Pointers to the arch links
+            physics::LinkPtr link_fa_;                  // front_arch_link
+            physics::LinkPtr link_ba_;                  // back_arch_link
 
             // Fixed trasforms
             ignition::math::Pose3d roll_to_ins_;
