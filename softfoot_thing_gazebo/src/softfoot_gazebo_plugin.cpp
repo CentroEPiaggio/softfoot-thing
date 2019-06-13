@@ -101,20 +101,24 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
     this->insertion_joint_r_->SetParam("friction", 0, 0.0001);
 
     // Creating a joint between the two arch links to simulate the spring
-    ignition::math::Pose3d null_pose(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-    this->coupling_joint_ = model->CreateJoint(this->foot_namespace_ + "_spring_coupling_joint",
-                                                 "revolute", this->link_fa_, this->link_ba_);
-    this->coupling_joint_->Load(this->link_fa_, this->link_ba_, null_pose);
-    this->coupling_joint_->Attach(this->link_fa_, this->link_ba_);
-    this->coupling_joint_->SetModel(model);
-    this->coupling_joint_->SetAxis(0, this->coupling_axis_);
-    this->insertion_joint_r_->SetLowerLimit(0, this->deg2rad(-360.0));
-    this->insertion_joint_r_->SetUpperLimit(0, this->deg2rad(360.0));
-    this->coupling_joint_->SetEffortLimit(0, 1.0);
-    this->coupling_joint_->SetVelocityLimit(0, 1.0);
-    this->coupling_joint_->SetDamping(0, 0.0001);
-    this->coupling_joint_->SetParam("friction", 0, 0.0001);
+//    ignition::math::Pose3d null_pose(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+//    this->coupling_joint_ = model->CreateJoint(this->foot_namespace_ + "_spring_coupling_joint",
+//                                                 "revolute", this->link_fa_, this->link_ba_);
+//    this->coupling_joint_->Load(this->link_fa_, this->link_ba_, null_pose);
+//    this->coupling_joint_->Attach(this->link_fa_, this->link_ba_);
+//    this->coupling_joint_->SetModel(model);
+//    this->coupling_joint_->SetAxis(0, this->coupling_axis_);
+//    this->insertion_joint_r_->SetLowerLimit(0, this->deg2rad(-360.0));
+//    this->insertion_joint_r_->SetUpperLimit(0, this->deg2rad(360.0));
+//    this->coupling_joint_->SetEffortLimit(0, 1.0);
+//    this->coupling_joint_->SetVelocityLimit(0, 1.0);
+//    this->coupling_joint_->SetDamping(0, 0.0001);
+//    this->coupling_joint_->SetParam("friction", 0, 0.0001);
 
+    // Getting arch joints from model and rest positions
+    this->fa_joint_ = model->GetJoint(this->foot_namespace_ + "_front_arch_joint");
+    this->ba_joint_ = model->GetJoint(this->foot_namespace_ + "_back_arch_joint");
+    this->rest_angle_ = this->fa_joint_->Position() + this->ba_joint_->Position();
 
     // Listen to the update event
     this->updateConnection_ = event::Events::ConnectWorldUpdateBegin(
@@ -128,7 +132,8 @@ void SoftFootGazeboPlugin::Load(physics::ModelPtr model, sdf::ElementPtr sdf){
 // Plugin Update Function
 void SoftFootGazeboPlugin::OnUpdate(){
 
-    /* Nothing to do here */
+    // Simulate the spring force on the arch links
+    this->current_angle_ = this->fa_joint_->Position() + this->ba_joint_->Position();
 
 }
 

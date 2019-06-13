@@ -58,6 +58,13 @@ namespace gazebo
             physics::JointPtr coupling_joint_;
             ignition::math::Vector3d coupling_axis_;
 
+            // Arch joints and spring constant
+            physics::JointPtr fa_joint_;
+            physics::JointPtr ba_joint_;
+            double current_angle_;
+            double rest_angle_ = 0.0;
+            double spring_k_ = 0.01;
+
             // Pointers to the links to join for chains
             physics::LinkPtr link_l_;                   // left_chain_9_link
             physics::LinkPtr link_m_;                   // middle_chain_9_link
