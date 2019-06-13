@@ -64,7 +64,7 @@ namespace gazebo
             physics::LinkPtr link_r_;                   // right_chain_9_link
             physics::LinkPtr link_des_;                 // back_roll_link
 
-            // Fixed trasforms
+            // Fixed transforms
             ignition::math::Pose3d roll_to_ins_;
             ignition::math::Pose3d chain_9_to_tip_;
 
