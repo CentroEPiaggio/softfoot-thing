@@ -56,7 +56,7 @@ namespace gazebo
             physics::JointPtr ba_joint_;
             double current_angle_;
             double rest_angle_ = 0.0;
-            double spring_k_ = 1.0;
+            double spring_k_ = 5.0;
 
             // Pointers to the links to join for chains
             physics::LinkPtr link_l_;                   // left_chain_9_link
