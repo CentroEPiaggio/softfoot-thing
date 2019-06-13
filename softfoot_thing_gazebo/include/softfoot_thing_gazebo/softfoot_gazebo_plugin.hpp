@@ -29,9 +29,6 @@ namespace gazebo
             // Plugin Update Function
             virtual void OnUpdate();
 
-            // Function to compute angular velocity between two frames
-            ignition::math::Vector3d ComputeAngularVel(ignition::math::Pose3d f_1,
-                                                       ignition::math::Pose3d f_2);
 
         private:
 
