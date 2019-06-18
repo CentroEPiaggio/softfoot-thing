@@ -5,8 +5,8 @@
     <xacro:property name="const_pi" value="3.1415926535897931"/>
 	<xacro:property name="inner_chain_mass" value="0.0082"/>
 	<xacro:property name="outer_chain_mass" value="0.0156"/>
-	<xacro:property name="velocity_scale" value="1"/>
-	<xacro:property name="effort_scale" value="1"/>
+	<xacro:property name="velocity" value="100" />
+	<xacro:property name="effort" value="100" />
 
 	<!-- Utilities -->
     <xacro:include filename="$(find softfoot_thing_description)/model/chain_thing_inertia.xacro"/>
@@ -22,7 +22,7 @@
 			<xacro:insert_block name="origin"/>
 			<origin xyz="0 0 0" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${parent}"/>
 			<child link="${foot}_${name}_1_link"/>
@@ -53,7 +53,7 @@
 		<joint name="${foot}_${name}_2_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_1_link"/>
 			<child link="${foot}_${name}_2_link"/>
@@ -84,7 +84,7 @@
 		<joint name="${foot}_${name}_3_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_2_link"/>
 			<child link="${foot}_${name}_3_link"/>
@@ -115,7 +115,7 @@
 		<joint name="${foot}_${name}_4_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_3_link"/>
 			<child link="${foot}_${name}_4_link"/>
@@ -146,7 +146,7 @@
 		<joint name="${foot}_${name}_5_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_4_link"/>
 			<child link="${foot}_${name}_5_link"/>
@@ -177,7 +177,7 @@
 		<joint name="${foot}_${name}_6_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_5_link"/>
 			<child link="${foot}_${name}_6_link"/>
@@ -208,7 +208,7 @@
 		<joint name="${foot}_${name}_7_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_6_link"/>
 			<child link="${foot}_${name}_7_link"/>
@@ -239,7 +239,7 @@
 		<joint name="${foot}_${name}_8_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_7_link"/>
 			<child link="${foot}_${name}_8_link"/>
@@ -270,7 +270,7 @@
 		<joint name="${foot}_${name}_9_joint" type="revolute">
 			<origin xyz="0 0 0.0127" rpy="0 0 0"/>
 			<axis xyz="1 0 0"/>
-                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1" />
+                        <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}" />
 			<dynamics friction="0.0001" damping="0.0001"/>
 			<parent link="${foot}_${name}_8_link"/>
 			<child link="${foot}_${name}_9_link"/>
