@@ -6,8 +6,8 @@
     <xacro:property name="ankle_mass" value="0.0181"/>
     <xacro:property name="arch_mass" value="0.0256"/>
     <xacro:property name="roll_mass" value="0.0177"/>
-    <xacro:property name="velocity_scale" value="1"/>
-    <xacro:property name="effort_scale" value="1"/>
+    <xacro:property name="velocity" value="100" />
+    <xacro:property name="effort" value="100" />
 
     <xacro:property name="max_stiffness" value="10"/>
     <xacro:property name="min_stiffness" value="0"/>
@@ -73,7 +73,7 @@
         <joint name="${name}_front_arch_joint" type="revolute">
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <axis xyz="0 1 0"/>
-            <limit lower="${-30 * const_pi / 180}" upper="${30* const_pi / 180}" effort="1" velocity="1"/>
+            <limit lower="${-30 * const_pi / 180}" upper="${30* const_pi / 180}" effort="${effort}" velocity="${velocity}"/>
             <dynamics friction="0.0001" damping="0.0001"/>
             <parent link="${name}_ankle_link"/>
             <child link="${name}_front_arch_link"/>
@@ -118,7 +118,7 @@
         <joint name="${name}_back_arch_joint" type="revolute">
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <axis xyz="0 -1 0"/>
-            <limit lower="${-30 * const_pi / 180}" upper="${30 * const_pi / 180}" effort="1" velocity="1"/>
+            <limit lower="${-30 * const_pi / 180}" upper="${30 * const_pi / 180}" effort="${effort}" velocity="${velocity}"/>
             <dynamics friction="0.0001" damping="0.0001"/>
             <parent link="${name}_ankle_link"/>
             <child link="${name}_back_arch_link"/>
@@ -163,7 +163,7 @@
         <joint name="${name}_roll_joint" type="revolute">
             <origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
             <axis xyz="1 0 0"/>
-            <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1"/>
+            <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}"/>
             <dynamics friction="0.01" damping="0.01"/>
             <parent link="${name}_front_arch_link"/>
             <child link="${name}_roll_link"/>
@@ -179,7 +179,7 @@
         <joint name="${name}_front_roll_joint" type="revolute">
             <origin xyz="0.058 0 -0.028" rpy="0 -0.1047 0"/>
             <axis xyz="1 0 0"/>
-            <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1"/>
+            <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}"/>
             <dynamics friction="0.0001" damping="0.0001"/>
             <mimic joint="${name}_roll_joint" multiplier="1"/>
             <parent link="${name}_front_arch_link"/>
@@ -226,7 +226,7 @@
         <joint name="${name}_back_roll_joint" type="revolute">
             <origin xyz="-0.058 0 -0.028" rpy="0 -0.1047 ${const_pi}"/>
             <axis xyz="1 0 0"/>
-            <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="1" velocity="1"/>
+            <limit lower="${-45 * const_pi / 180}" upper="${45 * const_pi / 180}" effort="${effort}" velocity="${velocity}"/>
             <dynamics friction="0.0001" damping="0.0001"/>
             <mimic joint="${name}_roll_joint" multiplier="-1"/>
             <parent link="${name}_back_arch_link"/>
