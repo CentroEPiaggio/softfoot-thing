@@ -6,6 +6,7 @@
     
     <!-- LAUNCH ARGUMENTS -->
     <arg name="gui" default="false"/>
+    <arg name="new_qb" default="true"/>
     <arg name="model" default="$(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
     <arg name="rvizconfig" default="$(find softfoot_thing_visualization)/configs/pisa_softfoot.rviz"/>
     <arg name="footconfig" default="$(find softfoot_thing_visualization)/configs/pisa_softfoot_viz.yaml"/>
@@ -26,7 +27,7 @@
     </group>
     <group unless="$(arg gui)">
         <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-            <rosparam param="source_list">[/softfoot_3/joint_states, /softfoot_4/joint_states]</rosparam>
+            <rosparam param="source_list">[/softfoot_1/joint_states, /softfoot_2/joint_states, /softfoot_3/joint_states, /softfoot_4/joint_states]</rosparam>
         </node>
     </group>
     
@@ -34,7 +35,12 @@
 
     <!-- QB Interface -->
     <group unless="$(arg gui)">
-        <include file="$(find qb_interface)/launch/qb_interface_imu_5_boards.launch"></include>
+        <group unless="$(arg new_qb)">
+            <include file="$(find qb_interface)/launch/qb_interface_imu_5_boards.launch"></include>
+        </group>
+        <group if="$(arg new_qb)">
+            <include file="$(find nmmi_examples)/launch/SoftFoot_5_IMU_boards_chain.launch"></include>
+        </group>
     </group>
 
     <!-- Loading viz config file to param server -->

@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
     calibrator.calibrate_and_save(foot_name + "_" + std::to_string(foot_id));
 
-    // Start to spin the estimator
+    // Finished message
     ROS_INFO_STREAM("SoftFoot Calibrator : calibration finished. Saved configuration to file.");
 
     // Shutting down when finished

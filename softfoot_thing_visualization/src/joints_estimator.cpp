@@ -25,7 +25,7 @@
 
 using namespace softfoot_thing_visualization;
 
-JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string foot_name) {
+JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string foot_name) : async_spinner(4) {
 
     // Initializing main variables
     this->foot_id_ = foot_id;
@@ -48,15 +48,15 @@ JointsEstimator::JointsEstimator(ros::NodeHandle& nh , int foot_id, std::string 
     }
 
     // Initializing subscribers
-    this->sub_imu_acc_ = this->je_nh_.subscribe<qb_interface::inertialSensorArray>(this->imu_topic_acc_, 
+    this->sub_imu_acc_ = this->je_nh_.subscribe<nmmi_msgs::inertialSensorArray>(this->imu_topic_acc_,
         1, &JointsEstimator::acc_callback, this);
-    qb_interface::inertialSensorArray::ConstPtr temp_msg_2 = ros::topic::waitForMessage
-        <qb_interface::inertialSensorArray>(this->imu_topic_acc_, ros::Duration(2.0));
+    nmmi_msgs::inertialSensorArray::ConstPtr temp_msg_2 = ros::topic::waitForMessage
+        <nmmi_msgs::inertialSensorArray>(this->imu_topic_acc_, ros::Duration(2.0));
     
-    this->sub_imu_gyro_ = this->je_nh_.subscribe<qb_interface::inertialSensorArray>(this->imu_topic_gyro_, 
+    this->sub_imu_gyro_ = this->je_nh_.subscribe<nmmi_msgs::inertialSensorArray>(this->imu_topic_gyro_,
         1, &JointsEstimator::gyro_callback, this);
-    qb_interface::inertialSensorArray::ConstPtr temp_msg_3 = ros::topic::waitForMessage
-        <qb_interface::inertialSensorArray>(this->imu_topic_gyro_, ros::Duration(2.0));
+    nmmi_msgs::inertialSensorArray::ConstPtr temp_msg_3 = ros::topic::waitForMessage
+        <nmmi_msgs::inertialSensorArray>(this->imu_topic_gyro_, ros::Duration(2.0));
     
     this->pub_js_ = this->je_nh_.advertise<sensor_msgs::JointState>
         ("/" + this->robot_name_ + "/joint_states", 1);
@@ -157,6 +157,8 @@ JointsEstimator::~JointsEstimator(){
 // Function that calibrates the sensing
 void JointsEstimator::calibrate(){
 
+    this->async_spinner.start();
+
     Eigen::Vector3d sample;
 
     for (int k = 0; k < N_CAL_IT; k++) {
@@ -181,6 +183,8 @@ void JointsEstimator::calibrate(){
 
     // Set calibrated flag
     this->calibrated_ = true;
+
+    this->async_spinner.stop();
 
 }
 
@@ -840,7 +844,7 @@ void JointsEstimator::fill_and_publish(){
 }
 
 // Callback to imu accelerations topic
-void JointsEstimator::acc_callback(const qb_interface::inertialSensorArray::ConstPtr &msg){
+void JointsEstimator::acc_callback(const nmmi_msgs::inertialSensorArray::ConstPtr &msg){
 
     // Get the imu angles of foot after clearing old angles
     this->imu_acc_.resize(4);
@@ -864,6 +868,7 @@ void JointsEstimator::acc_callback(const qb_interface::inertialSensorArray::Cons
     // Save raw accelerations
     for (int i = 0; i < 4; i++) {
         this->acc_vec_raw_[i] << this->imu_acc_[i].x, this->imu_acc_[i].y, this->imu_acc_[i].z;
+        std::cout << "Saved Acc: " << this->imu_acc_[i].x << this->imu_acc_[i].y << this->imu_acc_[i].z << std::endl;
     }
 
     // Save old accelerations and push new ones
@@ -890,7 +895,7 @@ void JointsEstimator::acc_callback(const qb_interface::inertialSensorArray::Cons
 }
 
 // Callback to imu angular velocities topic
-void JointsEstimator::gyro_callback(const qb_interface::inertialSensorArray::ConstPtr &msg){
+void JointsEstimator::gyro_callback(const nmmi_msgs::inertialSensorArray::ConstPtr &msg){
 
     // Get the imu angles of foot after clearing old angles
     this->imu_gyro_.resize(4);

@@ -15,8 +15,8 @@
 
 // MSG includes
 #include <sensor_msgs/JointState.h>
-#include "qb_interface/inertialSensor.h"
-#include "qb_interface/inertialSensorArray.h"
+#include "nmmi_msgs/inertialSensor.h"
+#include "nmmi_msgs/inertialSensorArray.h"
 
 // KDL includes
 #include <kdl/chain.hpp>
@@ -110,10 +110,10 @@ class JointsEstimator {
         void fill_and_publish();
 
         // Callback to imu accelerations topic
-        void acc_callback(const qb_interface::inertialSensorArray::ConstPtr &msg);
+        void acc_callback(const nmmi_msgs::inertialSensorArray::ConstPtr &msg);
 
         // Callback to imu angular velocities topic
-        void gyro_callback(const qb_interface::inertialSensorArray::ConstPtr &msg);
+        void gyro_callback(const nmmi_msgs::inertialSensorArray::ConstPtr &msg);
 
 
         // Auxiliary funtion for deg2rad conversion
@@ -134,6 +134,8 @@ class JointsEstimator {
         ros::Subscriber sub_imu_gyro_;
         ros::Publisher pub_js_;
 
+        ros::AsyncSpinner async_spinner;
+
         // Initialization variables
         bool calibrated_ = false;
 
@@ -143,8 +145,8 @@ class JointsEstimator {
 
         // qb readings and the mutex
         std::mutex imu_mutex_;                                      // Not used yet
-        std::vector<qb_interface::inertialSensor> imu_acc_;         // Raw acceleration msg from qb
-        std::vector<qb_interface::inertialSensor> imu_gyro_;        // Raw gyro msg from qb
+        std::vector<nmmi_msgs::inertialSensor> imu_acc_;         // Raw acceleration msg from qb
+        std::vector<nmmi_msgs::inertialSensor> imu_gyro_;        // Raw gyro msg from qb
 
         // Acceleration vectors
         std::vector<Eigen::Vector3d> acc_vec_0_;                    // Calibration acceleration
