@@ -868,7 +868,7 @@ void JointsEstimator::acc_callback(const nmmi_msgs::inertialSensorArray::ConstPt
     // Save raw accelerations
     for (int i = 0; i < 4; i++) {
         this->acc_vec_raw_[i] << this->imu_acc_[i].x, this->imu_acc_[i].y, this->imu_acc_[i].z;
-        std::cout << "Saved Acc: " << this->imu_acc_[i].x << this->imu_acc_[i].y << this->imu_acc_[i].z << std::endl;
+//        std::cout << "Saved Acc: " << this->imu_acc_[i].x << this->imu_acc_[i].y << this->imu_acc_[i].z << std::endl;
     }
 
     // Save old accelerations and push new ones
