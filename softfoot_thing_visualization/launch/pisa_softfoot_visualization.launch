@@ -39,7 +39,7 @@
 <!--            <include file="$(find qb_interface)/launch/qb_interface_imu_5_boards.launch"></include>-->
         </group>
         <group if="$(arg new_qb)">
-            <include file="$(find nmmi_examples)/launch/SoftFoot_5_IMU_boards_chain.launch"></include>
+<!--            <include file="$(find nmmi_examples)/launch/SoftFoot_5_IMU_boards_chain.launch"></include>-->
         </group>
     </group>
 
@@ -58,6 +58,6 @@
     </group>
 
     <!-- RViz for visualization -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
+    <node name="softfoot_rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true"/>
 
 </launch>
