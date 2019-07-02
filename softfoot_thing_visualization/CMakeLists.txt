@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   kdl_parser
   qb_interface
   filters
+  nmmi_msgs
 )
 
 find_package(yaml-cpp REQUIRED)
