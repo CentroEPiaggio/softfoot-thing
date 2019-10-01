@@ -19,8 +19,13 @@ More details about the individual packages can be found in the respective README
 
 The above packages are tested on ROS Melodic and their main external dependencies are the following:
 
+* [`NMMI/ROS-base`](https://github.com/NMMI/ROS-base) (branch `master`)
+* [`NMMI/ROS-NMMI`](https://github.com/NMMI/ROS-NMMI) (branch `foot-devel`)
+
+If you wish to use the old communication package with the IMUs, instead of the above packages use the following:
+
 * [`IMU`](https://github.com/NMMI/IMU) (branch `master`)
 
 ### Installing
 
-To install the packages in this repo just clone it into your catkin_ws, make sure to clone also the external dependencies and `catkin build`.
+To install the packages in this repo just clone it (branch `master`) into your catkin_ws, make sure to clone also the external dependencies and then `catkin build`.

@@ -9,7 +9,10 @@ This package contains all the necessary utilities to work on ROS with a real Sof
 The parent repository of this package should be cloned and built in your catkin workspace.
 
 ### Calibrating a SoftFoot
-Connect the foot to your computer, and launche the following:
+
+The feet are provided with default calibration files which are more than enough for good estimation. Re-calibration is required only in extreme cases (e.g. if foot breaks and IMUs are mounted differently).
+
+Connect the foot to your computer (one foot at a time), and launch the following:
 
 `roslaunch softfoot_thing_visualization pisa_softfoot_calibration.launch`
 
