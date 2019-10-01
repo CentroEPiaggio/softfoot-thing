@@ -29,3 +29,10 @@ If you wish to use the old communication package with the IMUs, instead of the a
 ### Installing
 
 To install the packages in this repo just clone it (branch `master`) into your catkin_ws, make sure to clone also the external dependencies and then `catkin build`.
+
+### Notes
+
+Read carefully the README files of the packages [`NMMI/ROS-base`](https://github.com/NMMI/ROS-base) and [`NMMI/ROS-NMMI`](https://github.com/NMMI/ROS-NMMI).
+
+Try to get familiar with `SoftFoot_5_IMU_boards_chain.launch` inside the package `nmmi_examples` in `ROS-NMMI`. As it can be modified to test the feet individually.
+
