@@ -12,8 +12,9 @@ The parent repository of this package should be cloned and built in your catkin 
 
 The feet are provided with default calibration files which are more than enough for good estimation. Re-calibration is required only in extreme cases (e.g. if foot breaks and IMUs are mounted differently).
 
-Connect the foot to your computer (one foot at a time), and launch the following:
+Connect the foot to your computer (one foot at a time), keep the foot on a flat surface and hold the leg (tube) perpendicular to the flat surface. Then launch the following, in order:
 
+`roslaunch softfoot_thing_visualization pisa_softfoot_calibration_base.launch`
 `roslaunch softfoot_thing_visualization pisa_softfoot_calibration.launch`
 
 You will be asked to type the **Name** and **ID** of the foot. A good rule would be to give as **Name** a basic identifier (e.g. softfoot or footthing), which will be the same for all feet of the robot, and the **ID** should be the `board_id` of the real foot.
