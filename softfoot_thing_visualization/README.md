@@ -45,7 +45,7 @@ The file `pisa_softfoot_viz.yaml` in the folder `configs` of this package gives 
 
 | Parameter             | Type          | Description  |
 | ----------------------|:-------------:| -------------|
-| `calibrate_online`    | `bool`        | If `true` an online calibration will be performed for all the feet name specified in `connected_feet_name` with ids specified in `connected_feet_ids`. |
+| `calibrate_online`    | `bool`        | If `true` an online calibration will be performed for all the feet name specified in `connected_feet_name` with ids specified in `connected_feet_ids`. N.B. : If calibrating online, the feet should be on a flat surface and leg vertical.|
 | `use_filter`          | `bool`        | If `true` the acceleration and gyroscope measurements will be prelimilarly smoothed using the low pass filter defined by the parameter `low_pass_filter`. |
 | `use_gyro`            | `bool`        | If `true` the gyro measurements will be integrated and fused to the joint angle estimations from accelerations through a complementary filter. |
 | `publish_leg_pose`    | `bool`        | If `true` a raw estimate of the leg pose will be published to the joint states. This might not be useful in case the leg angle of your robot is already provided by other means (robot joint_states). |
