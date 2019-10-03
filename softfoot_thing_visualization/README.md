@@ -85,4 +85,6 @@ Finally, add the foot joint states estimator to the launch:
 </group>
 ```
 
+#### Visualizing
+
 Now, if you connect to a USB hub the feet specified in the parameter `connected_feet_ids` in the file `softfoot_thing_visualization/configs/pisa_softfoot_viz.yaml` and run the created roslaunch file, you should be able to see the joint states of the feet in the topic `joint_states`.
