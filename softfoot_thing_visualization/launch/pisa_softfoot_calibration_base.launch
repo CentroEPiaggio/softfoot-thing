@@ -6,6 +6,7 @@
     
     <!-- LAUNCH ARGUMENTS -->
     <arg name="gui" default="false"/>
+    <arg name="foot_id" default="1"/>
     <arg name="model" default="$(find softfoot_thing_description)/robot/pisa_softfoot.urdf.xacro"/>
     <arg name="rvizconfig" default="$(find softfoot_thing_description)/configs/pisa_softfoot.rviz"/>
     <arg name="footconfig" default="$(find softfoot_thing_visualization)/configs/pisa_softfoot_viz.yaml"/>
@@ -30,7 +31,18 @@
 
     <!-- QB Interface -->
     <group unless="$(arg gui)">
-        <include file="$(find nmmi_examples)/launch/SoftFoot_5_IMU_boards_chain.launch"></include>
+        <group if="$(eval arg('foot_id') == 1)">
+            <include file="$(find nmmi_examples)/launch/SoftFoot_IMU_1_chain.launch"></include>
+        </group>
+        <group if="$(eval arg('foot_id') == 2)">
+            <include file="$(find nmmi_examples)/launch/SoftFoot_IMU_2_chain.launch"></include>
+        </group>
+        <group if="$(eval arg('foot_id') == 3)">
+            <include file="$(find nmmi_examples)/launch/SoftFoot_IMU_3_chain.launch"></include>
+        </group>
+        <group if="$(eval arg('foot_id') == 4)">
+            <include file="$(find nmmi_examples)/launch/SoftFoot_IMU_4_chain.launch"></include>
+        </group>
     </group>
 
     <!-- Loading viz config file to param server -->
