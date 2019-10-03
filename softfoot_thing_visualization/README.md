@@ -59,7 +59,7 @@ Get familiar with the example launch file `pisa_softfoot_visualization.launch`. 
 * `softfoot_thing_visualization/configs/pisa_softfoot_viz.yaml` - file with visualization options.
 * The calibration yaml files (e.g. `softfoot_thing_visualization/configs/softfoot_1.yaml`) for each foot.
 
-Source the feet joint states into the base `joint_states` topic:
+Source the feet joint states into the base `joint_states` topic. For example, if you specified earlier **Name** = softfoot:
 ```xml
 <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <rosparam param="source_list">[/softfoot_1/joint_states, /softfoot_2/joint_states, /softfoot_3/joint_states, /softfoot_4/joint_states]</rosparam>
