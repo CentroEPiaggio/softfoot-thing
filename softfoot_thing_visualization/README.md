@@ -67,6 +67,16 @@ Source the feet joint states into the base `joint_states` topic. For example, if
 </node>
 ```
 
+Add the launch files for communication with the IMUs. For example, if all four feet are connected:
+```xml
+<include file="$(find nmmi_examples)/launch/SoftFoot_5_IMU_boards_chain.launch"></include>
+```
+
+Instead, if only some feet are connected, add the provided launch files accordingly. For example, in case of foot 1 connected:
+```xml
+<include file="$(find nmmi_examples)/launch/SoftFoot_IMU_1_chain.launch"></include>
+```
+
 Finally, add the foot joint states estimator to the launch:
 ```xml
 <!-- Joints Estimator -->
