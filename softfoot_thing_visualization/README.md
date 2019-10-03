@@ -56,7 +56,7 @@ Some other parameters can also be found in the configuration file, but these are
 
 ##### Setup a visualization launch file
 
-Get familiar with the example launch file `pisa_softfoot_visualization.launch`. Then, in a launch file load into the rROS parameter server the following configuration files:
+Get familiar with the example launch file `pisa_softfoot_visualization.launch`. Then, in a launch file load into the ROS parameter server the following configuration files:
 * `softfoot_thing_visualization/configs/pisa_softfoot_viz.yaml` - file with visualization options.
 * The calibration yaml files (e.g. `softfoot_thing_visualization/configs/softfoot_1.yaml`) for each foot.
 
