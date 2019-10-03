@@ -13,7 +13,7 @@ The parent repository of this package should be cloned and built in your catkin 
 The feet are provided with default calibration files which can be enough for good estimation. Nevertheless, re-calibration might be required.
 
 To this end, connect the foot to your computer (one foot at a time), keep the foot on a flat surface and hold the leg (tube) perpendicular to the flat surface. Then launch the following, in order:
-```console
+```
 roslaunch softfoot_thing_visualization pisa_softfoot_calibration_base.launch foot_id:=<id on foot (1, 2, 3 or 4)>
 roslaunch softfoot_thing_visualization pisa_softfoot_calibration.launch
 ```
