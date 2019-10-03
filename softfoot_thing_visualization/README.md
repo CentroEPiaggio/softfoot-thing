@@ -40,7 +40,7 @@ Setting up the robot model properly is vital for the estimated joint states to b
 
 ##### Specify the visualization parameters
 
-The file `pisa_softfoot_viz.yaml` in the folder `config` of this package gives the user some control over the visualization of the feet. Most of the parameters therewithin are self explanatory, but the following table explains them for the sake of completeness.
+The file `pisa_softfoot_viz.yaml` in the folder `configs` of this package gives the user some control over the visualization of the feet. Most of the parameters therewithin are self explanatory, but the following table explains them for the sake of completeness.
 
 | Parameter             | Type          | Description  |
 | ----------------------|:-------------:| -------------|
@@ -52,3 +52,26 @@ The file `pisa_softfoot_viz.yaml` in the folder `config` of this package gives t
 | `connected_feet_ids`  | `int[]`       | IMPORTANT: An array of integers containing the IDs of the (connected) feet in your robot model (**ID**). |
 
 Some other parameters can also be found in the configuration file, but these are relative to future work and thus can be safely ignored.
+
+##### Setup a visualization launch file
+
+Get familiar with the example launch file `pisa_softfoot_visualization.launch`. Then, in a launch file load into the rROS parameter server the following configuration files:
+* `softfoot_thing_visualization/configs/pisa_softfoot_viz.yaml` - file with visualization options.
+* The calibration yaml files (e.g. `softfoot_thing_visualization/configs/softfoot_1.yaml`) for each foot.
+
+Source the feet joint states into the base `joint_states` topic:
+```xml
+<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+    <rosparam param="source_list">[/softfoot_1/joint_states, /softfoot_2/joint_states, /softfoot_3/joint_states, /softfoot_4/joint_states]</rosparam>
+</node>
+```
+
+Finally, add the foot joint states estimator to the launch:
+```xml
+<!-- Joints Estimator -->
+<group unless="$(arg gui)">
+    <node name="js_estimator" pkg="softfoot_thing_visualization" type="softfoot_thing_visualization_joints_estimator" required="true" output="screen"/>
+</group>
+```
+
+Now, if you connect to a USB hub the feet specified in the parameter `connected_feet_ids` in the file `softfoot_thing_visualization/configs/pisa_softfoot_viz.yaml` and run the created roslaunch file, you should be able to see the joint states of the feet in the topic `joint_states`.

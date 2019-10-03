@@ -34,5 +34,5 @@ To install the packages in this repo just clone it (branch `master`) into your c
 
 Read carefully the README files of the packages [`NMMI/ROS-base`](https://github.com/NMMI/ROS-base) and [`NMMI/ROS-NMMI`](https://github.com/NMMI/ROS-NMMI).
 
-Try to get familiar with `SoftFoot_5_IMU_boards_chain.launch` inside the package `nmmi_examples` in `ROS-NMMI`. As it can be modified to test the feet individually.
+Try to get familiar with `SoftFoot_5_IMU_boards_chain.launch` inside the package `nmmi_examples` in `ROS-NMMI`. As it can eventually be modified to test the feet individually (this might not be required).
 
