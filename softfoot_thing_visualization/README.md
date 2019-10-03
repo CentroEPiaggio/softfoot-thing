@@ -72,10 +72,12 @@ Add the launch files for communication with the IMUs. For example, if all four f
 <include file="$(find nmmi_examples)/launch/SoftFoot_5_IMU_boards_chain.launch"></include>
 ```
 
-Instead, if only some feet are connected, add the provided launch files accordingly. For example, in case of foot 1 connected:
+Instead, if only one foot is connected, add the provided launch file accordingly. For example, in case of foot 1 connected:
 ```xml
 <include file="$(find nmmi_examples)/launch/SoftFoot_IMU_1_chain.launch"></include>
 ```
+
+N.B. : If you have only 2 or 3 feet connected, you might need assistance to setup a communication launch file in `NMMI/ROS-NMMI`.
 
 Finally, add the foot joint states estimator to the launch:
 ```xml
