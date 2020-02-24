@@ -50,7 +50,7 @@
             <inertial>
                 <mass value="${ankle_mass}"/>
                 <origin xyz="0 0 0.0154" rpy="0 0 0"/>
-                <ankle_inertia/>
+                <xacro:ankle_inertia/>
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -83,7 +83,7 @@
             <inertial>
                 <mass value="${arch_mass}"/>
                 <origin xyz="0.0356 -0.0011 -0.0078" rpy="0 0 0"/>
-                <front_arch_inertia/>
+                <xacro:front_arch_inertia/>
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -128,7 +128,7 @@
             <inertial>
                 <mass value="${arch_mass}"/>
                 <origin xyz="-0.0356 0.0011 -0.0078" rpy="0 0 0"/>
-                <back_arch_inertia/>
+                <xacro:back_arch_inertia/>
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -190,7 +190,7 @@
             <inertial>
                 <mass value="${roll_mass}"/>
                 <origin xyz="0.0010 0 -0.0112" rpy="0 0 0"/>
-                <roll_link_inertia/>
+                <xacro:roll_link_inertia/>
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -237,7 +237,7 @@
             <inertial>
                 <mass value="${roll_mass}"/>
                 <origin xyz="0.0010 0 -0.0112" rpy="0 0 0"/>
-                <roll_link_inertia/>
+                <xacro:roll_link_inertia/>
             </inertial>
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>

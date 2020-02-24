@@ -32,7 +32,7 @@
 			<inertial>
 				<mass value="${inner_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<inner_chain_inertia/>
+				<xacro:inner_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -63,7 +63,7 @@
 			<inertial>
 				<mass value="${outer_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<outer_chain_inertia/>
+				<xacro:outer_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -94,7 +94,7 @@
 			<inertial>
 				<mass value="${inner_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<inner_chain_inertia/>
+				<xacro:inner_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -125,7 +125,7 @@
 			<inertial>
 				<mass value="${outer_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<outer_chain_inertia/>
+				<xacro:outer_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -156,7 +156,7 @@
 			<inertial>
 				<mass value="${inner_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<inner_chain_inertia/>
+				<xacro:inner_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -187,7 +187,7 @@
 			<inertial>
 				<mass value="${outer_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<outer_chain_inertia/>
+				<xacro:outer_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -218,7 +218,7 @@
 			<inertial>
 				<mass value="${inner_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<inner_chain_inertia/>
+				<xacro:inner_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -249,7 +249,7 @@
 			<inertial>
 				<mass value="${outer_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<outer_chain_inertia/>
+				<xacro:outer_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
@@ -280,7 +280,7 @@
 			<inertial>
 				<mass value="${inner_chain_mass}"/>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
-				<inner_chain_inertia/>
+				<xacro:inner_chain_inertia/>
 			</inertial>
 			<visual>
 				<origin xyz="0 0 0" rpy="0 0 0"/>
