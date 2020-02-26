@@ -276,7 +276,11 @@
             <child link="${name}_middle_chain_insertion_link"/>
         </joint>
 
-        <link name="${name}_middle_chain_insertion_link"/>
+        <link name="${name}_middle_chain_insertion_link">
+            <inertial>
+                <xacro:insert_block name="negligible_inertia"/>
+            </inertial>
+        </link>
 
         <!-- 6) Middle chain - starting from front -->
         <xacro:chain_thing name="middle_chain" foot="${name}" parent="${name}_front_roll_link">
