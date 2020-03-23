@@ -35,7 +35,7 @@
 
         <link name="${name}_ankle_base_link">
             <inertial>
-                <xacro:insert_block name="negligible_inertia"/>
+                <xacro:insert_block name="really_negligible_inertia"/>
             </inertial>
         </link>
 
@@ -278,7 +278,7 @@
 
         <link name="${name}_middle_chain_insertion_link">
             <inertial>
-                <xacro:insert_block name="negligible_inertia"/>
+                <xacro:insert_block name="really_negligible_inertia"/>
             </inertial>
         </link>
 

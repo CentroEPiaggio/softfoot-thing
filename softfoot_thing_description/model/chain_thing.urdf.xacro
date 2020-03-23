@@ -333,7 +333,7 @@
 
         <link name="${foot}_${name}_tip_link">
             <inertial>
-                <xacro:insert_block name="negligible_inertia"/>
+                <xacro:insert_block name="really_negligible_inertia"/>
             </inertial>
         </link>
 
